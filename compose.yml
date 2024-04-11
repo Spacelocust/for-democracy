@@ -1,0 +1,52 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/golang/Dockerfile
+    restart: unless-stopped
+    container_name: fd-api
+    command: wgo run main.go server
+    stdin_open: true
+    tty: true
+    environment:
+      DB_HOST: "postgres"
+      DB_USER: "${DB_USER:?err}"
+      DB_PASSWORD: "${DB_PASSWORD:?err}"
+      DB_NAME: "${DB_NAME:?err}"
+    ports:
+      - 5000:5000
+    volumes:
+      - ./api:/usr/src/app
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5000/healthz || exit 1
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: fd-postgres
+    environment:
+      POSTGRES_USER: "${DB_USER:?err}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?err}"
+      POSTGRES_DB: '${DB_NAME:?err}'
+    volumes:
+       - ./data/postgresql:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_PASSWORD} ']
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+
+  adminer:
+    image: adminer:latest
+    container_name: fd-adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    depends_on:
+      - api
+      - postgres
