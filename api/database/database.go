@@ -28,8 +28,6 @@ func ConnectDb() {
 		os.Getenv("DB_NAME"),
 	)
 
-	log.Default().Print(dsn)
-
 	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),

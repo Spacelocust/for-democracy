@@ -41,5 +41,3 @@ jobs:
 
       - name: Test with the Go CLI
         run: go test ./...
-
-   

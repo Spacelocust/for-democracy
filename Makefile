@@ -54,3 +54,22 @@ logs-api: ## Show logs for the next container
 
 logs-pg: ## Show logs for the postgres container
 	$(COMPOSE) logs postgres
+
+##@ Database
+db-reset: db-drop db-create dma ## Reset the database
+
+db-create-migration: ## Create a new migration
+	$(EXECAPI) atlas migrate diff --env gorm
+
+dcm: db-create-migration ## Alias for db-create-migration
+
+db-migrate-apply: ## Apply the migrations
+	$(EXECAPI) atlas migrate apply --url ${DB_URL_ATLAS}
+
+dma: db-migrate-apply ## Alias for db-migrate-apply
+
+db-drop: ## Drop the database
+	$(EXECPG) dropdb ${DB_NAME}
+
+db-create: ## Create the database
+	$(EXECPG) createdb ${DB_NAME}

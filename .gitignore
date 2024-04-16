@@ -1,2 +1,7 @@
 data/
+
 vendor/
+
+.env.*
+
+compose.*.yml

@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-
+// Entry point for the CLI
 func RunCLI() {
 	app := &cli.App{
 		Commands: []*cli.Command{
