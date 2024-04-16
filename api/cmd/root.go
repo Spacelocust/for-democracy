@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Spacelocust/for-democracy/cmd/fixture"
 	"github.com/Spacelocust/for-democracy/cmd/server"
 	"github.com/urfave/cli/v2"
 )
@@ -13,6 +14,7 @@ func RunCLI() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			server.StartCmd,
+			fixture.LoadCmd,
 		},
 	}
 

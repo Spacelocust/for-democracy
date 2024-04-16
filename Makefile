@@ -59,12 +59,16 @@ logs-pg: ## Show logs for the postgres container
 db-reset: db-drop db-create dma ## Reset the database
 
 db-create-migration: ## Create a new migration
+  # Drop database first to avoid conflicts if there was an error in the previous execution command
+	$(EXECPG) dropdb dev
+	$(EXECPG) createdb dev 
 	$(EXECAPI) atlas migrate diff --env gorm
+	$(EXECPG) dropdb dev
 
 dcm: db-create-migration ## Alias for db-create-migration
 
 db-migrate-apply: ## Apply the migrations
-	$(EXECAPI) atlas migrate apply --url ${DB_URL_ATLAS}
+	$(EXECAPI) atlas migrate apply --url ${DB_URL}
 
 dma: db-migrate-apply ## Alias for db-migrate-apply
 

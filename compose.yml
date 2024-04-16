@@ -13,6 +13,7 @@ services:
       DB_USER: "${DB_USER:?err}"
       DB_PASSWORD: "${DB_PASSWORD:?err}"
       DB_NAME: "${DB_NAME:?err}"
+      DB_URL_DEV: "${DB_URL_DEV:?err}"
     ports:
       - 5000:5000
     volumes:
