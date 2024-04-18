@@ -12,7 +12,8 @@ import (
 	"github.com/shareed2k/goth_fiber"
 )
 
-func StoreSession() {
+// OAuth sets up the OAuth config and providers
+func OAuth() {
 	config := session.Config{
 		Expiration: 86400 * 30,
 		Storage: postgres.New(postgres.Config{
@@ -26,8 +27,7 @@ func StoreSession() {
 
 	// create session handler
 	goth_fiber.SessionStore = session.New(config)
-}
 
-func OAuthProviders() {
+	// Register providers
 	goth.UseProviders(steam.New(os.Getenv("STEAM_KEY"), fmt.Sprintf("%s/auth/steam/callback", os.Getenv("HOST"))))
 }

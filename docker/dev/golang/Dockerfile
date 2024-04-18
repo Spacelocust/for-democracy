@@ -2,7 +2,9 @@ FROM golang:1.22-alpine
 
 WORKDIR /usr/src/app
 
-RUN apk add curl && curl -sSf https://atlasgo.sh | sh &&\
+RUN apk add curl &&\ 
+  curl -sSf https://atlasgo.sh | sh &&\
+  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.57.2 &&\
   go install github.com/bokwoon95/wgo@latest
 
 COPY ./api/go.mod ./api/go.sum ./

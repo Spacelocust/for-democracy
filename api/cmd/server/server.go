@@ -16,8 +16,8 @@ func startServer() {
 	// Connect to the database
 	database.ConnectDb()
 
-	config.StoreSession()
-	config.OAuthProviders()
+	// Set up the OAuth config
+	config.OAuth()
 
 	// Create a new Fiber app
 	app := fiber.New()
@@ -27,9 +27,6 @@ func startServer() {
 
 	// Set up the routes
 	router.SetupRoutes(app)
-
-	// data, _ := json.MarshalIndent(app.Stack(), "", "  ")
-	// fmt.Println(string(data))
 
 	if err := app.Listen(":5000"); err != nil {
 		fmt.Println(err)

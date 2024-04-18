@@ -45,6 +45,9 @@ ssh-pg: ## SSH into the postgres container
 tidy: ## Run go mod tidy
 	$(EXECAPI) go mod tidy
 
+lint: ## Run golangci-lint
+	$(EXECAPI) golangci-lint run -v
+
 ##@ Containers
 list-containers: ## List all containers
 	docker compose ps -a
@@ -62,8 +65,10 @@ logs-pg: ## Show logs for the postgres container
 ##@ Database
 db-reset: db-drop db-create dma ## Reset the database
 
+db-drop-dev: ## Drop the dev database (use only if db-create-migration fails)
+	$(EXECPG) dropdb dev
+
 db-create-migration: ## Create a new migration
-  # Drop database first to avoid conflicts if there was an error in the previous execution command
 	$(EXECPG) createdb dev 
 	$(EXECAPI) atlas migrate diff --env gorm
 	$(EXECPG) dropdb dev
@@ -71,7 +76,7 @@ db-create-migration: ## Create a new migration
 dcm: db-create-migration ## Alias for db-create-migration
 
 db-migrate-apply: ## Apply the migrations
-	$(EXECAPI) atlas migrate apply --url ${DB_URL} --baseline "20240416135499"
+	$(EXECAPI) atlas migrate apply --url ${DB_URL} --allow-dirty
 
 dma: db-migrate-apply ## Alias for db-migrate-apply
 
