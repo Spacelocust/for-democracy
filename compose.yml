@@ -8,12 +8,12 @@ services:
     command: wgo run main.go server
     stdin_open: true
     tty: true
+    env_file:
+      - path: ./.env
+      - path: ./.env.local
+        required: false
     environment:
       DB_HOST: "postgres"
-      DB_USER: "${DB_USER:?err}"
-      DB_PASSWORD: "${DB_PASSWORD:?err}"
-      DB_NAME: "${DB_NAME:?err}"
-      DB_URL_DEV: "${DB_URL_DEV:?err}"
     ports:
       - 5000:5000
     volumes:
@@ -37,10 +37,7 @@ services:
       - ./data/postgresql:/var/lib/postgresql/data
     healthcheck:
       test:
-        [
-          'CMD-SHELL',
-          'pg_isready -U ${DB_USER} -d ${DB_PASSWORD} '
-        ]
+        ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_PASSWORD}']
       interval: 10s
       timeout: 20s
       retries: 5

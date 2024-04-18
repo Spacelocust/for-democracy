@@ -3,28 +3,35 @@ package server
 import (
 	"fmt"
 
+	"github.com/Spacelocust/for-democracy/config"
 	"github.com/Spacelocust/for-democracy/database"
+	"github.com/Spacelocust/for-democracy/middleware"
 	"github.com/Spacelocust/for-democracy/router"
-	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 )
 
-type Config struct {
-	Host string
-}
-
 // ServerCmd starts the API server
-func startServer(config Config) {
+func startServer() {
 	// Connect to the database
 	database.ConnectDb()
+
+	config.StoreSession()
+	config.OAuthProviders()
 
 	// Create a new Fiber app
 	app := fiber.New()
 
+	// Set up the middlewares
+	middleware.SetupMiddlewares(app)
+
 	// Set up the routes
 	router.SetupRoutes(app)
 
-	if err := app.Listen(config.Host); err != nil {
+	// data, _ := json.MarshalIndent(app.Stack(), "", "  ")
+	// fmt.Println(string(data))
+
+	if err := app.Listen(":5000"); err != nil {
 		fmt.Println(err)
 	}
 }
@@ -34,19 +41,8 @@ var StartCmd = &cli.Command{
 	Name:    "server",
 	Usage:   "Start the API server",
 	Aliases: []string{"s"},
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "host",
-			Value: ":5000",
-			Usage: "Host to run the server on",
-		},
-	},
 	Action: func(c *cli.Context) error {
-		config := Config{
-			Host: c.String("host"),
-		}
-
-		startServer(config)
+		startServer()
 		return nil
 	},
 }
