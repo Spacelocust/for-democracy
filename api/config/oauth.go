@@ -29,5 +29,5 @@ func OAuth() {
 	goth_fiber.SessionStore = session.New(config)
 
 	// Register providers
-	goth.UseProviders(steam.New(os.Getenv("STEAM_KEY"), fmt.Sprintf("%s/auth/steam/callback", os.Getenv("HOST"))))
+	goth.UseProviders(steam.New(os.Getenv("STEAM_KEY"), fmt.Sprintf("%s/oauth/steam/callback", os.Getenv("SITE_BASE_URL"))))
 }

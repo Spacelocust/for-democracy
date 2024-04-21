@@ -85,3 +85,7 @@ db-drop: ## Drop the database
 
 db-create: ## Create the database
 	$(EXECPG) createdb ${DB_NAME}
+
+##@ Swagger
+swagger: ## Generate swagger documentation
+	$(EXECAPI) swag init --parseDependency --parseInternal
