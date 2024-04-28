@@ -23,7 +23,8 @@
       "ms-azuretools.vscode-docker",
       "golang.go",
       "dart-code.flutter",
-      "dart-code.dart-code"
+      "dart-code.dart-code",
+      "google.arb-editor"
     ]
   },
   "settings": {
