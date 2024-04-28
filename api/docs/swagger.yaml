@@ -1,0 +1,131 @@
+basePath: /
+definitions:
+  fiber.Error:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  goth.User:
+    properties:
+      accessToken:
+        type: string
+      accessTokenSecret:
+        type: string
+      avatarURL:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      expiresAt:
+        type: string
+      firstName:
+        type: string
+      idtoken:
+        type: string
+      lastName:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      nickName:
+        type: string
+      provider:
+        type: string
+      rawData:
+        additionalProperties: true
+        type: object
+      refreshToken:
+        type: string
+      userID:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@for-democracy
+    name: Support Team
+  description: This is the API for For Democracy
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: For Democracy API
+  version: "1.0"
+paths:
+  /auth/:provider:
+    get:
+      description: Route used to authenticate the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goth.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Authenticate the user
+      tags:
+      - authentication
+  /auth/:provider/callback:
+    get:
+      description: Route used by the provide to send the user back after authentication
+      parameters:
+      - description: Provider name
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goth.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Get the user after authentication is complete from the provider
+      tags:
+      - authentication
+  /logout/:provider:
+    get:
+      description: Route used to log the user out
+      parameters:
+      - description: Provider name
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Log the user out
+      tags:
+      - authentication
+swagger: "2.0"
