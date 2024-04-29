@@ -33,7 +33,8 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
         context.go(route);
       },
       indicatorColor: ThemeColors.primary,
-      selectedIndex: routeIndexMapping[routerState.matchedLocation] ?? 0,
+      selectedIndex: routeIndexMapping[routerState.matchedLocation] ??
+          routeIndexMapping.values.first,
       destinations: <Widget>[
         NavigationDestination(
           selectedIcon: const Icon(Icons.home),
