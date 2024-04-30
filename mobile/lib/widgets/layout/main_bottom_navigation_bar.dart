@@ -12,16 +12,17 @@ class MainBottomNavigationBar extends StatefulWidget {
 }
 
 class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
+  final Map<String, int> routeIndexMapping = {
+    '/planets': 0,
+    '/events': 1,
+    '/groups': 2,
+  };
+
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     GoRouterState routerState = GoRouterState.of(context);
-    Map<String, int> routeIndexMapping = {
-      '/planets': 0,
-      '/events': 1,
-      '/groups': 2,
-    };
 
     return NavigationBar(
       onDestinationSelected: (int index) {
@@ -37,18 +38,18 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
           routeIndexMapping.values.first,
       destinations: <Widget>[
         NavigationDestination(
-          selectedIcon: const Icon(Icons.home),
           icon: const Icon(Icons.home_outlined),
+          selectedIcon: const Icon(Icons.home),
           label: AppLocalizations.of(context)!.planets,
         ),
         NavigationDestination(
-          selectedIcon: const Icon(Icons.event),
           icon: const Icon(Icons.event_outlined),
+          selectedIcon: const Icon(Icons.event),
           label: AppLocalizations.of(context)!.events,
         ),
         NavigationDestination(
-          selectedIcon: const Icon(Icons.group),
           icon: const Icon(Icons.group_outlined),
+          selectedIcon: const Icon(Icons.group),
           label: AppLocalizations.of(context)!.groups,
         ),
       ],

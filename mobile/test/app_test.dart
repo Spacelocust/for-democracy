@@ -4,7 +4,7 @@ import 'package:mobile/main.dart';
 
 void main() {
   group('App', () {
-    testWidgets('App loads correctly', (WidgetTester tester) async {
+    testWidgets('Loads correctly', (WidgetTester tester) async {
       await tester.pumpWidget(const ForDemocracyApp());
 
       // Screen + Bottom Navigation Bar

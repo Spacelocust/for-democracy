@@ -2,5 +2,10 @@
     "@@locale": "en",
     "planets": "Planets",
     "events": "Events",
-    "groups": "Groups"
+    "groups": "Groups",
+    "@MAIN_DRAWER": {},
+    "mainDrawerTitle": "For Democracy - Helldivers 2",
+    "@USER_DRAWER": {},
+    "userDrawerTooltip": "Open user menu",
+    "userDrawerTitle": "Account"
 }
