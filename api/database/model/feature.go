@@ -7,9 +7,9 @@ import (
 )
 
 type Feature struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 	Code      string         `gorm:"primarykey;not null;unique"`
 	Enabled   bool           `gorm:"not null;default:true"`
+	UpdatedAt time.Time
+	CreatedAt time.Time
 }

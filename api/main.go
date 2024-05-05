@@ -10,6 +10,7 @@ import (
 	"github.com/Spacelocust/for-democracy/docs"
 	"github.com/Spacelocust/for-democracy/router/middleware"
 	"github.com/Spacelocust/for-democracy/router/route"
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -31,7 +32,13 @@ func main() {
 	database.ConnectDb()
 
 	// Create a new Fiber app
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			// Replace the default JSON encoder and decoder with Sonic for better performance
+			JSONEncoder: sonic.Marshal,
+			JSONDecoder: sonic.Unmarshal,
+		},
+	)
 
 	// Set up the OAuth config
 	config.OAuth()
