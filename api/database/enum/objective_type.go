@@ -1,5 +1,10 @@
 package enum
 
+import (
+	"database/sql/driver"
+	"fmt"
+)
+
 type ObjectiveType string
 
 const (
@@ -28,3 +33,20 @@ const (
 	EliminateAutomatonFactoryStrider ObjectiveType = "eliminate_automaton_factory_strider"
 	DestroyCommandBunkers            ObjectiveType = "destroy_command_bunkers"
 )
+
+func (ot *ObjectiveType) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		switch value {
+		case TerminateIllegalBroadcast, PumpFuelToICBM, UploadEscapePodData, ConductGeologicalSurvey, LaunchICBM, RetrieveValuableData, EmergencyEvacuation, SpreadDemocracy, EliminateBroodCommanders, PurgeHatcheries, ActivateE710Pumps, BlitzSearchAndDestroyTerminids, EliminateChargers, EradicateTerminidSwarm, EliminateBileTitans, EnableE710Extraction, EliminateDevastators, SabotageSupplyBases, DestroyTransmissionNetwork, EradicateAutomatonForces, BlitzSearchAndDestroyAutomatons, SabotageAirBase, EliminateAutomatonFactoryStrider, DestroyCommandBunkers:
+			*ot = ObjectiveType(b)
+		default:
+			return fmt.Errorf("invalid value for ObjectiveType: %v", value)
+		}
+	}
+	return nil
+}
+
+func (ot ObjectiveType) Value() (driver.Value, error) {
+	return string(ot), nil
+}

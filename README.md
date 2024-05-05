@@ -8,6 +8,7 @@
     -   [Installation](#installation)
     -   [Services](#services)
     -   [Commands](#commands)
+    -   [How to use Gorm with Atlas](/api/database/how-to-use.md)
 
 ## Prerequisites
 

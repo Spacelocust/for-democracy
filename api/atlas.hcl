@@ -5,10 +5,7 @@ data "external_schema" "gorm" {
     "go",
     "run",
     "-mod=mod",
-    "ariga.io/atlas-provider-gorm",
-    "load",
-    "--path", "./model",
-    "--dialect", "postgres",
+    "./database/loader",
   ]
 }
 
@@ -21,7 +18,7 @@ env "gorm" {
   src = data.external_schema.gorm.url
   dev = var.url
   migration {
-    dir = "file://migrations"
+    dir = "file://database/migration"
   }
   format {
     migrate {

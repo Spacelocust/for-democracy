@@ -1,6 +1,8 @@
-package router
+package route
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 // rootRoutes sets up the root route
 func rootRoutes(app *fiber.App) {

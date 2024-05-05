@@ -5,7 +5,7 @@ services:
       dockerfile: ./docker/dev/golang/Dockerfile
     restart: unless-stopped
     container_name: fd-api
-    command: wgo run main.go server
+    command: wgo run main.go
     stdin_open: true
     tty: true
     env_file:
@@ -37,7 +37,10 @@ services:
       - ./data/postgresql:/var/lib/postgresql/data
     healthcheck:
       test:
-        ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_PASSWORD}']
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DB_USER} -d ${DB_PASSWORD}'
+        ]
       interval: 10s
       timeout: 20s
       retries: 5

@@ -1,7 +1,7 @@
-package router
+package route
 
 import (
-	"github.com/Spacelocust/for-democracy/controller"
+	"github.com/Spacelocust/for-democracy/router/controller"
 	"github.com/gofiber/fiber/v2"
 )
 

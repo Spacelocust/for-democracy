@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Spacelocust/for-democracy/enum"
+	"github.com/Spacelocust/for-democracy/database/enum"
 )
 
 type Objective struct {
