@@ -14,11 +14,6 @@ var DB *gorm.DB
 
 // ConnectDb opens a connection to the database
 func ConnectDb() {
-	if DB != nil {
-		log.Fatal("Database connection already established")
-		return
-	}
-
 	// Create the connection string
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Europe/Paris",
@@ -44,4 +39,8 @@ func ConnectDb() {
 	db.Logger = logger.Default.LogMode(logger.Info)
 
 	DB = db
+}
+
+func GetDB() *gorm.DB {
+	return DB
 }

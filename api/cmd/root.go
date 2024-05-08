@@ -4,8 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Spacelocust/for-democracy/cmd/fixture"
-	"github.com/Spacelocust/for-democracy/cmd/server"
+	"github.com/Spacelocust/for-democracy/cmd/example"
 	"github.com/urfave/cli/v2"
 )
 
@@ -13,8 +12,7 @@ import (
 func RunCLI() {
 	app := &cli.App{
 		Commands: []*cli.Command{
-			server.StartCmd,
-			fixture.LoadCmd,
+			example.ExampleCmd,
 		},
 	}
 

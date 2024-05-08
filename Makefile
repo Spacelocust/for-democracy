@@ -76,7 +76,10 @@ db-create-migration: ## Create a new migration
 dcm: db-create-migration ## Alias for db-create-migration
 
 db-migrate-apply: ## Apply the migrations
-	$(EXECAPI) atlas migrate apply --url ${DB_URL} --allow-dirty
+	$(EXECAPI) atlas migrate apply --dir "file://database/migration" --url ${DB_URL} --allow-dirty
+
+db-hash: ## Generate the hash for the migration
+	$(EXECAPI) atlas migrate hash
 
 dma: db-migrate-apply ## Alias for db-migrate-apply
 
