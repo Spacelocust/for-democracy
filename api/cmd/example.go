@@ -1,4 +1,4 @@
-package example
+package cmd
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 // ExampleCmd is an example command for the API serve
-var ExampleCmd = &cli.Command{
+var exampleCmd = &cli.Command{
 	Name:    "example",
 	Usage:   "Example command for the API serve",
 	Aliases: []string{"e"},

@@ -5,7 +5,7 @@ services:
       dockerfile: ./docker/dev/golang/Dockerfile
     restart: unless-stopped
     container_name: fd-api
-    command: wgo run main.go
+    command: wgo run main.go server
     stdin_open: true
     tty: true
     env_file:
