@@ -5,8 +5,8 @@ import (
 
 	"github.com/Spacelocust/for-democracy/config"
 	"github.com/Spacelocust/for-democracy/database"
-	"github.com/Spacelocust/for-democracy/router/middleware"
-	"github.com/Spacelocust/for-democracy/router/route"
+	"github.com/Spacelocust/for-democracy/middleware"
+	"github.com/Spacelocust/for-democracy/router"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
@@ -37,7 +37,7 @@ var serverCmd = &cli.Command{
 		middleware.SetupMiddlewares(app)
 
 		// Set up the routes
-		route.SetupRoutes(app)
+		router.SetupRoutes(app)
 
 		if err := app.Listen(":5000"); err != nil {
 			fmt.Println(err)

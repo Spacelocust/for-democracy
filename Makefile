@@ -92,3 +92,7 @@ db-create: ## Create the database
 ##@ Swagger
 swagger: ## Generate swagger documentation
 	$(EXECAPI) swag init --parseDependency --parseInternal
+
+##@ CLI
+collector: ## Collect the data
+	$(EXECAPI) go run main.go collector
