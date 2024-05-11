@@ -55,7 +55,7 @@ func loadEnums(sb *strings.Builder) {
 func loadModels(sb *strings.Builder) {
 	models := []interface{}{
 		&model.Biome{},
-		&model.EnvironmentalEffect{},
+		&model.Effect{},
 		&model.Feature{},
 		&model.Group{},
 		&model.GroupUser{},

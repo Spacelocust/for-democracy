@@ -5,7 +5,7 @@ data "external_schema" "gorm" {
     "go",
     "run",
     "-mod=mod",
-    "./database/loader",
+    "./database/loader/loader.go",
   ]
 }
 

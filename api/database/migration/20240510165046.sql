@@ -1,10 +1,10 @@
 -- Create "features" table
 CREATE TABLE "features" (
-  "created_at" timestamptz NULL,
-  "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "code" text NOT NULL,
   "enabled" boolean NOT NULL DEFAULT true,
+  "updated_at" timestamptz NULL,
+  "created_at" timestamptz NULL,
   PRIMARY KEY ("code")
 );
 -- Create index "idx_features_deleted_at" to table: "features"
@@ -129,8 +129,8 @@ CREATE TABLE "group_user_mission_stratagems" (
   CONSTRAINT "fk_group_user_mission_stratagems_group_user_mission" FOREIGN KEY ("group_user_mission_id") REFERENCES "group_user_missions" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "fk_group_user_mission_stratagems_stratagem" FOREIGN KEY ("stratagem_id") REFERENCES "stratagems" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
--- Create "environmental_effects" table
-CREATE TABLE "environmental_effects" (
+-- Create "effects" table
+CREATE TABLE "effects" (
   "id" bigserial NOT NULL,
   "created_at" timestamptz NULL,
   "updated_at" timestamptz NULL,
@@ -139,8 +139,8 @@ CREATE TABLE "environmental_effects" (
   "description" text NULL,
   PRIMARY KEY ("id")
 );
--- Create index "idx_environmental_effects_deleted_at" to table: "environmental_effects"
-CREATE INDEX "idx_environmental_effects_deleted_at" ON "environmental_effects" ("deleted_at");
+-- Create index "idx_effects_deleted_at" to table: "effects"
+CREATE INDEX "idx_effects_deleted_at" ON "effects" ("deleted_at");
 -- Create "biomes" table
 CREATE TABLE "biomes" (
   "id" bigserial NOT NULL,
@@ -174,13 +174,13 @@ CREATE TABLE "planets" (
 );
 -- Create index "idx_planets_deleted_at" to table: "planets"
 CREATE INDEX "idx_planets_deleted_at" ON "planets" ("deleted_at");
--- Create "planet_environmental_effects" table
-CREATE TABLE "planet_environmental_effects" (
+-- Create "planet_effects" table
+CREATE TABLE "planet_effects" (
   "planet_id" bigint NOT NULL,
-  "environmental_effect_id" bigint NOT NULL,
-  PRIMARY KEY ("planet_id", "environmental_effect_id"),
-  CONSTRAINT "fk_planet_environmental_effects_environmental_effect" FOREIGN KEY ("environmental_effect_id") REFERENCES "environmental_effects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_planet_environmental_effects_planet" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  "effect_id" bigint NOT NULL,
+  PRIMARY KEY ("planet_id", "effect_id"),
+  CONSTRAINT "fk_planet_effects_effect" FOREIGN KEY ("effect_id") REFERENCES "effects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_planet_effects_planet" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create "statistics" table
 CREATE TABLE "statistics" (
