@@ -8,7 +8,7 @@ import (
 type Stratagem struct {
 	gorm.Model
 	CodeName          *string
-	Name              string `gorm:"not null"`
+	Name              string `gorm:"not null;unique"`
 	UseCount          *int
 	UseType           enum.StratagemUseType `gorm:"not null"`
 	Cooldown          int                   `gorm:"not null"`

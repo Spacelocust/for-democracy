@@ -6,9 +6,9 @@ import (
 
 type Planet struct {
 	gorm.Model
-	Name                 string `gorm:"not null"`
-	Health               *int
-	MaxHealth            *int
+	Name                 string    `gorm:"not null"`
+	Health               int       `gorm:"not null"`
+	MaxHealth            int       `gorm:"not null"`
 	Players              int       `gorm:"not null;default:0"`
 	Disabled             bool      `gorm:"not null;default:false"`
 	Regeneration         int       `gorm:"not null;default:0"`

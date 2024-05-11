@@ -6,7 +6,7 @@ import (
 
 type Biome struct {
 	gorm.Model
-	Name        string  `gorm:"not null"`
-	Description *string `gorm:"type:text"`
+	Name        string `gorm:"not null;unique"`
+	Description string `gorm:"type:text;not null"`
 	Planets     []Planet
 }

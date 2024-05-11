@@ -117,7 +117,8 @@ CREATE TABLE "stratagems" (
   "image_url" text NOT NULL,
   "type" "stratagem_type" NOT NULL,
   "keys" "stratagem_keys"[] NOT NULL,
-  PRIMARY KEY ("id")
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_stratagems_name" UNIQUE ("name")
 );
 -- Create index "idx_stratagems_deleted_at" to table: "stratagems"
 CREATE INDEX "idx_stratagems_deleted_at" ON "stratagems" ("deleted_at");
@@ -136,8 +137,9 @@ CREATE TABLE "effects" (
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "name" text NOT NULL,
-  "description" text NULL,
-  PRIMARY KEY ("id")
+  "description" text NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_effects_name" UNIQUE ("name")
 );
 -- Create index "idx_effects_deleted_at" to table: "effects"
 CREATE INDEX "idx_effects_deleted_at" ON "effects" ("deleted_at");
@@ -148,8 +150,9 @@ CREATE TABLE "biomes" (
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "name" text NOT NULL,
-  "description" text NULL,
-  PRIMARY KEY ("id")
+  "description" text NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_biomes_name" UNIQUE ("name")
 );
 -- Create index "idx_biomes_deleted_at" to table: "biomes"
 CREATE INDEX "idx_biomes_deleted_at" ON "biomes" ("deleted_at");
@@ -160,8 +163,8 @@ CREATE TABLE "planets" (
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "name" text NOT NULL,
-  "health" bigint NULL,
-  "max_health" bigint NULL,
+  "health" bigint NOT NULL,
+  "max_health" bigint NOT NULL,
   "players" bigint NOT NULL DEFAULT 0,
   "disabled" boolean NOT NULL DEFAULT false,
   "regeneration" bigint NOT NULL DEFAULT 0,

@@ -35,9 +35,9 @@ func getData[t any](url string) ([]t, error) {
 }
 
 func GatherData() {
-	getPlanets()
-	getBiomes()
-	getEffects()
-	getStatistics()
+	// getPlanets()
+	// getBiomes()
+	// getEffects()
+	// getStatistics()
 	getStratagems()
 }
