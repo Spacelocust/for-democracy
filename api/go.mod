@@ -8,7 +8,6 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/gofiber/storage/postgres/v3 v3.0.0
 	github.com/gofiber/swagger v1.0.0
-	github.com/lib/pq v1.10.9
 	github.com/markbates/goth v1.79.0
 	github.com/shareed2k/goth_fiber v0.3.0
 	github.com/stretchr/testify v1.9.0

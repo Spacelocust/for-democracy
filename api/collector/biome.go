@@ -5,6 +5,7 @@ import (
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	"gorm.io/gorm/clause"
 )
 
 type Biome struct {
@@ -12,25 +13,33 @@ type Biome struct {
 	Description string `json:"description"`
 }
 
-func getBiomes() {
+func getBiomes() error {
 	db := db.GetDB()
 	biomes, err := getData[Biome]("/biomes?limit=20")
 
 	if err != nil {
-		fmt.Println("Error getting biomes")
+		return fmt.Errorf("error getting biomes: %v", err)
 	}
 
 	if len(biomes) > 0 {
-		newBiomes := []model.Biome{}
+		newBiomes := make([]model.Biome, len(biomes))
 
-		for _, biome := range biomes {
-			newBiomes = append(newBiomes, model.Biome{
+		for i, biome := range biomes {
+			newBiomes[i] = model.Biome{
 				Name:        biome.Name,
 				Description: biome.Description,
-			})
+			}
 		}
 
-		db.Create(newBiomes)
+		err = db.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "name"}},
+			DoUpdates: clause.AssignmentColumns([]string{"description"}),
+		}).Create(&newBiomes).Error
+
+		if err != nil {
+			return fmt.Errorf("error creating biomes: %v", err)
+		}
 	}
 
+	return nil
 }

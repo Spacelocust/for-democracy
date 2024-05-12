@@ -33,119 +33,124 @@ var colors = map[string]enum.StratagemType{
 	"#c9b269": enum.Mission,
 }
 
-func getStratagems() {
+func getStratagems() error {
 	db := db.GetDB()
 
 	stratagems, err := getData[Stratagem]("/stratagems?limit=70")
-
 	if err != nil {
-		fmt.Println("Error getting stratagems")
+		return fmt.Errorf("error getting stratagems: %w", err)
 	}
 
-	if len(stratagems) > 0 {
-		newStratagems := []model.Stratagem{}
-		stratagemUseType := enum.Self
+	if len(stratagems) == 0 {
+		return fmt.Errorf("no stratagems found")
+	}
 
-		for _, stratagem := range stratagems {
-			keys := datatype.EnumArray[enum.StratagemKeys](stratagem.Keys)
+	newStratagems := make([]model.Stratagem, 0, len(stratagems))
+	stratagemUseType := enum.Self
 
-			stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
+	for _, stratagem := range stratagems {
+		// Convert the string keys to enum keys
+		keys := datatype.EnumArray[enum.StratagemKeys](stratagem.Keys)
 
-			if err != nil {
-				fmt.Printf("error getting stratagem type: %s", err)
-				return
-			}
-
-			if stratagemType == enum.Mission {
-				stratagemUseType = enum.Team
-				if strings.Contains(stratagem.Name, "Reinforce") {
-					stratagemUseType = enum.Shared
-				}
-			}
-
-			newStratagems = append(newStratagems, model.Stratagem{
-				CodeName:   stratagem.CodeName,
-				Name:       stratagem.Name,
-				UseCount:   getUseCount(stratagem.Uses),
-				UseType:    stratagemUseType,
-				Cooldown:   stratagem.Cooldown,
-				Activation: stratagem.Activation,
-				ImageURL:   stratagem.ImageURL,
-				Type:       stratagemType,
-				Keys:       keys,
-			})
+		// Get the stratagem type based on the SVG image link
+		stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
+		if err != nil {
+			return fmt.Errorf("error getting stratagem type: %w", err)
 		}
 
-		db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "name"}},
-			DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
-		}).Create(&newStratagems)
+		// Set the stratagem use type based on the stratagem type
+		if stratagemType == enum.Mission {
+			stratagemUseType = enum.Team
+			if strings.Contains(stratagem.Name, "Reinforce") {
+				stratagemUseType = enum.Shared
+			}
+		}
+
+		newStratagems = append(newStratagems, model.Stratagem{
+			CodeName:   stratagem.CodeName,
+			Name:       stratagem.Name,
+			UseCount:   getUseCount(stratagem.Uses),
+			UseType:    stratagemUseType,
+			Cooldown:   stratagem.Cooldown,
+			Activation: stratagem.Activation,
+			ImageURL:   stratagem.ImageURL,
+			Type:       stratagemType,
+			Keys:       keys,
+		})
 	}
+
+	err = db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "name"}},
+		DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
+	}).Create(&newStratagems).Error
+
+	if err != nil {
+		return fmt.Errorf("error creating stratagems: %w", err)
+	}
+
+	return nil
 }
 
-// getStratagemTypeFromLink returns the stratagem type based on the color of the SVG image
+// Get the stratagem type based on the SVG image link
 func getStratagemTypeFromLink(link string) (enum.StratagemType, error) {
 	resp, err := http.Get(link)
 	if err != nil {
-		fmt.Println("No response from request")
+		return "", fmt.Errorf("no response from request: %w", err)
 	}
-
-	// Close the response body when the function returns
 	defer resp.Body.Close()
 
-	// Parse the HTML document
 	data, err := io.ReadAll(resp.Body)
-	// doc, err := html.Parse(resp.Body)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return "", err
+		return "", fmt.Errorf("error reading response body: %w", err)
 	}
 
 	fillValue, err := extractFillValue(string(data))
-
 	if err != nil {
-		fmt.Println("Error:", err)
-		return "", err
+		return "", fmt.Errorf("error extracting fill value: %w", err)
 	}
 
-	// Get the stratagem type based on the fill value
 	stratagemType, err := getStratagemTypeByHexColor(fillValue)
-
 	if err != nil {
-		fmt.Println("Error:", err)
-		return "", err
+		return "", fmt.Errorf("error getting stratagem type: %w", err)
 	}
 
 	return stratagemType, nil
 }
 
+// Extract the fill value from the SVG image
 func extractFillValue(data string) (string, error) {
-	re := regexp.MustCompile(`fill:(.*?);`)
-	matches := re.FindAllStringSubmatch(data, -1)
-
-	fillValue := ""
-
-	if len(matches) < 1 {
-		re = regexp.MustCompile(`fill="(.*?)"`)
-		matches = append([][]string{}, re.FindAllStringSubmatch(data, -1)...)
-
-		if len(matches) < 1 {
-			return "", fmt.Errorf("no fill value found")
-		}
+	// Find the fill value in the SVG style attribute
+	fill, err := getFill(data, regexp.MustCompile(`fill:(.*?);`))
+	if err == nil {
+		return fill, nil
 	}
 
-	for _, match := range matches {
-		if strings.Contains(match[1], "#fff") {
-			continue
-		}
-
-		fillValue = match[1]
+	// Find the fill value in the SVG fill attribute
+	fill, err = getFill(data, regexp.MustCompile(`fill="(.*?)"`))
+	if err == nil {
+		return fill, nil
 	}
 
-	return strings.TrimSpace(fillValue), nil
+	return "", err
 }
 
-// getStratagemTypeByHexColor returns the stratagem type based on the hexadecimal color
+// Get the fill value that match the regular expression
+func getFill(data string, re *regexp.Regexp) (string, error) {
+	matches := re.FindAllStringSubmatch(data, -1)
+
+	if len(matches) > 0 {
+		// Get the fill value that is not white
+		for _, match := range matches {
+			if !strings.Contains(match[1], "#fff") {
+				return strings.TrimSpace(match[1]), nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("no fill value found")
+}
+
+// Get the stratagem type based on the hex color
 func getStratagemTypeByHexColor(hexColor string) (enum.StratagemType, error) {
 	if st, ok := colors[hexColor]; ok {
 		return st, nil
@@ -154,6 +159,7 @@ func getStratagemTypeByHexColor(hexColor string) (enum.StratagemType, error) {
 	return "", fmt.Errorf("invalid color: %s", hexColor)
 }
 
+// Get the use count of the stratagem based on the string value
 func getUseCount(useCount string) *int {
 	count := 0
 

@@ -13,27 +13,33 @@ type Effect struct {
 	Description string `json:"description"`
 }
 
-func getEffects() {
+func getEffects() error {
 	db := db.GetDB()
 	effects, err := getData[Effect]("/effects")
 
 	if err != nil {
-		fmt.Println("Error getting effects")
+		return fmt.Errorf("error getting effects: %w", err)
 	}
 
 	if len(effects) > 0 {
-		newEffects := []model.Effect{}
+		newEffects := make([]model.Effect, len(effects))
 
-		for _, effect := range effects {
-			newEffects = append(newEffects, model.Effect{
+		for i, effect := range effects {
+			newEffects[i] = model.Effect{
 				Name:        effect.Name,
 				Description: effect.Description,
-			})
+			}
 		}
 
-		db.Clauses(clause.OnConflict{
+		err = db.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "name"}},
 			DoUpdates: clause.AssignmentColumns([]string{"description"}),
-		}).Create(newEffects)
+		}).Create(&newEffects).Error
+
+		if err != nil {
+			return fmt.Errorf("error creating effects: %w", err)
+		}
 	}
+
+	return nil
 }
