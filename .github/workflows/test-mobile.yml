@@ -37,6 +37,9 @@ jobs:
           channel: stable
           flutter-version-file: mobile/pubspec.yaml
 
+      - name: Copy .env.ci to .env
+        run: cp .env.ci .env
+
       - name: Install dependencies
         run: flutter pub get
 
