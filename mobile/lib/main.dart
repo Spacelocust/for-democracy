@@ -6,6 +6,7 @@ import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final _router = GoRouter(
   initialLocation: '/planets',
@@ -32,7 +33,10 @@ final _router = GoRouter(
   ],
 );
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env.local', isOptional: true);
+
   runApp(const ForDemocracyApp());
 }
 
