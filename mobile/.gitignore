@@ -45,3 +45,4 @@ app.*.map.json
 # Env
 *.env
 !.env.example
+!.env.ci
