@@ -66,8 +66,6 @@ services:
     ports:
       - "5037:5037"
     privileged: true
-    stdin_open: true
-    tty: true
     volumes:
       - ./mobile:/app
       - /dev/bus/usb:/dev/bus/usb
