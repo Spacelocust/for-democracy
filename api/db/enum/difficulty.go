@@ -22,8 +22,8 @@ const (
 func (d *Difficulty) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Trivial, Easy, Medium, Challenging, Hard, Extreme, SuicideMission, Impossible, Helldive:
+		switch value.(string) {
+		case string(Trivial), string(Easy), string(Medium), string(Challenging), string(Hard), string(Extreme), string(SuicideMission), string(Impossible), string(Helldive):
 			*d = Difficulty(b)
 		default:
 			return fmt.Errorf("invalid value for Difficulty: %v", value)

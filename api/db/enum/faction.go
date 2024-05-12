@@ -17,8 +17,8 @@ const (
 func (f *Faction) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Humans, Terminids, Automatons, Illuminates:
+		switch value.(string) {
+		case string(Humans), string(Terminids), string(Automatons), string(Illuminates):
 			*f = Faction(b)
 		default:
 			return fmt.Errorf("invalid value for Faction: %v", value)

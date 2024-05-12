@@ -3,8 +3,8 @@ package collector
 import (
 	"fmt"
 
-	"github.com/Spacelocust/for-democracy/database"
-	"github.com/Spacelocust/for-democracy/database/model"
+	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/db/model"
 	"gorm.io/gorm/clause"
 )
 
@@ -14,7 +14,7 @@ type Effect struct {
 }
 
 func getEffects() {
-	db := database.GetDB()
+	db := db.GetDB()
 	effects, err := getData[Effect]("/effects")
 
 	if err != nil {

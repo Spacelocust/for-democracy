@@ -25,19 +25,21 @@ func getData[t any](url string) ([]t, error) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 
-	sonic.Unmarshal(body, &data)
-
 	if err != nil {
-		fmt.Println("Error reading response body")
+		return nil, err
+	}
+
+	if err := sonic.Unmarshal(body, &data); err != nil {
+		return nil, err
 	}
 
 	return data.List, nil
 }
 
 func GatherData() {
-	// getPlanets()
-	// getBiomes()
-	// getEffects()
-	// getStatistics()
+	getPlanets()
+	getBiomes()
+	getEffects()
+	getStatistics()
 	getStratagems()
 }

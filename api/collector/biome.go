@@ -3,8 +3,8 @@ package collector
 import (
 	"fmt"
 
-	"github.com/Spacelocust/for-democracy/database"
-	"github.com/Spacelocust/for-democracy/database/model"
+	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/db/model"
 )
 
 type Biome struct {
@@ -13,7 +13,7 @@ type Biome struct {
 }
 
 func getBiomes() {
-	db := database.GetDB()
+	db := db.GetDB()
 	biomes, err := getData[Biome]("/biomes?limit=20")
 
 	if err != nil {

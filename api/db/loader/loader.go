@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"ariga.io/atlas-provider-gorm/gormschema"
-	"github.com/Spacelocust/for-democracy/database/model"
+	"github.com/Spacelocust/for-democracy/db/model"
 )
 
 func main() {

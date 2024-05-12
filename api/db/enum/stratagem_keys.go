@@ -17,8 +17,8 @@ const (
 func (sk *StratagemKeys) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Up, Right, Down, Left:
+		switch value.(string) {
+		case string(Up), string(Right), string(Down), string(Left):
 			*sk = StratagemKeys(b)
 		default:
 			return fmt.Errorf("invalid value for StratagemKeys: %v", value)

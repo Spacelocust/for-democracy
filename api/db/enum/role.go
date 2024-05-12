@@ -15,8 +15,8 @@ const (
 func (r *Role) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Admin, User:
+		switch value.(string) {
+		case string(Admin), string(User):
 			*r = Role(b)
 		default:
 			return fmt.Errorf("invalid value for Role: %v", value)

@@ -15,8 +15,8 @@ const (
 func (et *EventType) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Defence, Liberation:
+		switch value.(string) {
+		case string(Defence), string(Liberation):
 			*et = EventType(b)
 		default:
 			return fmt.Errorf("invalid value for EventType: %v", value)

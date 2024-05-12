@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Spacelocust/for-democracy/collector"
-	"github.com/Spacelocust/for-democracy/database"
+	"github.com/Spacelocust/for-democracy/db"
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,7 +16,7 @@ var gatherCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 		fmt.Println("Collecting data from the HellHub API")
 		// Set up the database
-		database.ConnectDb()
+		db.ConnectDb()
 		collector.GatherData()
 		return nil
 	},

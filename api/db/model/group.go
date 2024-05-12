@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/Spacelocust/for-democracy/database/enum"
+	"github.com/Spacelocust/for-democracy/db/enum"
 	"gorm.io/gorm"
 )
 

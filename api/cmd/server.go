@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Spacelocust/for-democracy/config"
-	"github.com/Spacelocust/for-democracy/database"
+	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/middleware"
 	"github.com/Spacelocust/for-democracy/router"
 	"github.com/bytedance/sonic"
@@ -19,7 +19,7 @@ var serverCmd = &cli.Command{
 	Aliases: []string{"s"},
 	Action: func(c *cli.Context) error {
 		// Set up the database
-		database.ConnectDb()
+		db.ConnectDb()
 
 		// Create a new Fiber app
 		app := fiber.New(

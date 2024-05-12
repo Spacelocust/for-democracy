@@ -37,8 +37,8 @@ const (
 func (ot *ObjectiveType) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case TerminateIllegalBroadcast, PumpFuelToICBM, UploadEscapePodData, ConductGeologicalSurvey, LaunchICBM, RetrieveValuableData, EmergencyEvacuation, SpreadDemocracy, EliminateBroodCommanders, PurgeHatcheries, ActivateE710Pumps, BlitzSearchAndDestroyTerminids, EliminateChargers, EradicateTerminidSwarm, EliminateBileTitans, EnableE710Extraction, EliminateDevastators, SabotageSupplyBases, DestroyTransmissionNetwork, EradicateAutomatonForces, BlitzSearchAndDestroyAutomatons, SabotageAirBase, EliminateAutomatonFactoryStrider, DestroyCommandBunkers:
+		switch value.(string) {
+		case string(TerminateIllegalBroadcast), string(PumpFuelToICBM), string(UploadEscapePodData), string(ConductGeologicalSurvey), string(LaunchICBM), string(RetrieveValuableData), string(EmergencyEvacuation), string(SpreadDemocracy), string(EliminateBroodCommanders), string(PurgeHatcheries), string(ActivateE710Pumps), string(BlitzSearchAndDestroyTerminids), string(EliminateChargers), string(EradicateTerminidSwarm), string(EliminateBileTitans), string(EnableE710Extraction), string(EliminateDevastators), string(SabotageSupplyBases), string(DestroyTransmissionNetwork), string(EradicateAutomatonForces), string(BlitzSearchAndDestroyAutomatons), string(SabotageAirBase), string(EliminateAutomatonFactoryStrider), string(DestroyCommandBunkers):
 			*ot = ObjectiveType(b)
 		default:
 			return fmt.Errorf("invalid value for ObjectiveType: %v", value)

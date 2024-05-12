@@ -7,22 +7,22 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Spacelocust/for-democracy/database"
-	"github.com/Spacelocust/for-democracy/database/enum"
-	"github.com/Spacelocust/for-democracy/database/model"
-	"github.com/lib/pq"
+	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/db/datatype"
+	"github.com/Spacelocust/for-democracy/db/enum"
+	"github.com/Spacelocust/for-democracy/db/model"
 	"gorm.io/gorm/clause"
 )
 
 type Stratagem struct {
-	CodeName   *string  `json:"codename"`
-	Name       string   `json:"name"`
-	Keys       []string `json:"keys"`
-	Uses       string   `json:"uses"`
-	Cooldown   int      `json:"cooldown"`
-	Activation int      `json:"activation"`
-	ImageURL   string   `json:"imageUrl"`
-	GroupId    int      `json:"groupId"`
+	CodeName   *string              `json:"codename"`
+	Name       string               `json:"name"`
+	Keys       []enum.StratagemKeys `json:"keys"`
+	Uses       string               `json:"uses"`
+	Cooldown   int                  `json:"cooldown"`
+	Activation int                  `json:"activation"`
+	ImageURL   string               `json:"imageUrl"`
+	GroupId    int                  `json:"groupId"`
 }
 
 var colors = map[string]enum.StratagemType{
@@ -34,7 +34,7 @@ var colors = map[string]enum.StratagemType{
 }
 
 func getStratagems() {
-	db := database.GetDB()
+	db := db.GetDB()
 
 	stratagems, err := getData[Stratagem]("/stratagems?limit=70")
 
@@ -47,12 +47,12 @@ func getStratagems() {
 		stratagemUseType := enum.Self
 
 		for _, stratagem := range stratagems {
-			keys := append(pq.StringArray{}, stratagem.Keys...)
+			keys := datatype.EnumArray[enum.StratagemKeys](stratagem.Keys)
 
 			stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
 
 			if err != nil {
-				fmt.Errorf("error getting stratagem type: %s", err)
+				fmt.Printf("error getting stratagem type: %s", err)
 				return
 			}
 
@@ -61,8 +61,6 @@ func getStratagems() {
 				if strings.Contains(stratagem.Name, "Reinforce") {
 					stratagemUseType = enum.Shared
 				}
-			} else {
-				stratagemUseType = enum.Self
 			}
 
 			newStratagems = append(newStratagems, model.Stratagem{
@@ -80,7 +78,7 @@ func getStratagems() {
 
 		db.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "name"}},
-			DoUpdates: clause.AssignmentColumns([]string{"codename", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
+			DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
 		}).Create(&newStratagems)
 	}
 }

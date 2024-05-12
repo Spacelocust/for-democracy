@@ -16,8 +16,8 @@ const (
 func (st *StratagemUseType) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		switch value {
-		case Self, Team, Shared:
+		switch value.(string) {
+		case string(Self), string(Team), string(Shared):
 			*st = StratagemUseType(b)
 		default:
 			return fmt.Errorf("invalid value for StratagemUseType: %v", value)
