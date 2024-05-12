@@ -2,11 +2,16 @@ package collector
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"regexp"
 	"strings"
 
+	"github.com/Spacelocust/for-democracy/database"
 	"github.com/Spacelocust/for-democracy/database/enum"
-	"golang.org/x/net/html"
+	"github.com/Spacelocust/for-democracy/database/model"
+	"github.com/lib/pq"
+	"gorm.io/gorm/clause"
 )
 
 type Stratagem struct {
@@ -14,65 +19,99 @@ type Stratagem struct {
 	Name       string   `json:"name"`
 	Keys       []string `json:"keys"`
 	Uses       string   `json:"uses"`
-	Cooldown   *int     `json:"cooldown"`
-	Activation *int     `json:"activation"`
+	Cooldown   int      `json:"cooldown"`
+	Activation int      `json:"activation"`
 	ImageURL   string   `json:"imageUrl"`
 	GroupId    int      `json:"groupId"`
 }
 
+var colors = map[string]enum.StratagemType{
+	"#5dbcd6": enum.Supply,
+	"#49adc9": enum.Supply,
+	"#679552": enum.Defensive,
+	"#de7b6c": enum.Offensive,
+	"#c9b269": enum.Mission,
+}
+
 func getStratagems() {
-	// stratagems, err := getData[Stratagem]("/stratagems?limit=70")
+	db := database.GetDB()
 
-	// if err != nil {
-	// 	fmt.Println("Error getting stratagems")
-	// }
+	stratagems, err := getData[Stratagem]("/stratagems?limit=70")
 
-	// if len(stratagems) > 0 {
-	// 	// newStratagems := []model.Stratagem{}
+	if err != nil {
+		fmt.Println("Error getting stratagems")
+	}
 
-	// 	// for _, stratagem := range stratagems {
-	// 	// 	// newStratagems = append(newStratagems, model.Stratagem{
-	// 	// 	// 	CodeName: stratagem.CodeName,
-	// 	// 	// 	Name:     stratagem.Name,
-	// 	// 	// 	UseCount: stratagem.Uses,
-	// 	// 	// })
+	if len(stratagems) > 0 {
+		newStratagems := []model.Stratagem{}
+		stratagemUseType := enum.Self
 
-	// 	// 	fmt.Println(fmt.Sprintf(`%s : %s`, stratagem.Name, stratagem.ImageURL))
-	// 	// }
+		for _, stratagem := range stratagems {
+			keys := append(pq.StringArray{}, stratagem.Keys...)
 
-	// 	// db.Clauses(clause.OnConflict{
-	// 	// 	Columns:   []clause.Column{{Name: "name"}},
-	// 	// 	DoUpdates: clause.AssignmentColumns([]string{"use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys", "group_user_missions"}),
-	// 	// }).Create(newStratagems)
-	// }
+			stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
 
-	if st, err := getStratagemTypeFromLink("https://vxspqnuarwhjjbxzgauv.supabase.co/storage/v1/object/public/stratagems/1/4.svg"); err == nil {
-		fmt.Println(st)
+			if err != nil {
+				fmt.Errorf("error getting stratagem type: %s", err)
+				return
+			}
+
+			if stratagemType == enum.Mission {
+				stratagemUseType = enum.Team
+				if strings.Contains(stratagem.Name, "Reinforce") {
+					stratagemUseType = enum.Shared
+				}
+			} else {
+				stratagemUseType = enum.Self
+			}
+
+			newStratagems = append(newStratagems, model.Stratagem{
+				CodeName:   stratagem.CodeName,
+				Name:       stratagem.Name,
+				UseCount:   getUseCount(stratagem.Uses),
+				UseType:    stratagemUseType,
+				Cooldown:   stratagem.Cooldown,
+				Activation: stratagem.Activation,
+				ImageURL:   stratagem.ImageURL,
+				Type:       stratagemType,
+				Keys:       keys,
+			})
+		}
+
+		db.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "name"}},
+			DoUpdates: clause.AssignmentColumns([]string{"codename", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
+		}).Create(&newStratagems)
 	}
 }
 
 // getStratagemTypeFromLink returns the stratagem type based on the color of the SVG image
-func getStratagemTypeFromLink(l string) (enum.StratagemType, error) {
-	resp, err := http.Get(l)
+func getStratagemTypeFromLink(link string) (enum.StratagemType, error) {
+	resp, err := http.Get(link)
 	if err != nil {
 		fmt.Println("No response from request")
 	}
 
+	// Close the response body when the function returns
 	defer resp.Body.Close()
 
-	doc, err := html.Parse(resp.Body)
+	// Parse the HTML document
+	data, err := io.ReadAll(resp.Body)
+	// doc, err := html.Parse(resp.Body)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return "", err
 	}
 
-	fillValueChan := make(chan string)
+	fillValue, err := extractFillValue(string(data))
 
-	go getColor(doc, fillValueChan)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return "", err
+	}
 
-	fillValue := <-fillValueChan
-
-	stratagemType, err := getStratagemTypeByColor(fillValue)
+	// Get the stratagem type based on the fill value
+	stratagemType, err := getStratagemTypeByHexColor(fillValue)
 
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -82,60 +121,52 @@ func getStratagemTypeFromLink(l string) (enum.StratagemType, error) {
 	return stratagemType, nil
 }
 
-// extractFillValue extracts the fill value from the SVG data
-func extractFillValue(data string) string {
-	// Find the index of the fill attribute
-	fillIndex := strings.Index(data, "fill:")
+func extractFillValue(data string) (string, error) {
+	re := regexp.MustCompile(`fill:(.*?);`)
+	matches := re.FindAllStringSubmatch(data, -1)
 
-	// If the fill attribute is found
-	if fillIndex != -1 {
-		// Find the index of the closing semicolon
-		semicolonIndex := strings.Index(data[fillIndex:], ";")
+	fillValue := ""
 
-		// If the closing semicolon is found
-		if semicolonIndex != -1 {
-			// Extract the fill value
-			fillValue := data[fillIndex+5 : fillIndex+semicolonIndex]
-			return strings.Trim(fillValue, " ")
+	if len(matches) < 1 {
+		re = regexp.MustCompile(`fill="(.*?)"`)
+		matches = append([][]string{}, re.FindAllStringSubmatch(data, -1)...)
+
+		if len(matches) < 1 {
+			return "", fmt.Errorf("no fill value found")
 		}
 	}
 
-	return ""
-}
-
-// getColor extracts the fill value from the class .cls-1
-func getColor(doc *html.Node, fillValueChan chan string) {
-	var class func(*html.Node)
-	class = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "style" {
-			// Find the .cls-1 class
-			if strings.Contains(n.FirstChild.Data, ".cls-1") {
-				// Extract the fill value from the class
-				fillValue := extractFillValue(n.FirstChild.Data)
-				fillValueChan <- fillValue
-			}
+	for _, match := range matches {
+		if strings.Contains(match[1], "#fff") {
+			continue
 		}
 
-		// Traverse the HTML of the webpage from the first child node
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			class(c)
-		}
+		fillValue = match[1]
 	}
-	class(doc)
+
+	return strings.TrimSpace(fillValue), nil
 }
 
-// getStratagemTypeByColor returns the stratagem type based on the color
-func getStratagemTypeByColor(hexColor string) (enum.StratagemType, error) {
-	switch hexColor {
-	case "#49adc9":
-		return enum.Supply, nil
-	case "#679552":
-		return enum.Defensive, nil
-	case "#de7b6c":
-		return enum.Offensive, nil
-	case "#c9b269":
-		return enum.Mission, nil
+// getStratagemTypeByHexColor returns the stratagem type based on the hexadecimal color
+func getStratagemTypeByHexColor(hexColor string) (enum.StratagemType, error) {
+	if st, ok := colors[hexColor]; ok {
+		return st, nil
+	}
+
+	return "", fmt.Errorf("invalid color: %s", hexColor)
+}
+
+func getUseCount(useCount string) *int {
+	count := 0
+
+	switch useCount {
+	case "Unlimited", "":
+		return nil
+	case "Single use":
+		count = 1
+		return &count
 	default:
-		return "", fmt.Errorf("invalid color: %s", hexColor)
+		fmt.Sscanf(useCount, "%d uses", &count)
+		return &count
 	}
 }

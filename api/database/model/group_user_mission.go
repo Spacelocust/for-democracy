@@ -10,5 +10,5 @@ type GroupUserMission struct {
 	Mission     Mission
 	GroupUserID uint
 	GroupUser   GroupUser
-	Stratagems  []Stratagem `gorm:"many2many:group_user_mission_stratagems;"`
+	Stratagems  []*Stratagem `gorm:"many2many:group_user_mission_stratagems;"`
 }

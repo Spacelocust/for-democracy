@@ -116,7 +116,7 @@ CREATE TABLE "stratagems" (
   "activation" bigint NOT NULL,
   "image_url" text NOT NULL,
   "type" "stratagem_type" NOT NULL,
-  "keys" "stratagem_keys"[] NOT NULL,
+  "keys" text[] NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "uni_stratagems_name" UNIQUE ("name")
 );
