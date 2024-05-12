@@ -17,7 +17,7 @@ abstract class PlanetsService {
     //     .toList();
 
     // Fake data for now
-    return Future.delayed(const Duration(seconds: 10), () {
+    return Future.delayed(const Duration(seconds: 5), () {
       return List.generate(
         10,
         (index) => Planet(
