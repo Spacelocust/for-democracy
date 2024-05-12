@@ -7,3 +7,5 @@ vendor/
 compose.*.yml
 
 .idea/
+
+.history

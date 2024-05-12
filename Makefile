@@ -5,6 +5,7 @@ PWD=$(shell pwd)
 COMPOSE=docker compose
 EXECAPI=$(COMPOSE) exec api
 EXECPG=$(COMPOSE) exec postgres
+EXECMOBILE=$(COMPOSE) exec mobile
 
 ## All commands available in the Makefile
 
@@ -40,6 +41,9 @@ ssh: ## SSH into the next container
 
 ssh-pg: ## SSH into the postgres container
 	$(EXECPG) sh
+
+ssh-mobile:
+	$(EXECMOBILE) bash
 
 ##@ Golang
 tidy: ## Run go mod tidy
