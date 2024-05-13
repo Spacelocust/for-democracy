@@ -13,32 +13,35 @@ type Effect struct {
 	Description string `json:"description"`
 }
 
-func getEffects() error {
+// Get all effects from the HellHub API and store them in the database
+func getEffects(effects *[]model.Effect) error {
 	db := db.GetDB()
-	effects, err := getData[Effect]("/effects")
+	parsedEffects, err := getData[Effect]("/effects")
 
 	if err != nil {
 		return fmt.Errorf("error getting effects: %w", err)
 	}
 
-	if len(effects) > 0 {
-		newEffects := make([]model.Effect, len(effects))
+	if len(parsedEffects) < 1 {
+		return fmt.Errorf("no effects found")
+	}
 
-		for i, effect := range effects {
-			newEffects[i] = model.Effect{
-				Name:        effect.Name,
-				Description: effect.Description,
-			}
+	*effects = make([]model.Effect, len(parsedEffects))
+
+	for i, effect := range parsedEffects {
+		(*effects)[i] = model.Effect{
+			Name:        effect.Name,
+			Description: effect.Description,
 		}
+	}
 
-		err = db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "name"}},
-			DoUpdates: clause.AssignmentColumns([]string{"description"}),
-		}).Create(&newEffects).Error
+	err = db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "name"}},
+		DoUpdates: clause.AssignmentColumns([]string{"description"}),
+	}).Create(&effects).Error
 
-		if err != nil {
-			return fmt.Errorf("error creating effects: %w", err)
-		}
+	if err != nil {
+		return fmt.Errorf("error creating effects: %w", err)
 	}
 
 	return nil

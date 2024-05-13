@@ -37,9 +37,11 @@ func getData[t any](url string) ([]t, error) {
 }
 
 func GatherData() {
-	// getPlanets()
-	// err = getBiomes()
-	// err = getEffects()
-	// err = getStatistics()
-	// err = getStratagems()
+	if err := getStratagems(); err != nil {
+		fmt.Println(err)
+	}
+
+	if err := getPlanets(); err != nil {
+		fmt.Println(err)
+	}
 }

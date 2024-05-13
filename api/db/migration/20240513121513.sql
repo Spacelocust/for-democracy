@@ -171,8 +171,10 @@ CREATE TABLE "planets" (
   "position_x" numeric NOT NULL,
   "position_y" numeric NOT NULL,
   "helldivers_id" bigint NOT NULL,
+  "image_url" text NOT NULL,
   "biome_id" bigint NULL,
   PRIMARY KEY ("id"),
+  CONSTRAINT "uni_planets_name" UNIQUE ("name"),
   CONSTRAINT "fk_biomes_planets" FOREIGN KEY ("biome_id") REFERENCES "biomes" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "idx_planets_deleted_at" to table: "planets"
@@ -187,10 +189,12 @@ CREATE TABLE "planet_effects" (
 );
 -- Create "statistics" table
 CREATE TABLE "statistics" (
-  "planet_id" bigserial NOT NULL,
+  "id" bigserial NOT NULL,
   "created_at" timestamptz NULL,
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
+  "planet_id" bigint NULL,
+  "helldivers_id" bigint NOT NULL,
   "missions_won" bigint NOT NULL DEFAULT 0,
   "mission_time" bigint NOT NULL DEFAULT 0,
   "bug_kills" bigint NOT NULL DEFAULT 0,
@@ -204,7 +208,8 @@ CREATE TABLE "statistics" (
   "friendly_kills" bigint NOT NULL DEFAULT 0,
   "mission_success_rate" bigint NOT NULL DEFAULT 0,
   "accuracy" bigint NOT NULL DEFAULT 0,
-  PRIMARY KEY ("planet_id"),
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_statistics_helldivers_id" UNIQUE ("helldivers_id"),
   CONSTRAINT "fk_planets_statistic" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "idx_statistics_deleted_at" to table: "statistics"
