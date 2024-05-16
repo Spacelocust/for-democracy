@@ -1,7 +1,9 @@
-package collector
+package hellhub
 
 import (
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
@@ -14,16 +16,20 @@ type Biome struct {
 }
 
 // Get all biomes from the HellHub API and store them in the database
-func getBiomes(biomes *[]model.Biome) error {
+func storeBiomes(biomes *[]model.Biome, respch chan<- error, wg *sync.WaitGroup) {
+	start := time.Now()
 	db := db.GetDB()
 	parsedBiomes, err := hellhubFetch[Biome]("/biomes?limit=20")
 
 	if err != nil {
-		return fmt.Errorf("error getting biomes: %v", err)
+		respch <- fmt.Errorf("error getting biomes: %v", err)
+		wg.Done()
+		return
 	}
 
 	if len(parsedBiomes) < 1 {
-		return fmt.Errorf("no biomes found")
+		respch <- fmt.Errorf("error getting biomes: %v", err)
+		wg.Done()
 	}
 
 	*biomes = make([]model.Biome, len(parsedBiomes))
@@ -41,8 +47,12 @@ func getBiomes(biomes *[]model.Biome) error {
 	}).Create(&biomes).Error
 
 	if err != nil {
-		return fmt.Errorf("error creating biomes: %v", err)
+		respch <- fmt.Errorf("error creating biomes: %v", err)
+		wg.Done()
+		return
 	}
 
-	return nil
+	respch <- nil
+	wg.Done()
+	fmt.Println("After done biomes :", time.Since(start))
 }

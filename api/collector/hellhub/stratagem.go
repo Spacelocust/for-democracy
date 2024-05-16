@@ -1,4 +1,4 @@
-package collector
+package hellhub
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/datatype"
@@ -33,16 +34,20 @@ var colors = map[string]enum.StratagemType{
 	"#c9b269": enum.Mission,
 }
 
-func getStratagems() error {
+func storeStratagems(merrch chan<- error, wg *sync.WaitGroup) {
 	db := db.GetDB()
 
 	stratagems, err := hellhubFetch[Stratagem]("/stratagems?limit=70")
 	if err != nil {
-		return fmt.Errorf("error getting stratagems: %w", err)
+		merrch <- fmt.Errorf("error getting stratagems: %w", err)
+		wg.Done()
+		return
 	}
 
 	if len(stratagems) == 0 {
-		return fmt.Errorf("no stratagems found")
+		merrch <- fmt.Errorf("no stratagems found: %w", err)
+		wg.Done()
+		return
 	}
 
 	newStratagems := make([]model.Stratagem, 0, len(stratagems))
@@ -55,7 +60,9 @@ func getStratagems() error {
 		// Get the stratagem type based on the SVG image link
 		stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
 		if err != nil {
-			return fmt.Errorf("error getting stratagem type: %w", err)
+			merrch <- fmt.Errorf("error getting stratagem type: %w", err)
+			wg.Done()
+			return
 		}
 
 		// Set the stratagem use type based on the stratagem type
@@ -79,16 +86,17 @@ func getStratagems() error {
 		})
 	}
 
-	err = db.Clauses(clause.OnConflict{
+	if err := db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "name"}},
 		DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
-	}).Create(&newStratagems).Error
-
-	if err != nil {
-		return fmt.Errorf("error creating stratagems: %w", err)
+	}).Create(&newStratagems).Error; err != nil {
+		merrch <- fmt.Errorf("error creating stratagems: %w", err)
+		wg.Done()
+		return
 	}
 
-	return nil
+	merrch <- nil
+	wg.Done()
 }
 
 // Get the stratagem type based on the SVG image link

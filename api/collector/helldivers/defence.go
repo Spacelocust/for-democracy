@@ -2,10 +2,14 @@ package collector
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -23,9 +27,31 @@ type Defence struct {
 	} `json:"event"`
 }
 
+func fetchDefences[T any](url string) ([]T, error) {
+	var data []T
+
+	resp, err := http.Get(fmt.Sprintf("%s%s%s", os.Getenv("HELLDIVERS_API_URL"), "/api/v1", url))
+	if err != nil {
+		return nil, fmt.Errorf("failed to make HTTP request: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if err := sonic.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
+	}
+
+	return data, nil
+}
+
 func GetDefences() error {
 	db := db.GetDB()
-	parsedDefences, err := helldiversFetch[Defence]("/planet-events")
+	parsedDefences, err := fetchDefences[Defence]("/planet-events")
 
 	if err != nil {
 		return fmt.Errorf("error getting defences event: %v", err)
