@@ -16,7 +16,7 @@ type Biome struct {
 // Get all biomes from the HellHub API and store them in the database
 func getBiomes(biomes *[]model.Biome) error {
 	db := db.GetDB()
-	parsedBiomes, err := getData[Biome]("/biomes?limit=20")
+	parsedBiomes, err := hellhubFetch[Biome]("/biomes?limit=20")
 
 	if err != nil {
 		return fmt.Errorf("error getting biomes: %v", err)

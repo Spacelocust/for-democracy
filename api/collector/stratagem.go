@@ -36,7 +36,7 @@ var colors = map[string]enum.StratagemType{
 func getStratagems() error {
 	db := db.GetDB()
 
-	stratagems, err := getData[Stratagem]("/stratagems?limit=70")
+	stratagems, err := hellhubFetch[Stratagem]("/stratagems?limit=70")
 	if err != nil {
 		return fmt.Errorf("error getting stratagems: %w", err)
 	}

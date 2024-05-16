@@ -1,3 +1,32 @@
+-- Create enum type "role"
+CREATE TYPE "role" AS ENUM ('admin', 'user');
+-- Create enum type "objective_type"
+CREATE TYPE "objective_type" AS ENUM ('terminate_illegal_broadcast', 'pump_fuel_to_icbm', 'upload_escape_pod_data', 'conduct_geological_survey', 'launch_icbm', 'retrieve_valuable_data', 'emergency_evacuation', 'spread_democracy', 'eliminate_brood_commanders', 'purge_hatcheries', 'activate_e710_pumps', 'blitz_search_and_destroy_terminids', 'eliminate_chargers', 'eradicate_terminid_swarm', 'eliminate_bile_titans', 'enable_e710_extraction', 'eliminate_devastators', 'sabotage_supply_bases', 'destroy_transmission_network', 'eradicate_automaton_forces', 'blitz_search_and_destroy_automatons', 'sabotage_air_base', 'eliminate_automaton_factory_strider', 'destroy_command_bunkers');
+-- Create enum type "stratagem_use_type"
+CREATE TYPE "stratagem_use_type" AS ENUM ('self', 'team', 'shared');
+-- Create enum type "stratagem_type"
+CREATE TYPE "stratagem_type" AS ENUM ('supply', 'mission', 'defensive', 'offensive');
+-- Create enum type "stratagem_keys"
+CREATE TYPE "stratagem_keys" AS ENUM ('up', 'down', 'left', 'right');
+-- Create enum type "faction"
+CREATE TYPE "faction" AS ENUM ('humans', 'terminids', 'automatons', 'illuminates');
+-- Create enum type "event_type"
+CREATE TYPE "event_type" AS ENUM ('defence', 'liberation');
+-- Create enum type "difficulty"
+CREATE TYPE "difficulty" AS ENUM ('trivial', 'easy', 'medium', 'challenging', 'hard', 'extreme', 'suicide_mission', 'impossible', 'helldive');
+-- Create "biomes" table
+CREATE TABLE "biomes" (
+  "id" bigserial NOT NULL,
+  "created_at" timestamptz NULL,
+  "updated_at" timestamptz NULL,
+  "deleted_at" timestamptz NULL,
+  "name" text NOT NULL,
+  "description" text NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_biomes_name" UNIQUE ("name")
+);
+-- Create index "idx_biomes_deleted_at" to table: "biomes"
+CREATE INDEX "idx_biomes_deleted_at" ON "biomes" ("deleted_at");
 -- Create "features" table
 CREATE TABLE "features" (
   "deleted_at" timestamptz NULL,
@@ -9,12 +38,48 @@ CREATE TABLE "features" (
 );
 -- Create index "idx_features_deleted_at" to table: "features"
 CREATE INDEX "idx_features_deleted_at" ON "features" ("deleted_at");
--- Create enum type "stratagem_keys"
-CREATE TYPE "stratagem_keys" AS ENUM ('up', 'down', 'left', 'right');
--- Create enum type "role"
-CREATE TYPE "role" AS ENUM ('admin', 'user');
--- Create enum type "difficulty"
-CREATE TYPE "difficulty" AS ENUM ('trivial', 'easy', 'medium', 'challenging', 'hard', 'extreme', 'suicide_mission', 'impossible', 'helldive');
+-- Create "planets" table
+CREATE TABLE "planets" (
+  "id" bigserial NOT NULL,
+  "created_at" timestamptz NULL,
+  "updated_at" timestamptz NULL,
+  "deleted_at" timestamptz NULL,
+  "name" text NOT NULL,
+  "health" bigint NOT NULL,
+  "max_health" bigint NOT NULL,
+  "players" bigint NOT NULL DEFAULT 0,
+  "disabled" boolean NOT NULL DEFAULT false,
+  "regeneration" bigint NOT NULL DEFAULT 0,
+  "position_x" numeric NOT NULL,
+  "position_y" numeric NOT NULL,
+  "helldivers_id" bigint NOT NULL,
+  "image_url" text NOT NULL,
+  "biome_id" bigint NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_planets_name" UNIQUE ("name"),
+  CONSTRAINT "fk_biomes_planets" FOREIGN KEY ("biome_id") REFERENCES "biomes" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+-- Create index "idx_planets_deleted_at" to table: "planets"
+CREATE INDEX "idx_planets_deleted_at" ON "planets" ("deleted_at");
+-- Create "defences" table
+CREATE TABLE "defences" (
+  "id" bigserial NOT NULL,
+  "created_at" timestamptz NULL,
+  "updated_at" timestamptz NULL,
+  "deleted_at" timestamptz NULL,
+  "health" bigint NOT NULL,
+  "start_at" timestamptz NULL,
+  "end_at" timestamptz NULL,
+  "ennemy_health" bigint NOT NULL,
+  "ennemy_max_health" bigint NOT NULL,
+  "helldivers_id" bigint NOT NULL,
+  "planet_id" bigint NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_defences_helldivers_id" UNIQUE ("helldivers_id"),
+  CONSTRAINT "fk_planets_defence" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
+);
+-- Create index "idx_defences_deleted_at" to table: "defences"
+CREATE INDEX "idx_defences_deleted_at" ON "defences" ("deleted_at");
 -- Create "groups" table
 CREATE TABLE "groups" (
   "id" bigserial NOT NULL,
@@ -31,16 +96,6 @@ CREATE TABLE "groups" (
 );
 -- Create index "idx_groups_deleted_at" to table: "groups"
 CREATE INDEX "idx_groups_deleted_at" ON "groups" ("deleted_at");
--- Create enum type "stratagem_type"
-CREATE TYPE "stratagem_type" AS ENUM ('supply', 'mission', 'defensive', 'offensive');
--- Create enum type "faction"
-CREATE TYPE "faction" AS ENUM ('humans', 'terminids', 'automatons', 'illuminates');
--- Create enum type "event_type"
-CREATE TYPE "event_type" AS ENUM ('defence', 'liberation');
--- Create enum type "objective_type"
-CREATE TYPE "objective_type" AS ENUM ('terminate_illegal_broadcast', 'pump_fuel_to_icbm', 'upload_escape_pod_data', 'conduct_geological_survey', 'launch_icbm', 'retrieve_valuable_data', 'emergency_evacuation', 'spread_democracy', 'eliminate_brood_commanders', 'purge_hatcheries', 'activate_e710_pumps', 'blitz_search_and_destroy_terminids', 'eliminate_chargers', 'eradicate_terminid_swarm', 'eliminate_bile_titans', 'enable_e710_extraction', 'eliminate_devastators', 'sabotage_supply_bases', 'destroy_transmission_network', 'eradicate_automaton_forces', 'blitz_search_and_destroy_automatons', 'sabotage_air_base', 'eliminate_automaton_factory_strider', 'destroy_command_bunkers');
--- Create enum type "stratagem_use_type"
-CREATE TYPE "stratagem_use_type" AS ENUM ('self', 'team', 'shared');
 -- Create "users" table
 CREATE TABLE "users" (
   "id" bigserial NOT NULL,
@@ -130,6 +185,21 @@ CREATE TABLE "group_user_mission_stratagems" (
   CONSTRAINT "fk_group_user_mission_stratagems_group_user_mission" FOREIGN KEY ("group_user_mission_id") REFERENCES "group_user_missions" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "fk_group_user_mission_stratagems_stratagem" FOREIGN KEY ("stratagem_id") REFERENCES "stratagems" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+-- Create "liberations" table
+CREATE TABLE "liberations" (
+  "id" bigserial NOT NULL,
+  "created_at" timestamptz NULL,
+  "updated_at" timestamptz NULL,
+  "deleted_at" timestamptz NULL,
+  "health" bigint NOT NULL,
+  "helldivers_id" bigint NOT NULL,
+  "planet_id" bigint NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "uni_liberations_helldivers_id" UNIQUE ("helldivers_id"),
+  CONSTRAINT "fk_planets_liberation" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
+);
+-- Create index "idx_liberations_deleted_at" to table: "liberations"
+CREATE INDEX "idx_liberations_deleted_at" ON "liberations" ("deleted_at");
 -- Create "effects" table
 CREATE TABLE "effects" (
   "id" bigserial NOT NULL,
@@ -143,42 +213,6 @@ CREATE TABLE "effects" (
 );
 -- Create index "idx_effects_deleted_at" to table: "effects"
 CREATE INDEX "idx_effects_deleted_at" ON "effects" ("deleted_at");
--- Create "biomes" table
-CREATE TABLE "biomes" (
-  "id" bigserial NOT NULL,
-  "created_at" timestamptz NULL,
-  "updated_at" timestamptz NULL,
-  "deleted_at" timestamptz NULL,
-  "name" text NOT NULL,
-  "description" text NOT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "uni_biomes_name" UNIQUE ("name")
-);
--- Create index "idx_biomes_deleted_at" to table: "biomes"
-CREATE INDEX "idx_biomes_deleted_at" ON "biomes" ("deleted_at");
--- Create "planets" table
-CREATE TABLE "planets" (
-  "id" bigserial NOT NULL,
-  "created_at" timestamptz NULL,
-  "updated_at" timestamptz NULL,
-  "deleted_at" timestamptz NULL,
-  "name" text NOT NULL,
-  "health" bigint NOT NULL,
-  "max_health" bigint NOT NULL,
-  "players" bigint NOT NULL DEFAULT 0,
-  "disabled" boolean NOT NULL DEFAULT false,
-  "regeneration" bigint NOT NULL DEFAULT 0,
-  "position_x" numeric NOT NULL,
-  "position_y" numeric NOT NULL,
-  "helldivers_id" bigint NOT NULL,
-  "image_url" text NOT NULL,
-  "biome_id" bigint NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "uni_planets_name" UNIQUE ("name"),
-  CONSTRAINT "fk_biomes_planets" FOREIGN KEY ("biome_id") REFERENCES "biomes" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
-);
--- Create index "idx_planets_deleted_at" to table: "planets"
-CREATE INDEX "idx_planets_deleted_at" ON "planets" ("deleted_at");
 -- Create "planet_effects" table
 CREATE TABLE "planet_effects" (
   "planet_id" bigint NOT NULL,

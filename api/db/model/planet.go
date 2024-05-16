@@ -18,8 +18,10 @@ type Planet struct {
 	ImageURL     string  `gorm:"not null"`
 	// InitialOwner         enum.Faction `gorm:"not null;type:faction"`
 	// Owner                enum.Faction `gorm:"not null;type:faction"`
-	Statistic Statistic
-	Effects   []Effect `gorm:"many2many:planet_effects;"`
-	Biome     Biome
-	BiomeID   uint
+	Statistic  Statistic
+	Liberation *Liberation `gorm:"constraint:OnDelete:SET NULL;default:null"`
+	Defence    *Defence    `gorm:"constraint:OnDelete:SET NULL;default:null"`
+	Effects    []Effect    `gorm:"many2many:planet_effects;"`
+	Biome      Biome
+	BiomeID    uint
 }

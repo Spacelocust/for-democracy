@@ -46,7 +46,7 @@ type Planet struct {
 func loadPlanets(planets *[]Planet, totalPage int) error {
 	for i := 0; i < totalPage; i++ {
 		start := i * 100
-		ps, err := getData[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome", start))
+		ps, err := hellhubFetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome", start))
 
 		if err != nil {
 			return fmt.Errorf("error getting planets: %w", err)
@@ -83,36 +83,12 @@ func getPlanets() error {
 	if len(planets) > 0 {
 		err := db.Transaction(func(tx *gorm.DB) error {
 			for _, planet := range planets {
-				newPlanet := model.Planet{
-					Name:         planet.Name,
-					Health:       planet.Health,
-					MaxHealth:    planet.MaxHealth,
-					Players:      planet.Players,
-					Disabled:     planet.Disabled,
-					Regeneration: planet.Regeneration,
-					PositionX:    planet.PositionX,
-					PositionY:    planet.PositionY,
-					HelldiversID: planet.HelldiversID,
-					ImageURL:     planet.ImageURL,
-				}
 
-				newStatistic := model.Statistic{
-					HelldiversID:       planet.HelldiversID,
-					MissionsWon:        planet.Statistic.MissionsWon,
-					MissionTime:        planet.Statistic.MissionTime,
-					BugKills:           planet.Statistic.BugKills,
-					AutomatonKills:     planet.Statistic.AutomatonKills,
-					IlluminateKills:    planet.Statistic.IlluminateKills,
-					BulletsFired:       planet.Statistic.BulletsFired,
-					BulletsHit:         planet.Statistic.BulletsHit,
-					TimePlayed:         planet.Statistic.TimePlayed,
-					Deaths:             planet.Statistic.Deaths,
-					Revives:            planet.Statistic.Revives,
-					FriendlyKills:      planet.Statistic.FriendlyKills,
-					MissionSuccessRate: planet.Statistic.MissionSuccessRate,
-					Accuracy:           planet.Statistic.Accuracy,
-				}
+				// Create a new model.Planet and model.Statistic
+				newPlanet := planet.NewPlanet()
+				newStatistic := planet.NewStatistic()
 
+				// Find the index of the current planet's biome in the biomes slice
 				planetBiomeIndex := slices.IndexFunc(biomes, func(biome model.Biome) bool {
 					return biome.Name == planet.Biome.Name
 				})
@@ -121,9 +97,11 @@ func getPlanets() error {
 					return fmt.Errorf("biome %s not found", planet.Biome.Name)
 				}
 
+				// Set the new planet's biome and biome ID
 				newPlanet.Biome = biomes[planetBiomeIndex]
 				newPlanet.BiomeID = biomes[planetBiomeIndex].ID
 
+				// Find the index of the current planet's effects in the effects slice
 				planetEffects := make([]model.Effect, len(planet.Effects))
 				for i, effect := range planet.Effects {
 					planetEffectIndex := slices.IndexFunc(effects, func(e model.Effect) bool {
@@ -137,8 +115,10 @@ func getPlanets() error {
 					planetEffects[i] = effects[planetEffectIndex]
 				}
 
+				// Set the new planet's effects
 				newPlanet.Effects = planetEffects
 
+				// Create the new planet
 				err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
 					Columns:   []clause.Column{{Name: "name"}},
 					DoUpdates: clause.AssignmentColumns([]string{"health", "max_health", "players", "disabled", "regeneration", "position_x", "position_y", "helldivers_id", "image_url"}),
@@ -148,8 +128,10 @@ func getPlanets() error {
 					return fmt.Errorf("error creating planet: %v", err)
 				}
 
+				// Add the foreign key to the statistic
 				newStatistic.PlanetID = newPlanet.ID
 
+				// Create the new statistic
 				err = tx.Clauses(clause.OnConflict{
 					Columns:   []clause.Column{{Name: "helldivers_id"}},
 					DoUpdates: clause.AssignmentColumns([]string{"mission_time", "bug_kills", "automaton_kills", "illuminate_kills", "bullets_fired", "bullets_hit", "time_played", "deaths", "revives", "friendly_kills", "mission_success_rate", "accuracy"}),
@@ -159,6 +141,7 @@ func getPlanets() error {
 					return fmt.Errorf("error creating statistic: %v", err)
 				}
 
+				// Associate the new planet with the statistic
 				if err := tx.Model(&newPlanet).Association("Statistic").Append(&newStatistic); err != nil {
 					return fmt.Errorf("error associating statistic with planet: %v", err)
 				}
@@ -173,4 +156,38 @@ func getPlanets() error {
 	}
 
 	return nil
+}
+
+func (p *Planet) NewPlanet() *model.Planet {
+	return &model.Planet{
+		Name:         p.Name,
+		Health:       p.Health,
+		MaxHealth:    p.MaxHealth,
+		Players:      p.Players,
+		Disabled:     p.Disabled,
+		Regeneration: p.Regeneration,
+		PositionX:    p.PositionX,
+		PositionY:    p.PositionY,
+		HelldiversID: p.HelldiversID,
+		ImageURL:     p.ImageURL,
+	}
+}
+
+func (p *Planet) NewStatistic() *model.Statistic {
+	return &model.Statistic{
+		HelldiversID:       p.HelldiversID,
+		MissionsWon:        p.Statistic.MissionsWon,
+		MissionTime:        p.Statistic.MissionTime,
+		BugKills:           p.Statistic.BugKills,
+		AutomatonKills:     p.Statistic.AutomatonKills,
+		IlluminateKills:    p.Statistic.IlluminateKills,
+		BulletsFired:       p.Statistic.BulletsFired,
+		BulletsHit:         p.Statistic.BulletsHit,
+		TimePlayed:         p.Statistic.TimePlayed,
+		Deaths:             p.Statistic.Deaths,
+		Revives:            p.Statistic.Revives,
+		FriendlyKills:      p.Statistic.FriendlyKills,
+		MissionSuccessRate: p.Statistic.MissionSuccessRate,
+		Accuracy:           p.Statistic.Accuracy,
+	}
 }

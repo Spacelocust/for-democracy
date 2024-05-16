@@ -61,6 +61,8 @@ func loadModels(sb *strings.Builder) {
 		&model.GroupUser{},
 		&model.GroupUserMission{},
 		&model.Mission{},
+		&model.Liberation{},
+		&model.Defence{},
 		&model.Planet{},
 		&model.Statistic{},
 		&model.Stratagem{},

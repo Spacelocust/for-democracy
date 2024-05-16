@@ -16,7 +16,7 @@ type Effect struct {
 // Get all effects from the HellHub API and store them in the database
 func getEffects(effects *[]model.Effect) error {
 	db := db.GetDB()
-	parsedEffects, err := getData[Effect]("/effects")
+	parsedEffects, err := hellhubFetch[Effect]("/effects")
 
 	if err != nil {
 		return fmt.Errorf("error getting effects: %w", err)
