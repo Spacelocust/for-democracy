@@ -6,13 +6,12 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/Spacelocust/for-democracy/db/model"
 	"github.com/bytedance/sonic"
 )
 
-func hellhubFetch[T any](url string) ([]T, error) {
+func fetch[T any](url string) ([]T, error) {
 	var data struct {
 		List []T `json:"data"`
 	}
@@ -37,10 +36,8 @@ func hellhubFetch[T any](url string) ([]T, error) {
 }
 
 func GetData() error {
-	start := time.Now()
-
 	// Channel to send errors from the goroutines
-	errpch := make(chan error, 4)
+	errpch := make(chan error, 3)
 	wg := &sync.WaitGroup{}
 
 	environment := Environment{
@@ -48,13 +45,12 @@ func GetData() error {
 		effects: &[]model.Effect{},
 	}
 
-	wg.Add(4)
+	wg.Add(3)
 
-	// Using go routines to fetch and store biomes, effects and planets concurrently
+	// Using go routines to fetch data concurrently
 	go storeStratagems(errpch, wg)
 	go storeBiomes(environment.biomes, errpch, wg)
 	go storeEffects(environment.effects, errpch, wg)
-	go storePlanets(environment, 3, errpch, wg)
 
 	wg.Wait()
 	close(errpch)
@@ -65,7 +61,9 @@ func GetData() error {
 		}
 	}
 
-	fmt.Println("Time :", time.Since(start))
+	if err := storePlanets(environment, 3); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/Spacelocust/for-democracy/logger/zapper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -25,7 +25,7 @@ func ConnectDb() {
 
 	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: zapper.Zlogger,
 	})
 
 	if err != nil {
@@ -34,9 +34,6 @@ func ConnectDb() {
 	}
 
 	log.Println("connected")
-
-	// Set the logger to log mode info
-	db.Logger = logger.Default.LogMode(logger.Info)
 
 	DB = db
 }

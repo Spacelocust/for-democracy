@@ -33,3 +33,17 @@ func GetValues[T any](s []T, field string) []interface{} {
 	}
 	return values
 }
+
+// Splits a slice into smaller slices of size n
+func SplitSlice[T any](slice []T, n int) [][]T {
+	var divided [][]T
+	l := len(slice)
+	for i := 0; i < l; i += n {
+		end := i + n
+		if end > l {
+			end = l
+		}
+		divided = append(divided, slice[i:end])
+	}
+	return divided
+}

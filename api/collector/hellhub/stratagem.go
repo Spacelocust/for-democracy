@@ -3,6 +3,7 @@ package hellhub
 import (
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"regexp"
 	"strings"
@@ -12,6 +13,9 @@ import (
 	"github.com/Spacelocust/for-democracy/db/datatype"
 	"github.com/Spacelocust/for-democracy/db/enum"
 	"github.com/Spacelocust/for-democracy/db/model"
+	err "github.com/Spacelocust/for-democracy/error"
+	"github.com/Spacelocust/for-democracy/utils"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -34,67 +38,104 @@ var colors = map[string]enum.StratagemType{
 	"#c9b269": enum.Mission,
 }
 
+var errorStratagem = err.NewError("[stratagem]")
+
 func storeStratagems(merrch chan<- error, wg *sync.WaitGroup) {
 	db := db.GetDB()
 
-	stratagems, err := hellhubFetch[Stratagem]("/stratagems?limit=70")
+	stratagems, err := fetch[Stratagem]("/stratagems?limit=70")
 	if err != nil {
-		merrch <- fmt.Errorf("error getting stratagems: %w", err)
+		merrch <- errorStratagem.Error(err, "error getting stratagems")
 		wg.Done()
 		return
 	}
 
 	if len(stratagems) == 0 {
-		merrch <- fmt.Errorf("no stratagems found: %w", err)
+		merrch <- errorStratagem.Error(nil, "no stratagems found")
 		wg.Done()
 		return
 	}
 
-	newStratagems := make([]model.Stratagem, 0, len(stratagems))
+	// Split the stratagems into 3 parts to be processed concurrently
+	splitStratagems := utils.SplitSlice(stratagems, int(math.Round(float64(len(stratagems))/3)))
+
+	// Create a new stratagem slice to store the stratagems
 	stratagemUseType := enum.Self
 
-	for _, stratagem := range stratagems {
-		// Convert the string keys to enum keys
-		keys := datatype.EnumArray[enum.StratagemKeys](stratagem.Keys)
+	// Channel to send errors from the goroutines
+	errch := make(chan error, len(splitStratagems))
+	swg := &sync.WaitGroup{}
 
-		// Get the stratagem type based on the SVG image link
-		stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
+	// Add the number of goroutines to the wait group
+	swg.Add(len(splitStratagems))
+
+	for _, splitStratagem := range splitStratagems {
+		go func() {
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				for _, stratagem := range splitStratagem {
+					// Convert the string keys to enum keys
+					keys := datatype.EnumArray[enum.StratagemKeys](stratagem.Keys)
+
+					// Get the stratagem type based on the SVG image link
+					stratagemType, err := getStratagemTypeFromLink(stratagem.ImageURL)
+					if err != nil {
+						return errorStratagem.Error(err, "error getting stratagem type")
+					}
+
+					// Set the stratagem use type based on the stratagem type
+					if stratagemType == enum.Mission {
+						stratagemUseType = enum.Team
+						if strings.Contains(stratagem.Name, "Reinforce") {
+							stratagemUseType = enum.Shared
+						}
+					}
+
+					err = db.Clauses(clause.OnConflict{
+						Columns:   []clause.Column{{Name: "name"}},
+						DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
+					}).Create(&model.Stratagem{
+						CodeName:   stratagem.CodeName,
+						Name:       stratagem.Name,
+						UseCount:   getUseCount(stratagem.Uses),
+						UseType:    stratagemUseType,
+						Cooldown:   stratagem.Cooldown,
+						Activation: stratagem.Activation,
+						ImageURL:   stratagem.ImageURL,
+						Type:       stratagemType,
+						Keys:       keys,
+					}).Error
+
+					if err != nil {
+						return errorStratagem.Error(err, "error creating stratagem")
+					}
+				}
+
+				return nil
+			}); err != nil {
+				errch <- err
+				swg.Done()
+				return
+			}
+
+			errch <- nil
+			swg.Done()
+		}()
+	}
+
+	// Wait for all the goroutines to finish
+	swg.Wait()
+	close(errch)
+
+	// Check if there was an error fetching any of the pages
+	for err := range errch {
 		if err != nil {
-			merrch <- fmt.Errorf("error getting stratagem type: %w", err)
+			merrch <- err
 			wg.Done()
 			return
 		}
-
-		// Set the stratagem use type based on the stratagem type
-		if stratagemType == enum.Mission {
-			stratagemUseType = enum.Team
-			if strings.Contains(stratagem.Name, "Reinforce") {
-				stratagemUseType = enum.Shared
-			}
-		}
-
-		newStratagems = append(newStratagems, model.Stratagem{
-			CodeName:   stratagem.CodeName,
-			Name:       stratagem.Name,
-			UseCount:   getUseCount(stratagem.Uses),
-			UseType:    stratagemUseType,
-			Cooldown:   stratagem.Cooldown,
-			Activation: stratagem.Activation,
-			ImageURL:   stratagem.ImageURL,
-			Type:       stratagemType,
-			Keys:       keys,
-		})
 	}
 
-	if err := db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "name"}},
-		DoUpdates: clause.AssignmentColumns([]string{"code_name", "use_count", "use_type", "cooldown", "activation", "image_url", "type", "keys"}),
-	}).Create(&newStratagems).Error; err != nil {
-		merrch <- fmt.Errorf("error creating stratagems: %w", err)
-		wg.Done()
-		return
-	}
-
+	// Send nil to the channel to indicate that there was no error
 	merrch <- nil
 	wg.Done()
 }

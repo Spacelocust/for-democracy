@@ -1,4 +1,4 @@
-package collector
+package helldivers
 
 import (
 	"fmt"
@@ -7,9 +7,11 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"sync"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	err "github.com/Spacelocust/for-democracy/error"
 	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
@@ -36,6 +38,8 @@ type Liberation struct {
 	Health  int
 	Players int
 }
+
+var errorLiberation = err.NewError("[liberation]")
 
 func fetchWar(url string) (War, error) {
 	var war War
@@ -85,23 +89,24 @@ func formatLiberations(war *War) *[]Liberation {
 	return &Liberations
 }
 
-func GetLiberations() error {
+func storeLiberations(merrch chan<- error, wg *sync.WaitGroup) {
 	db := db.GetDB()
-	// parsedLiberations, err := hellhubFetch[Liberation]("/attacks?include[]=target&limit=50")
 	war, err := fetchWar("/WarSeason/801/Status")
 	if err != nil {
-		return fmt.Errorf("error getting liberations event: %v", err)
+		merrch <- errorLiberation.Error(err, "error getting war")
+		wg.Done()
+		return
 	}
 
 	liberations := formatLiberations(&war)
 	newLiberations := make([]model.Liberation, 0)
 
-	db.Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		for _, liberation := range *liberations {
 			planet := model.Planet{}
 
 			if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", liberation.Target).First(&planet).Error; err != nil {
-				return fmt.Errorf("error getting planet: %v", err)
+				return errorLiberation.Error(err, "error getting planet")
 			}
 
 			newLiberations = append(newLiberations, model.Liberation{
@@ -112,15 +117,17 @@ func GetLiberations() error {
 		}
 
 		// Delete all liberations not in the new liberations (remove old liberations)
-		if err := tx.Clauses(clause.NotConditions{
+		err = tx.Clauses(clause.NotConditions{
 			Exprs: []clause.Expression{
 				clause.IN{
 					Column: clause.Column{Name: "helldivers_id"},
 					Values: utils.GetValues(newLiberations, "HelldiversID"),
 				},
 			},
-		}).Delete(&model.Liberation{}).Error; err != nil {
-			return err
+		}).Delete(&model.Liberation{}).Error
+
+		if err != nil {
+			return errorLiberation.Error(err, "error deleting liberations")
 		}
 
 		// Create or update liberations
@@ -130,11 +137,16 @@ func GetLiberations() error {
 		}).Create(&newLiberations).Error
 
 		if err != nil {
-			return fmt.Errorf("error creating liberations: %v", err)
+			return errorLiberation.Error(err, "error creating liberations")
 		}
 
 		return nil
-	})
+	}); err != nil {
+		merrch <- err
+		wg.Done()
+		return
+	}
 
-	return nil
+	merrch <- nil
+	wg.Done()
 }

@@ -1,14 +1,16 @@
-package collector
+package helldivers
 
 import (
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	err "github.com/Spacelocust/for-democracy/error"
 	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -26,6 +28,8 @@ type Defence struct {
 		EndAt   string `json:"endTime"`
 	} `json:"event"`
 }
+
+var errorDefence = err.NewError("[defence]")
 
 func fetchDefences[T any](url string) ([]T, error) {
 	var data []T
@@ -49,34 +53,38 @@ func fetchDefences[T any](url string) ([]T, error) {
 	return data, nil
 }
 
-func GetDefences() error {
+func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 	db := db.GetDB()
 	parsedDefences, err := fetchDefences[Defence]("/planet-events")
 
 	if err != nil {
-		return fmt.Errorf("error getting defences event: %v", err)
+		merrch <- errorDefence.Error(err, "error getting defences")
+		wg.Done()
+		return
 	}
 
 	if len(parsedDefences) < 1 {
-		return fmt.Errorf("no defences event found")
+		merrch <- errorDefence.Error(nil, "no defences found")
+		wg.Done()
+		return
 	}
 
-	db.Transaction(func(tx *gorm.DB) error {
+	if err := db.Transaction(func(tx *gorm.DB) error {
 		for _, defence := range parsedDefences {
 			planet := model.Planet{}
 
 			if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", defence.Target).First(&planet).Error; err != nil {
-				return fmt.Errorf("error getting planet: %v", err)
+				return errorDefence.Error(err, "error getting planet")
 			}
 
 			startDate, err := time.Parse(time.RFC3339, defence.Event.StartAt)
 			if err != nil {
-				return fmt.Errorf("error parsing start date: %v", err)
+				return errorDefence.Error(err, "error parsing start date")
 			}
 
 			endDate, err := time.Parse(time.RFC3339, defence.Event.EndAt)
 			if err != nil {
-				return fmt.Errorf("error parsing start date: %v", err)
+				return errorDefence.Error(err, "error parsing end date")
 			}
 
 			newDefence := model.Defence{
@@ -89,16 +97,23 @@ func GetDefences() error {
 				PlanetID:        planet.ID,
 			}
 
-			if err := tx.Clauses(clause.OnConflict{
+			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
 				DoUpdates: clause.AssignmentColumns([]string{"health", "ennemy_health", "ennemy_max_health", "start_at", "end_at"}),
-			}).Create(&newDefence).Error; err != nil {
-				return fmt.Errorf("error creating defence: %v", err)
+			}).Create(&newDefence).Error
+
+			if err != nil {
+				return errorDefence.Error(err, "error creating defence")
 			}
 		}
 
 		return nil
-	})
+	}); err != nil {
+		merrch <- err
+		wg.Done()
+		return
+	}
 
-	return nil
+	merrch <- nil
+	wg.Done()
 }

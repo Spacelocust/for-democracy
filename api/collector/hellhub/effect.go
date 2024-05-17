@@ -1,12 +1,11 @@
 package hellhub
 
 import (
-	"fmt"
 	"sync"
-	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	err "github.com/Spacelocust/for-democracy/error"
 	"gorm.io/gorm/clause"
 )
 
@@ -15,21 +14,23 @@ type Effect struct {
 	Description string `json:"description"`
 }
 
+var errorEffect = err.NewError("[effect]")
+
 // Get all effects from the HellHub API and store them in the database
 func storeEffects(effects *[]model.Effect, respch chan<- error, wg *sync.WaitGroup) {
-	start := time.Now()
 	db := db.GetDB()
-	parsedEffects, err := hellhubFetch[Effect]("/effects")
+	parsedEffects, err := fetch[Effect]("/effects")
 
 	if err != nil {
-		respch <- fmt.Errorf("error getting effects: %w", err)
+		respch <- errorEffect.Error(err, "error getting effects")
 		wg.Done()
-		fmt.Println("After done")
+		return
 	}
 
 	if len(parsedEffects) < 1 {
-		respch <- fmt.Errorf("no effects found: %w", err)
+		respch <- errorEffect.Error(nil, "no effects found")
 		wg.Done()
+		return
 	}
 
 	*effects = make([]model.Effect, len(parsedEffects))
@@ -47,44 +48,11 @@ func storeEffects(effects *[]model.Effect, respch chan<- error, wg *sync.WaitGro
 	}).Create(&effects).Error
 
 	if err != nil {
-		respch <- fmt.Errorf("error creating effects: %w", err)
+		respch <- errorEffect.Error(err, "error creating effects")
 		wg.Done()
+		return
 	}
 
 	respch <- nil
 	wg.Done()
-	fmt.Println("Effects :", time.Since(start))
 }
-
-// func getEffects(effects *[]model.Effect) error {
-// 	db := db.GetDB()
-// 	parsedEffects, err := hellhubFetch[Effect]("/effects")
-
-// 	if err != nil {
-// 		return fmt.Errorf("error getting effects: %w", err)
-// 	}
-
-// 	if len(parsedEffects) < 1 {
-// 		return fmt.Errorf("No effects found: %w", err)
-// 	}
-
-// 	*effects = make([]model.Effect, len(parsedEffects))
-
-// 	for i, effect := range parsedEffects {
-// 		(*effects)[i] = model.Effect{
-// 			Name:        effect.Name,
-// 			Description: effect.Description,
-// 		}
-// 	}
-
-// 	err = db.Clauses(clause.OnConflict{
-// 		Columns:   []clause.Column{{Name: "name"}},
-// 		DoUpdates: clause.AssignmentColumns([]string{"description"}),
-// 	}).Create(&effects).Error
-
-// 	if err != nil {
-// 		return fmt.Errorf("error creating effects: %w", err)
-// 	}
-
-// 	return nil
-// }

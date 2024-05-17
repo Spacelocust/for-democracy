@@ -6,6 +6,7 @@ import (
 	_ "ariga.io/atlas-provider-gorm/gormschema"
 	"github.com/Spacelocust/for-democracy/cmd"
 	"github.com/Spacelocust/for-democracy/docs"
+	_ "github.com/Spacelocust/for-democracy/logger/zapper"
 )
 
 // @BasePath /

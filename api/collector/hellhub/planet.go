@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"slices"
 	"sync"
-	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
+	err "github.com/Spacelocust/for-democracy/error"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -48,6 +48,8 @@ type Planet struct {
 	Biome        Biome     `json:"biome"`
 	Effects      []Effect  `json:"effects"`
 }
+
+var errorPlanet = err.NewError("[planet]")
 
 func (p *Planet) NewPlanet() *model.Planet {
 	return &model.Planet{
@@ -100,7 +102,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			})
 
 			if planetBiomeIndex == -1 {
-				return fmt.Errorf("biome %s not found", planet.Biome.Name)
+				return errorPlanet.Error(nil, fmt.Sprintf("biome %s not found", planet.Biome.Name))
 			}
 
 			// Set the new planet's biome and biome ID
@@ -115,7 +117,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 				})
 
 				if planetEffectIndex == -1 {
-					return fmt.Errorf("effect %s not found", effect.Name)
+					return errorPlanet.Error(nil, fmt.Sprintf("effect %s not found", effect.Name))
 				}
 
 				planetEffects[i] = (*effects)[planetEffectIndex]
@@ -128,7 +130,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			}).Create(&newPlanet).Error
 
 			if err != nil {
-				return fmt.Errorf("error creating planet: %v", err)
+				return errorPlanet.Error(err, "error creating planet")
 			}
 
 			// Add the foreign key to the statistic
@@ -141,11 +143,11 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			}).Create(&newStatistic).Error
 
 			if err != nil {
-				return fmt.Errorf("error creating statistic: %v", err)
+				return errorPlanet.Error(err, "error creating statistic")
 			}
 
 			if err := tx.Omit("Effects.*").Model(&newPlanet).Association("Effects").Append(&planetEffects); err != nil {
-				return fmt.Errorf("error adding effects planet: %v", err)
+				return errorPlanet.Error(err, "error when associating effects to planet")
 			}
 
 		}
@@ -154,14 +156,14 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 	})
 
 	if err != nil {
-		return fmt.Errorf("error creating planets: %v", err)
+		return errorPlanet.Error(err, "error when creating planets")
 	}
 
 	return nil
 }
 
 // Get all planets from the HellHub API and store them in the database
-func storePlanets(environment Environment, totalPage int, merrch chan<- error, wg *sync.WaitGroup) {
+func storePlanets(environment Environment, totalPage int) error {
 	db := db.GetDB()
 
 	// Channel to send errors from the goroutines for each page
@@ -171,9 +173,8 @@ func storePlanets(environment Environment, totalPage int, merrch chan<- error, w
 	pwg.Add(totalPage)
 	for i := range totalPage {
 		go func() {
-			startTime := time.Now()
 			start := i * 100
-			planet, err := hellhubFetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome", start))
+			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome", start))
 			if err != nil {
 				errch <- err
 				pwg.Done()
@@ -189,7 +190,6 @@ func storePlanets(environment Environment, totalPage int, merrch chan<- error, w
 			// Send nil to the page channel to indicate that the page was successfully fetched
 			errch <- nil
 			pwg.Done()
-			fmt.Println(fmt.Sprintf("Time to get page %d: %s", i, time.Since(startTime)))
 		}()
 	}
 
@@ -200,12 +200,9 @@ func storePlanets(environment Environment, totalPage int, merrch chan<- error, w
 	// Check if there was an error fetching any of the pages
 	for err := range errch {
 		if err != nil {
-			merrch <- err
-			wg.Done()
-			return
+			return err
 		}
 	}
 
-	merrch <- nil
-	wg.Done()
+	return nil
 }
