@@ -102,6 +102,13 @@ func storeLiberations(merrch chan<- error, wg *sync.WaitGroup) {
 	newLiberations := make([]model.Liberation, 0)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
+
+		if len(*liberations) == 0 {
+			if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Liberation{}).Error; err != nil {
+				return errorDefence.Error(err, "error deleting defences")
+			}
+		}
+
 		for _, liberation := range *liberations {
 			planet := model.Planet{}
 

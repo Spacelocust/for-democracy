@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
-	"github.com/Spacelocust/for-democracy/logger/zapper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
+var dbInstance *gorm.DB
 
 // ConnectDb opens a connection to the database
 func ConnectDb() {
@@ -23,9 +24,20 @@ func ConnectDb() {
 		os.Getenv("DB_NAME"),
 	)
 
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			ParameterizedQueries:      false,       // Don't include params in the SQL log
+			Colorful:                  true,        // Disable color
+		},
+	)
+
 	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: zapper.Zlogger,
+		Logger: newLogger,
 	})
 
 	if err != nil {
@@ -35,9 +47,9 @@ func ConnectDb() {
 
 	log.Println("connected")
 
-	DB = db
+	dbInstance = db
 }
 
 func GetDB() *gorm.DB {
-	return DB
+	return dbInstance
 }

@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	_ "ariga.io/atlas-provider-gorm/gormschema"
 	"github.com/Spacelocust/for-democracy/cmd"
 	"github.com/Spacelocust/for-democracy/docs"
-	_ "github.com/Spacelocust/for-democracy/logger/zapper"
+	// _ "github.com/Spacelocust/for-democracy/logger/zapper"
 )
 
 // @BasePath /
@@ -20,7 +21,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	// Set up the Swagger documentation
-	docs.SwaggerInfo.Host = os.Getenv("SITE_BASE_URL")
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("DOMAIN"), os.Getenv("API_PORT"))
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	cmd.RunCLI()

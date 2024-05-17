@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/db/enum"
 	"github.com/Spacelocust/for-democracy/db/model"
 	err "github.com/Spacelocust/for-democracy/error"
 	"gorm.io/gorm"
@@ -36,14 +37,14 @@ type Statistic struct {
 type Planet struct {
 	HelldiversID int       `json:"index"`
 	Name         string    `json:"name"`
-	Health       int       `json:"health"`
 	MaxHealth    int       `json:"maxHealth"`
-	Players      int       `json:"players"`
 	Disabled     bool      `json:"disabled"`
 	Regeneration int       `json:"regeneration"`
 	PositionX    float64   `json:"positionX"`
 	PositionY    float64   `json:"positionY"`
 	ImageURL     string    `json:"imageURL"`
+	Owner        int       `json:"ownerId"`
+	InitialOwner int       `json:"initialOwnerId"`
 	Statistic    Statistic `json:"statistic"`
 	Biome        Biome     `json:"biome"`
 	Effects      []Effect  `json:"effects"`
@@ -54,9 +55,7 @@ var errorPlanet = err.NewError("[planet]")
 func (p *Planet) NewPlanet() *model.Planet {
 	return &model.Planet{
 		Name:         p.Name,
-		Health:       p.Health,
 		MaxHealth:    p.MaxHealth,
-		Players:      p.Players,
 		Disabled:     p.Disabled,
 		Regeneration: p.Regeneration,
 		PositionX:    p.PositionX,
@@ -109,6 +108,19 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			newPlanet.Biome = (*biomes)[planetBiomeIndex]
 			newPlanet.BiomeID = (*biomes)[planetBiomeIndex].ID
 
+			owner, err := getFaction(planet.Owner)
+			if err != nil {
+				return errorPlanet.Error(err, "error getting owner faction")
+			}
+
+			initialOwner, err := getFaction(planet.InitialOwner)
+			if err != nil {
+				return errorPlanet.Error(err, "error getting initial owner faction")
+			}
+
+			newPlanet.Owner = owner
+			newPlanet.InitialOwner = initialOwner
+
 			// Find the index of the current planet's effects in the effects slice
 			planetEffects := make([]model.Effect, len(planet.Effects))
 			for i, effect := range planet.Effects {
@@ -124,9 +136,9 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			}
 
 			// Create the new planet
-			err := tx.Omit(clause.Associations).Clauses(clause.OnConflict{
+			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "name"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "max_health", "players", "disabled", "regeneration", "position_x", "position_y", "helldivers_id", "image_url"}),
+				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url"}),
 			}).Create(&newPlanet).Error
 
 			if err != nil {
@@ -205,4 +217,19 @@ func storePlanets(environment Environment, totalPage int) error {
 	}
 
 	return nil
+}
+
+func getFaction(id int) (enum.Faction, error) {
+	switch id {
+	case 1:
+		return enum.Humans, nil
+	case 2:
+		return enum.Terminids, nil
+	case 3:
+		return enum.Automatons, nil
+	case 4:
+		return enum.Illuminates, nil
+	default:
+		return "", fmt.Errorf("invalid faction ID: %d", id)
+	}
 }

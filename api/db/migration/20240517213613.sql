@@ -45,15 +45,15 @@ CREATE TABLE "planets" (
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "name" text NOT NULL,
-  "health" bigint NOT NULL,
   "max_health" bigint NOT NULL,
-  "players" bigint NOT NULL DEFAULT 0,
   "disabled" boolean NOT NULL DEFAULT false,
   "regeneration" bigint NOT NULL DEFAULT 0,
   "position_x" numeric NOT NULL,
   "position_y" numeric NOT NULL,
   "helldivers_id" bigint NOT NULL,
   "image_url" text NOT NULL,
+  "initial_owner" "faction" NOT NULL,
+  "owner" "faction" NOT NULL,
   "biome_id" bigint NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "uni_planets_name" UNIQUE ("name"),
@@ -70,13 +70,14 @@ CREATE TABLE "defences" (
   "health" bigint NOT NULL,
   "start_at" timestamptz NULL,
   "end_at" timestamptz NULL,
+  "ennemy_faction" "faction" NOT NULL,
   "ennemy_health" bigint NOT NULL,
   "ennemy_max_health" bigint NOT NULL,
   "helldivers_id" bigint NOT NULL,
   "planet_id" bigint NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "uni_defences_helldivers_id" UNIQUE ("helldivers_id"),
-  CONSTRAINT "fk_planets_defence" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
+  CONSTRAINT "fk_planets_defence" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "idx_defences_deleted_at" to table: "defences"
 CREATE INDEX "idx_defences_deleted_at" ON "defences" ("deleted_at");
@@ -136,7 +137,7 @@ CREATE TABLE "missions" (
   "deleted_at" timestamptz NULL,
   "name" text NOT NULL,
   "instructions" text NULL,
-  "objective_types" "objective_type"[] NOT NULL,
+  "objective_types" text[] NOT NULL,
   "group_id" bigint NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_groups_missions" FOREIGN KEY ("group_id") REFERENCES "groups" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -192,11 +193,12 @@ CREATE TABLE "liberations" (
   "updated_at" timestamptz NULL,
   "deleted_at" timestamptz NULL,
   "health" bigint NOT NULL,
+  "players" bigint NOT NULL,
   "helldivers_id" bigint NOT NULL,
   "planet_id" bigint NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "uni_liberations_helldivers_id" UNIQUE ("helldivers_id"),
-  CONSTRAINT "fk_planets_liberation" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
+  CONSTRAINT "fk_planets_liberation" FOREIGN KEY ("planet_id") REFERENCES "planets" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "idx_liberations_deleted_at" to table: "liberations"
 CREATE INDEX "idx_liberations_deleted_at" ON "liberations" ("deleted_at");

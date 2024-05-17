@@ -5,15 +5,16 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Spacelocust/for-democracy/db/datatype"
 	"github.com/Spacelocust/for-democracy/db/enum"
 	"gorm.io/gorm"
 )
 
 type Mission struct {
 	gorm.Model
-	Name              string               `gorm:"not null"`
-	Instructions      *string              `gorm:"type:text"`
-	ObjectiveTypes    []enum.ObjectiveType `gorm:"not null;type:objective_type[]"`
+	Name              string                                 `gorm:"not null"`
+	Instructions      *string                                `gorm:"type:text"`
+	ObjectiveTypes    datatype.EnumArray[enum.ObjectiveType] `gorm:"not null;type:text[]"`
 	Group             Group
 	GroupID           uint
 	GroupUserMissions []GroupUserMission

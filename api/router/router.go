@@ -7,4 +7,6 @@ func SetupRoutes(app *fiber.App) {
 	swaggerRoutes(app)
 	rootRoutes(app)
 	oauthRoutes(app)
+	planetRoutes(app)
+	eventRoutes(app)
 }

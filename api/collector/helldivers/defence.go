@@ -9,8 +9,10 @@ import (
 	"time"
 
 	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/db/enum"
 	"github.com/Spacelocust/for-democracy/db/model"
 	err "github.com/Spacelocust/for-democracy/error"
+	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -21,8 +23,9 @@ type Defence struct {
 	Health int `json:"health"`
 	Event  struct {
 		Ennemy struct {
-			Health    int `json:"health"`
-			MaxHealth int `json:"maxHealth"`
+			Faction   string `json:"faction"`
+			Health    int    `json:"health"`
+			MaxHealth int    `json:"maxHealth"`
 		}
 		StartAt string `json:"startTime"`
 		EndAt   string `json:"endTime"`
@@ -63,13 +66,14 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 		return
 	}
 
-	if len(parsedDefences) < 1 {
-		merrch <- errorDefence.Error(nil, "no defences found")
-		wg.Done()
-		return
-	}
-
 	if err := db.Transaction(func(tx *gorm.DB) error {
+
+		if len(parsedDefences) == 0 {
+			if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Defence{}).Error; err != nil {
+				return errorDefence.Error(err, "error deleting defences")
+			}
+		}
+
 		for _, defence := range parsedDefences {
 			planet := model.Planet{}
 
@@ -87,14 +91,34 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 				return errorDefence.Error(err, "error parsing end date")
 			}
 
+			faction, err := getFaction(defence.Event.Ennemy.Faction)
+			if err != nil {
+				return errorDefence.Error(err, "error getting ennemy faction")
+			}
+
 			newDefence := model.Defence{
 				Health:          defence.Health,
+				EnnemyFaction:   faction,
 				EnnemyHealth:    defence.Event.Ennemy.Health,
 				EnnemyMaxHealth: defence.Event.Ennemy.MaxHealth,
 				StartAt:         startDate,
 				EndAt:           endDate,
 				HelldiversID:    defence.Target,
 				PlanetID:        planet.ID,
+			}
+
+			// Delete all liberations not in the new liberations (remove old liberations)
+			err = tx.Clauses(clause.NotConditions{
+				Exprs: []clause.Expression{
+					clause.IN{
+						Column: clause.Column{Name: "helldivers_id"},
+						Values: utils.GetValues(parsedDefences, "Target"),
+					},
+				},
+			}).Delete(&model.Defence{}).Error
+
+			if err != nil {
+				return errorDefence.Error(err, "error deleting defence")
 			}
 
 			err = tx.Clauses(clause.OnConflict{
@@ -116,4 +140,19 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 
 	merrch <- nil
 	wg.Done()
+}
+
+func getFaction(name string) (enum.Faction, error) {
+	switch name {
+	case "Humans":
+		return enum.Humans, nil
+	case "Terminids":
+		return enum.Terminids, nil
+	case "Automatons":
+		return enum.Automatons, nil
+	case "Illuminates":
+		return enum.Illuminates, nil
+	default:
+		return "", fmt.Errorf("invalid faction: %s", name)
+	}
 }
