@@ -5,6 +5,7 @@ go 1.22.2
 require (
 	ariga.io/atlas-provider-gorm v0.3.2
 	github.com/bytedance/sonic v1.11.6
+	github.com/fatih/color v1.17.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/gofiber/storage/postgres/v3 v3.0.0
 	github.com/gofiber/swagger v1.0.0

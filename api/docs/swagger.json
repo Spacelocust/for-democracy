@@ -16,7 +16,7 @@
     },
     "basePath": "/",
     "paths": {
-        "/auth/:provider": {
+        "/auth/{provider}": {
             "get": {
                 "description": "Route used to authenticate the user",
                 "produces": [
@@ -48,7 +48,7 @@
                 }
             }
         },
-        "/auth/:provider/callback": {
+        "/auth/{provider}/callback": {
             "get": {
                 "description": "Route used by the provide to send the user back after authentication",
                 "produces": [
@@ -89,7 +89,33 @@
                 }
             }
         },
-        "/logout/:provider": {
+        "/events": {
+            "get": {
+                "description": "Get all events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get all events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Event"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout/{provider}": {
             "get": {
                 "description": "Route used to log the user out",
                 "produces": [
@@ -126,9 +152,88 @@
                     }
                 }
             }
+        },
+        "/planets": {
+            "get": {
+                "description": "Get all planets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "planets"
+                ],
+                "summary": "Get all planets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Planet"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/planets/{id}": {
+            "get": {
+                "description": "Get planet by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "planets"
+                ],
+                "summary": "Get planet by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Planet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Planet"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "enum.Faction": {
+            "type": "string",
+            "enum": [
+                "humans",
+                "terminids",
+                "automatons",
+                "illuminates"
+            ],
+            "x-enum-varnames": [
+                "Humans",
+                "Terminids",
+                "Automatons",
+                "Illuminates"
+            ]
+        },
         "fiber.Error": {
             "type": "object",
             "properties": {
@@ -137,6 +242,18 @@
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
                 }
             }
         },
@@ -190,6 +307,281 @@
                     "type": "string"
                 },
                 "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.Event": {
+            "type": "object",
+            "properties": {
+                "defence": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Defence"
+                    }
+                },
+                "liberation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Liberation"
+                    }
+                }
+            }
+        },
+        "model.Biome": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Planet"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Defence": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "endAt": {
+                    "type": "string"
+                },
+                "ennemyFaction": {
+                    "$ref": "#/definitions/enum.Faction"
+                },
+                "ennemyHealth": {
+                    "type": "integer"
+                },
+                "ennemyMaxHealth": {
+                    "type": "integer"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "helldiversID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "planetID": {
+                    "type": "integer"
+                },
+                "startAt": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Effect": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Planet"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Liberation": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "helldiversID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "planetID": {
+                    "type": "integer"
+                },
+                "players": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Planet": {
+            "type": "object",
+            "properties": {
+                "biome": {
+                    "$ref": "#/definitions/model.Biome"
+                },
+                "biomeID": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "defence": {
+                    "$ref": "#/definitions/model.Defence"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "effects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Effect"
+                    }
+                },
+                "helldiversID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "initialOwner": {
+                    "$ref": "#/definitions/enum.Faction"
+                },
+                "liberation": {
+                    "$ref": "#/definitions/model.Liberation"
+                },
+                "maxHealth": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/enum.Faction"
+                },
+                "positionX": {
+                    "type": "number"
+                },
+                "positionY": {
+                    "type": "number"
+                },
+                "regeneration": {
+                    "type": "integer"
+                },
+                "statistic": {
+                    "$ref": "#/definitions/model.Statistic"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Statistic": {
+            "type": "object",
+            "properties": {
+                "accuracy": {
+                    "type": "integer"
+                },
+                "automatonKills": {
+                    "type": "integer"
+                },
+                "bugKills": {
+                    "type": "integer"
+                },
+                "bulletsFired": {
+                    "type": "integer"
+                },
+                "bulletsHit": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deaths": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "friendlyKills": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "illuminateKills": {
+                    "type": "integer"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "missionSuccessRate": {
+                    "type": "integer"
+                },
+                "missionTime": {
+                    "type": "integer"
+                },
+                "missionsWon": {
+                    "type": "integer"
+                },
+                "planetID": {
+                    "type": "integer"
+                },
+                "revives": {
+                    "type": "integer"
+                },
+                "timePlayed": {
+                    "type": "integer"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

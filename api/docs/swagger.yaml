@@ -1,11 +1,31 @@
 basePath: /
 definitions:
+  enum.Faction:
+    enum:
+    - humans
+    - terminids
+    - automatons
+    - illuminates
+    type: string
+    x-enum-varnames:
+    - Humans
+    - Terminids
+    - Automatons
+    - Illuminates
   fiber.Error:
     properties:
       code:
         type: integer
       message:
         type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
     type: object
   goth.User:
     properties:
@@ -43,6 +63,187 @@ definitions:
       userID:
         type: string
     type: object
+  handler.Event:
+    properties:
+      defence:
+        items:
+          $ref: '#/definitions/model.Defence'
+        type: array
+      liberation:
+        items:
+          $ref: '#/definitions/model.Liberation'
+        type: array
+    type: object
+  model.Biome:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      planets:
+        items:
+          $ref: '#/definitions/model.Planet'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  model.Defence:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      endAt:
+        type: string
+      ennemyFaction:
+        $ref: '#/definitions/enum.Faction'
+      ennemyHealth:
+        type: integer
+      ennemyMaxHealth:
+        type: integer
+      health:
+        type: integer
+      helldiversID:
+        type: integer
+      id:
+        type: integer
+      planetID:
+        type: integer
+      startAt:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.Effect:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      planets:
+        items:
+          $ref: '#/definitions/model.Planet'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  model.Liberation:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      health:
+        type: integer
+      helldiversID:
+        type: integer
+      id:
+        type: integer
+      planetID:
+        type: integer
+      players:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.Planet:
+    properties:
+      biome:
+        $ref: '#/definitions/model.Biome'
+      biomeID:
+        type: integer
+      createdAt:
+        type: string
+      defence:
+        $ref: '#/definitions/model.Defence'
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      disabled:
+        type: boolean
+      effects:
+        items:
+          $ref: '#/definitions/model.Effect'
+        type: array
+      helldiversID:
+        type: integer
+      id:
+        type: integer
+      imageURL:
+        type: string
+      initialOwner:
+        $ref: '#/definitions/enum.Faction'
+      liberation:
+        $ref: '#/definitions/model.Liberation'
+      maxHealth:
+        type: integer
+      name:
+        type: string
+      owner:
+        $ref: '#/definitions/enum.Faction'
+      positionX:
+        type: number
+      positionY:
+        type: number
+      regeneration:
+        type: integer
+      statistic:
+        $ref: '#/definitions/model.Statistic'
+      updatedAt:
+        type: string
+    type: object
+  model.Statistic:
+    properties:
+      accuracy:
+        type: integer
+      automatonKills:
+        type: integer
+      bugKills:
+        type: integer
+      bulletsFired:
+        type: integer
+      bulletsHit:
+        type: integer
+      createdAt:
+        type: string
+      deaths:
+        type: integer
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      friendlyKills:
+        type: integer
+      id:
+        type: integer
+      illuminateKills:
+        type: integer
+      index:
+        type: integer
+      missionSuccessRate:
+        type: integer
+      missionTime:
+        type: integer
+      missionsWon:
+        type: integer
+      planetID:
+        type: integer
+      revives:
+        type: integer
+      timePlayed:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
 info:
   contact:
     email: support@for-democracy
@@ -55,7 +256,7 @@ info:
   title: For Democracy API
   version: "1.0"
 paths:
-  /auth/:provider:
+  /auth/{provider}:
     get:
       description: Route used to authenticate the user
       produces:
@@ -76,7 +277,7 @@ paths:
       summary: Authenticate the user
       tags:
       - authentication
-  /auth/:provider/callback:
+  /auth/{provider}/callback:
     get:
       description: Route used by the provide to send the user back after authentication
       parameters:
@@ -103,7 +304,24 @@ paths:
       summary: Get the user after authentication is complete from the provider
       tags:
       - authentication
-  /logout/:provider:
+  /events:
+    get:
+      description: Get all events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Event'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Get all events
+      tags:
+      - events
+  /logout/{provider}:
     get:
       description: Route used to log the user out
       parameters:
@@ -128,4 +346,46 @@ paths:
       summary: Log the user out
       tags:
       - authentication
+  /planets:
+    get:
+      description: Get all planets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Planet'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Get all planets
+      tags:
+      - planets
+  /planets/{id}:
+    get:
+      description: Get planet by ID
+      parameters:
+      - description: Planet ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Planet'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Error'
+      summary: Get planet by ID
+      tags:
+      - planets
 swagger: "2.0"

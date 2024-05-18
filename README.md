@@ -8,6 +8,7 @@
     -   [Installation](#installation)
     -   [Services](#services)
     -   [Commands](#commands)
+    -   [Swagger](#Swagger)
     -   [How to use Gorm with Atlas](/api/docs/how-to-use-gorm-atlas.md)
 
 ## Prerequisites
@@ -60,3 +61,6 @@ We use simple username/password for development purposes.
 > [!NOTE]  
 > All the commands are available in the `Makefile`. You can use `make` or `make help` to list all the available commands.
 > If you want to add a new command, please add it to the `Makefile` and document it here.
+
+## Swagger
+The API is documented using Swagger. You can access the documentation by going to [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html).

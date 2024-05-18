@@ -5,7 +5,7 @@ data "external_schema" "gorm" {
     "go",
     "run",
     "-mod=mod",
-    "./database/loader",
+    "./db/loader/loader.go",
   ]
 }
 
@@ -18,7 +18,7 @@ env "gorm" {
   src = data.external_schema.gorm.url
   dev = var.url
   migration {
-    dir = "file://database/migration"
+    dir = "file://db/migration"
   }
   format {
     migrate {

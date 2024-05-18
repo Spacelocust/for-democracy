@@ -76,7 +76,7 @@ db-create-migration: ## Create a new migration
 dcm: db-create-migration ## Alias for db-create-migration
 
 db-migrate-apply: ## Apply the migrations
-	$(EXECAPI) atlas migrate apply --dir "file://database/migration" --url ${DB_URL} --allow-dirty
+	$(EXECAPI) atlas migrate apply --dir "file://db/migration" --url ${DB_URL} --allow-dirty
 
 db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
@@ -92,3 +92,7 @@ db-create: ## Create the database
 ##@ Swagger
 swagger: ## Generate swagger documentation
 	$(EXECAPI) swag init --parseDependency --parseInternal
+
+##@ CLI
+collector: ## Collect the data from the API and store it in the database
+	$(EXECAPI) go run main.go collector
