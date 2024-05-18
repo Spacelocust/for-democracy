@@ -18,18 +18,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type Event struct {
+	EnnemyFaction   string `json:"faction"`
+	EnnemyHealth    int    `json:"health"`
+	EnnemyMaxHealth int    `json:"maxHealth"`
+	StartAt         string `json:"startTime"`
+	EndAt           string `json:"endTime"`
+}
+
 type Defence struct {
-	Target int `json:"index"`
-	Health int `json:"health"`
-	Event  struct {
-		Ennemy struct {
-			Faction   string `json:"faction"`
-			Health    int    `json:"health"`
-			MaxHealth int    `json:"maxHealth"`
-		}
-		StartAt string `json:"startTime"`
-		EndAt   string `json:"endTime"`
-	} `json:"event"`
+	Target int   `json:"index"`
+	Health int   `json:"health"`
+	Event  Event `json:"event"`
 }
 
 var errorDefence = err.NewError("[defence]")
@@ -75,6 +75,13 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 		}
 
 		for _, defence := range parsedDefences {
+
+			if values, err := sonic.ConfigDefault.MarshalIndent(defence, "", "  "); err != nil {
+				return errorDefence.Error(err, "error marshalling defence")
+			} else {
+				fmt.Println(string(values))
+			}
+
 			planet := model.Planet{}
 
 			if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", defence.Target).First(&planet).Error; err != nil {
@@ -91,7 +98,7 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 				return errorDefence.Error(err, "error parsing end date")
 			}
 
-			faction, err := getFaction(defence.Event.Ennemy.Faction)
+			faction, err := getFaction(defence.Event.EnnemyFaction)
 			if err != nil {
 				return errorDefence.Error(err, "error getting ennemy faction")
 			}
@@ -99,8 +106,8 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 			newDefence := model.Defence{
 				Health:          defence.Health,
 				EnnemyFaction:   faction,
-				EnnemyHealth:    defence.Event.Ennemy.Health,
-				EnnemyMaxHealth: defence.Event.Ennemy.MaxHealth,
+				EnnemyHealth:    defence.Event.EnnemyHealth,
+				EnnemyMaxHealth: defence.Event.EnnemyMaxHealth,
 				StartAt:         startDate,
 				EndAt:           endDate,
 				HelldiversID:    defence.Target,
@@ -148,11 +155,10 @@ func getFaction(name string) (enum.Faction, error) {
 		return enum.Humans, nil
 	case "Terminids":
 		return enum.Terminids, nil
-	case "Automatons":
+	case "Automaton":
 		return enum.Automatons, nil
-	case "Illuminates":
-		return enum.Illuminates, nil
 	default:
-		return "", fmt.Errorf("invalid faction: %s", name)
+		fmt.Println(name)
+		return "", fmt.Errorf("invalid faction: bob %s", name)
 	}
 }
