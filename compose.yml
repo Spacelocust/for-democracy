@@ -6,7 +6,6 @@ services:
     restart: unless-stopped
     container_name: fd-api
     command: wgo run main.go server
-    # command: sh -c "tail -f /dev/null"
     stdin_open: true
     tty: true
     env_file:

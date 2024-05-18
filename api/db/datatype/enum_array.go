@@ -45,10 +45,6 @@ func (a *EnumArray[T]) scanBytes(src []byte) error {
 	return nil
 }
 
-// func (a *EnumArray[T]) GetValues() []T {
-// 	return *a
-// }
-
 // Value implements the driver.Valuer interface.
 func (a EnumArray[T]) Value() (driver.Value, error) {
 	if a == nil {
