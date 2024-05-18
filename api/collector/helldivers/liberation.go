@@ -119,6 +119,7 @@ func storeLiberations(merrch chan<- error, wg *sync.WaitGroup) {
 			newLiberations = append(newLiberations, model.Liberation{
 				Health:       liberation.Health,
 				HelldiversID: liberation.Target,
+				Players:      liberation.Players,
 				PlanetID:     planet.ID,
 			})
 		}
@@ -140,7 +141,7 @@ func storeLiberations(merrch chan<- error, wg *sync.WaitGroup) {
 		// Create or update liberations
 		err = tx.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "helldivers_id"}},
-			DoUpdates: clause.AssignmentColumns([]string{"health"}),
+			DoUpdates: clause.AssignmentColumns([]string{"health", "players"}),
 		}).Create(&newLiberations).Error
 
 		if err != nil {

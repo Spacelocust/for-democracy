@@ -75,13 +75,6 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 		}
 
 		for _, defence := range parsedDefences {
-
-			if values, err := sonic.ConfigDefault.MarshalIndent(defence, "", "  "); err != nil {
-				return errorDefence.Error(err, "error marshalling defence")
-			} else {
-				fmt.Println(string(values))
-			}
-
 			planet := model.Planet{}
 
 			if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", defence.Target).First(&planet).Error; err != nil {
