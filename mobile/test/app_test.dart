@@ -7,8 +7,9 @@ void main() {
     testWidgets('Loads correctly', (WidgetTester tester) async {
       await tester.pumpWidget(const ForDemocracyApp());
 
-      // Screen + Bottom Navigation Bar
-      expect(find.text('Planets'), findsExactly(2));
+      expect(find.text('Planets'), findsOne);
+
+      await tester.pumpAndSettle();
     });
   });
 }

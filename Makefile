@@ -14,7 +14,7 @@ help:  ## Display this help
 
 ##@ Starting/stopping the project
 
-start: build up-recreate ## Build and start containers project 
+start: build up-recreate ## Build and start containers project
 
 build: ## Build containers project
 	$(COMPOSE) build --force-rm
@@ -62,6 +62,13 @@ logs-api: ## Show logs for the next container
 logs-pg: ## Show logs for the postgres container
 	$(COMPOSE) logs postgres
 
+##@ Dart
+dart-build-runner: ## Run build_runner
+	cd mobile && dart run build_runner build --delete-conflicting-outputs
+
+dart-build-runner-watch: ## Run build_runner watch
+	cd mobile && dart run build_runner watch --delete-conflicting-outputs
+
 ##@ Database
 db-reset: db-drop db-create dma ## Reset the database
 
@@ -69,7 +76,7 @@ db-drop-dev: ## Drop the dev database (use only if db-create-migration fails)
 	$(EXECPG) dropdb dev
 
 db-create-migration: ## Create a new migration
-	$(EXECPG) createdb dev 
+	$(EXECPG) createdb dev
 	$(EXECAPI) atlas migrate diff --env gorm
 	$(EXECPG) dropdb dev
 

@@ -1,11 +1,16 @@
 {
     "@@locale": "en",
+    "@COMMON": {},
     "planets": "Planets",
     "events": "Events",
     "groups": "Groups",
+    "retry": "Retry",
     "@MAIN_DRAWER": {},
     "mainDrawerTitle": "For Democracy - Helldivers 2",
     "@USER_DRAWER": {},
     "userDrawerTooltip": "Open user menu",
-    "userDrawerTitle": "Account"
+    "userDrawerTitle": "Account",
+    "@PLANET_SCREEN": {},
+    "planetScreenLoading": "Loading planets...",
+    "planetScreenError": "Failed to load planets"
 }
