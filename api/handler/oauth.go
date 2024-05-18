@@ -13,7 +13,7 @@ import (
 // @Success      200  {object}  goth.User
 // @Failure      401  {object}  fiber.Error
 // @Failure      500  {object}  fiber.Error
-// @Router       /auth/:provider/callback [get]
+// @Router       /auth/{provider}/callback [get]
 func OAuthCallback(c *fiber.Ctx) error {
 	user, err := goth_fiber.CompleteUserAuth(c, goth_fiber.CompleteUserAuthOptions{ShouldLogout: false})
 	if err != nil {
@@ -35,7 +35,7 @@ func OAuthCallback(c *fiber.Ctx) error {
 // @Success      200
 // @Failure      401  {object}  fiber.Error
 // @Failure      500  {object}  fiber.Error
-// @Router       /logout/:provider [get]
+// @Router       /logout/{provider} [get]
 func OAuthLogout(c *fiber.Ctx) error {
 	if err := goth_fiber.Logout(c); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to log out user")
@@ -55,7 +55,7 @@ func OAuthLogout(c *fiber.Ctx) error {
 // @Success      200  {object}  goth.User
 // @Failure      401  {object}  fiber.Error
 // @Failure      500  {object}  fiber.Error
-// @Router       /auth/:provider [get]
+// @Router       /auth/{provider} [get]
 func OAuth(c *fiber.Ctx) error {
 	// try to get the user without re-authenticating
 	user, err := goth_fiber.CompleteUserAuth(c)

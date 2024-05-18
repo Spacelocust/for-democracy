@@ -8,7 +8,7 @@ import (
 	"github.com/Spacelocust/for-democracy/collector/hellhub"
 )
 
-func GatherData() {
+func CollectData() {
 	hellhubStart := time.Now()
 	if err := hellhub.GetData(); err != nil {
 		fmt.Println(err)

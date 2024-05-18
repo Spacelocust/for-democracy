@@ -94,5 +94,5 @@ swagger: ## Generate swagger documentation
 	$(EXECAPI) swag init --parseDependency --parseInternal
 
 ##@ CLI
-collector: ## Collect the data
+collector: ## Collect the data from the API and store it in the database
 	$(EXECAPI) go run main.go collector

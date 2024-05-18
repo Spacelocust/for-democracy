@@ -23,7 +23,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/:provider": {
+        "/auth/{provider}": {
             "get": {
                 "description": "Route used to authenticate the user",
                 "produces": [
@@ -55,7 +55,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/:provider/callback": {
+        "/auth/{provider}/callback": {
             "get": {
                 "description": "Route used by the provide to send the user back after authentication",
                 "produces": [
@@ -122,7 +122,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/logout/:provider": {
+        "/logout/{provider}": {
             "get": {
                 "description": "Route used to log the user out",
                 "produces": [
@@ -226,6 +226,21 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "enum.Faction": {
+            "type": "string",
+            "enum": [
+                "humans",
+                "terminids",
+                "automatons",
+                "illuminates"
+            ],
+            "x-enum-varnames": [
+                "Humans",
+                "Terminids",
+                "Automatons",
+                "Illuminates"
+            ]
+        },
         "fiber.Error": {
             "type": "object",
             "properties": {
@@ -361,6 +376,9 @@ const docTemplate = `{
                 "endAt": {
                     "type": "string"
                 },
+                "ennemyFaction": {
+                    "$ref": "#/definitions/enum.Faction"
+                },
                 "ennemyHealth": {
                     "type": "integer"
                 },
@@ -437,6 +455,9 @@ const docTemplate = `{
                 "planetID": {
                     "type": "integer"
                 },
+                "players": {
+                    "type": "integer"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -469,9 +490,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Effect"
                     }
                 },
-                "health": {
-                    "type": "integer"
-                },
                 "helldiversID": {
                     "type": "integer"
                 },
@@ -480,6 +498,9 @@ const docTemplate = `{
                 },
                 "imageURL": {
                     "type": "string"
+                },
+                "initialOwner": {
+                    "$ref": "#/definitions/enum.Faction"
                 },
                 "liberation": {
                     "$ref": "#/definitions/model.Liberation"
@@ -490,8 +511,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "players": {
-                    "type": "integer"
+                "owner": {
+                    "$ref": "#/definitions/enum.Faction"
                 },
                 "positionX": {
                     "type": "number"
@@ -503,12 +524,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "statistic": {
-                    "description": "InitialOwner         enum.Faction ` + "`" + `gorm:\"not null;type:faction\"` + "`" + `\nOwner                enum.Faction ` + "`" + `gorm:\"not null;type:faction\"` + "`" + `",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Statistic"
-                        }
-                    ]
+                    "$ref": "#/definitions/model.Statistic"
                 },
                 "updatedAt": {
                     "type": "string"

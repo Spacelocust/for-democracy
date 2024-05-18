@@ -17,7 +17,7 @@ var gatherCmd = &cli.Command{
 		fmt.Println("Collecting data from the HellHub API")
 		// Set up the database
 		db.ConnectDb()
-		collector.GatherData()
+		collector.CollectData()
 		return nil
 	},
 }

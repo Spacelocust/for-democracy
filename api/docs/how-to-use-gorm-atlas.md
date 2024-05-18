@@ -19,7 +19,7 @@ type User struct {
   Password   *string
 }
 ```
-2 - Add it to the [`main.go`](/api/database/loader/main.go) file in the loader directory
+2 - Add it to the [`/api/db/loader/main.go`](/api/db/loader/main.go) file in the loader directory
 ```go
 	models := []interface{}{
     // Add your models here
@@ -28,12 +28,40 @@ type User struct {
 ``` 
 
 ## How to create enum
+1 - Create your enum into the package `enum` in the [`/api/db/enum/enum.go`](/api/db/enum/enum.go) file.
+You need to add Scan and Value methods for Gorm to be able to use the enum
+```go
+package enum
 
-1 - You need to create a type with the values you want to use as enum, in the [`main.go`](/api/database/loader/main.go) file in the loader directory
+type Role string
+
+const (
+  User  Role = "user"
+  Admin Role = "admin"
+)
+
+func (r *Role) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		switch value.(string) {
+		case string(Admin), string(User):
+			*r = Role(b)
+		default:
+			return fmt.Errorf("invalid value for Role: %v", value)
+		}
+	}
+	return nil
+}
+
+func (r Role) Value() (driver.Value, error) {
+	return string(r), nil
+}
+```
+2 - You need to create a type with the values you want to use as enum, in the [`/api/db/loader/main.go`](/api/db/loader/main.go) file in the loader directory
 ```sql
 CREATE TYPE role AS ENUM ('user', 'admin');
 ```
-2 - You need to create a column with the type
+3 - You need to create a column with the type
 ```go
 type User struct {
 	gorm.Model
@@ -45,14 +73,14 @@ type User struct {
 ```
 
 > [!NOTE]
-> You can also use an array of enums, for example: 
+> You can also use an array of enums, but you will need to use the `datatype.EnumArray` type
 ```go
 type User struct {
   gorm.Model
   SteamId    *string `gorm:"unique"`
   Username   string  `gorm:"unique;not null"`
   Password   *string
-  Role       []enum.Role `gorm:"not null;type:role[]"`
+  Role       datatype.EnumArray[enum.Role] `gorm:"not null;type:text[]"`
 }
 ```
 
