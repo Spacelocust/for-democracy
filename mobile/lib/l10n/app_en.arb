@@ -5,21 +5,12 @@
     "events": "Events",
     "groups": "Groups",
     "retry": "Retry",
-    "errorMessage": "Something went wrong : {error}",
-    "@errorMessage": {
-        "description": "A message to display when an error occurs",
-        "placeholders": {
-            "error": {
-                "type": "String",
-                "example": "Could not load data"
-            }
-        }
-    },
     "@MAIN_DRAWER": {},
     "mainDrawerTitle": "For Democracy - Helldivers 2",
     "@USER_DRAWER": {},
     "userDrawerTooltip": "Open user menu",
     "userDrawerTitle": "Account",
     "@PLANET_SCREEN": {},
-    "planetScreenLoading": "Loading planets..."
+    "planetScreenLoading": "Loading planets...",
+    "planetScreenError": "Failed to load planets"
 }

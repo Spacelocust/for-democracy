@@ -6,28 +6,38 @@ part of 'planet.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Planet _$PlanetFromJson(Map<String, dynamic> json) => Planet(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
-      health: (json['health'] as num?)?.toInt(),
-      maxHealth: (json['maxHealth'] as num?)?.toInt(),
-      players: (json['players'] as num).toInt(),
-      disabled: json['disabled'] as bool,
-      regeneration: (json['regeneration'] as num).toInt(),
-      positionX: (json['positionX'] as num).toDouble(),
-      positionY: (json['positionY'] as num).toDouble(),
-      helldiversID: (json['helldiversID'] as num).toInt(),
-    );
+Planet _$PlanetFromJson(Map<String, dynamic> json) {
+  $checkKeys(
+    json,
+    requiredKeys: const [
+      'ID',
+      'Name',
+      'Disabled',
+      'Regeneration',
+      'PositionX',
+      'PositionY',
+      'HelldiversID'
+    ],
+  );
+  return Planet(
+    id: (json['ID'] as num).toInt(),
+    name: json['Name'] as String,
+    maxHealth: (json['MaxHealth'] as num?)?.toInt(),
+    disabled: json['Disabled'] as bool,
+    regeneration: (json['Regeneration'] as num).toInt(),
+    positionX: (json['PositionX'] as num).toDouble(),
+    positionY: (json['PositionY'] as num).toDouble(),
+    helldiversID: (json['HelldiversID'] as num).toInt(),
+  );
+}
 
 Map<String, dynamic> _$PlanetToJson(Planet instance) => <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'health': instance.health,
-      'maxHealth': instance.maxHealth,
-      'players': instance.players,
-      'disabled': instance.disabled,
-      'regeneration': instance.regeneration,
-      'positionX': instance.positionX,
-      'positionY': instance.positionY,
-      'helldiversID': instance.helldiversID,
+      'ID': instance.id,
+      'Name': instance.name,
+      'MaxHealth': instance.maxHealth,
+      'Disabled': instance.disabled,
+      'Regeneration': instance.regeneration,
+      'PositionX': instance.positionX,
+      'PositionY': instance.positionY,
+      'HelldiversID': instance.helldiversID,
     };

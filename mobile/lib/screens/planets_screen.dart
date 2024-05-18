@@ -40,11 +40,10 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
           );
         } else if (snapshot.hasError) {
           return Center(
-            child: Row(
+            child: Column(
               children: [
                 Text(
-                  AppLocalizations.of(context)!
-                      .errorMessage(snapshot.error.toString()),
+                  AppLocalizations.of(context)!.planetScreenError,
                   style: const TextStyle(color: Colors.red),
                 ),
                 TextButton(

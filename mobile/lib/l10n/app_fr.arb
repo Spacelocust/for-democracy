@@ -5,19 +5,12 @@
     "events": "Événements",
     "groups": "Groupes",
     "retry": "Réessayer",
-    "errorMessage": "Une erreur est survenue : {error}",
-    "@errorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
     "@MAIN_DRAWER": {},
     "mainDrawerTitle": "For Democracy - Helldivers 2",
     "@USER_DRAWER": {},
     "userDrawerTooltip": "Ouvrir le menu utilisateur",
     "userDrawerTitle": "Mon compte",
     "@PLANET_SCREEN": {},
-    "planetScreenLoading": "Chargement des planètes..."
+    "planetScreenLoading": "Chargement des planètes...",
+    "planetScreenError": "Impossible de charger les planètes"
 }

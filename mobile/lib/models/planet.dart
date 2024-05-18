@@ -4,32 +4,34 @@ part 'planet.g.dart';
 
 @JsonSerializable()
 class Planet {
+  @JsonKey(required: true, name: 'ID')
   final int id;
 
+  @JsonKey(required: true, name: 'Name')
   final String name;
 
-  final int? health;
-
+  @JsonKey(name: 'MaxHealth')
   final int? maxHealth;
 
-  final int players;
-
+  @JsonKey(required: true, name: 'Disabled')
   final bool disabled;
 
+  @JsonKey(required: true, name: 'Regeneration')
   final int regeneration;
 
+  @JsonKey(required: true, name: 'PositionX')
   final double positionX;
 
+  @JsonKey(required: true, name: 'PositionY')
   final double positionY;
 
+  @JsonKey(required: true, name: 'HelldiversID')
   final int helldiversID;
 
   Planet({
     required this.id,
     required this.name,
-    this.health,
     this.maxHealth,
-    required this.players,
     required this.disabled,
     required this.regeneration,
     required this.positionX,

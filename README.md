@@ -2,14 +2,14 @@
 
 ## Content
 
--   [For democracy](#for-democracy)
-    -   [Prerequisites](#prerequisites)
-    -   [Content](#content)
-    -   [Installation](#installation)
-    -   [Services](#services)
-    -   [Commands](#commands)
-    -   [Swagger](#Swagger)
-    -   [How to use Gorm with Atlas](/api/docs/how-to-use-gorm-atlas.md)
+- [For-democracy](#for-democracy)
+  - [Content](#content)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Services](#services)
+  - [Authentication](#authentication)
+  - [Commands](#commands)
+  - [Swagger](#swagger)
 
 ## Prerequisites
 
