@@ -23,4 +23,6 @@ type Planet struct {
 	Effects      []Effect `gorm:"many2many:planet_effects;"`
 	Biome        Biome
 	BiomeID      uint
+	Sector       Sector
+	SectorID     uint
 }

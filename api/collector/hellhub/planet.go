@@ -34,6 +34,11 @@ type Statistic struct {
 	Accuracy           int `json:"accuracy"`
 }
 
+type Sector struct {
+	HelldiversID int    `json:"index"`
+	Name         string `json:"name"`
+}
+
 type Planet struct {
 	HelldiversID int       `json:"index"`
 	Name         string    `json:"name"`
@@ -48,6 +53,7 @@ type Planet struct {
 	Statistic    Statistic `json:"statistic"`
 	Biome        Biome     `json:"biome"`
 	Effects      []Effect  `json:"effects"`
+	Sector       Sector    `json:"sector"`
 }
 
 var errorPlanet = err.NewError("[planet]")
@@ -84,6 +90,13 @@ func (p *Planet) NewStatistic() *model.Statistic {
 	}
 }
 
+func (p *Planet) NewSector() *model.Sector {
+	return &model.Sector{
+		HelldiversID: p.Sector.HelldiversID,
+		Name:         p.Sector.Name,
+	}
+}
+
 // Store the planets in the database
 func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) error {
 	biomes, effects := environnement.biomes, environnement.effects
@@ -94,6 +107,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create a new model.Planet and model.Statistic
 			newPlanet := planet.NewPlanet()
 			newStatistic := planet.NewStatistic()
+			newSector := planet.NewSector()
 
 			// Find the index of the current planet's biome in the biomes slice
 			planetBiomeIndex := slices.IndexFunc(*biomes, func(biome model.Biome) bool {
@@ -120,6 +134,19 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 
 			newPlanet.Owner = owner
 			newPlanet.InitialOwner = initialOwner
+
+			// Create the new sector
+			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "helldivers_id"}},
+				DoUpdates: clause.AssignmentColumns([]string{"name"}),
+			}).Create(&newSector).Error
+
+			if err != nil {
+				return errorPlanet.Error(err, "error creating sector")
+			}
+
+			// Add the foreign key to the planet
+			newPlanet.SectorID = newSector.ID
 
 			// Find the index of the current planet's effects in the effects slice
 			planetEffects := make([]model.Effect, len(planet.Effects))
@@ -161,7 +188,6 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			if err := tx.Omit("Effects.*").Model(&newPlanet).Association("Effects").Append(&planetEffects); err != nil {
 				return errorPlanet.Error(err, "error when associating effects to planet")
 			}
-
 		}
 
 		return nil
@@ -186,7 +212,7 @@ func storePlanets(environment Environment, totalPage int) error {
 	for i := range totalPage {
 		go func() {
 			start := i * 100
-			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome", start))
+			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome&include[]=sector", start))
 			if err != nil {
 				errch <- err
 				pwg.Done()

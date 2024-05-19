@@ -16,7 +16,10 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
       'Regeneration',
       'PositionX',
       'PositionY',
-      'HelldiversID'
+      'HelldiversID',
+      'Statistic',
+      'Effects',
+      'Sector'
     ],
   );
   return Planet(
@@ -28,6 +31,20 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
     positionX: (json['PositionX'] as num).toDouble(),
     positionY: (json['PositionY'] as num).toDouble(),
     helldiversID: (json['HelldiversID'] as num).toInt(),
+    owner: $enumDecodeNullable(_$FactionEnumMap, json['Owner']),
+    initialOwner: $enumDecodeNullable(_$FactionEnumMap, json['InitialOwner']),
+    imageUrl: json['ImageUrl'] as String?,
+    statistic: Statistic.fromJson(json['Statistic'] as Map<String, dynamic>),
+    liberation: json['Liberation'] == null
+        ? null
+        : Liberation.fromJson(json['Liberation'] as Map<String, dynamic>),
+    defence: json['Defence'] == null
+        ? null
+        : Defence.fromJson(json['Defence'] as Map<String, dynamic>),
+    effects: (json['Effects'] as List<dynamic>)
+        .map((e) => Effect.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    sector: Sector.fromJson(json['Sector'] as Map<String, dynamic>),
   );
 }
 
@@ -40,4 +57,19 @@ Map<String, dynamic> _$PlanetToJson(Planet instance) => <String, dynamic>{
       'PositionX': instance.positionX,
       'PositionY': instance.positionY,
       'HelldiversID': instance.helldiversID,
+      'Owner': _$FactionEnumMap[instance.owner],
+      'InitialOwner': _$FactionEnumMap[instance.initialOwner],
+      'ImageUrl': instance.imageUrl,
+      'Statistic': instance.statistic,
+      'Liberation': instance.liberation,
+      'Defence': instance.defence,
+      'Effects': instance.effects,
+      'Sector': instance.sector,
     };
+
+const _$FactionEnumMap = {
+  Faction.humans: 'humans',
+  Faction.terminids: 'terminids',
+  Faction.automatons: 'illuminates',
+  Faction.illuminates: 'automatons',
+};

@@ -7,7 +7,7 @@ import (
 type Statistic struct {
 	gorm.Model
 	PlanetID           uint
-	HelldiversID       int `gorm:"not null;unique" json:"index"`
+	HelldiversID       int `gorm:"not null;unique"`
 	MissionsWon        int `gorm:"not null;default:0"`
 	MissionTime        int `gorm:"not null;default:0"`
 	BugKills           int `gorm:"not null;default:0"`

@@ -20,15 +20,17 @@ const (
 )
 
 func (d *Difficulty) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		switch value.(string) {
+	str, ok := value.(string)
+
+	if ok {
+		switch str {
 		case string(Trivial), string(Easy), string(Medium), string(Challenging), string(Hard), string(Extreme), string(SuicideMission), string(Impossible), string(Helldive):
-			*d = Difficulty(b)
+			*d = Difficulty(str)
 		default:
 			return fmt.Errorf("invalid value for Difficulty: %v", value)
 		}
 	}
+
 	return nil
 }
 
