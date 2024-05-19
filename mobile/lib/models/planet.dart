@@ -35,10 +35,10 @@ class Planet {
   final int helldiversID;
 
   @JsonKey(name: 'Owner')
-  final Faction? owner;
+  final Faction owner;
 
   @JsonKey(name: 'InitialOwner')
-  final Faction? initialOwner;
+  final Faction initialOwner;
 
   @JsonKey(name: 'ImageUrl')
   final String? imageUrl;
@@ -67,8 +67,8 @@ class Planet {
     required this.positionX,
     required this.positionY,
     required this.helldiversID,
-    this.owner,
-    this.initialOwner,
+    required this.owner,
+    required this.initialOwner,
     this.imageUrl,
     required this.statistic,
     this.liberation,
