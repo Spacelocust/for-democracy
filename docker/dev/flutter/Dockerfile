@@ -2,18 +2,11 @@ FROM ghcr.io/cirruslabs/flutter:3.19.6
 
 WORKDIR /app
 
-COPY /mobile .
-
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    clang \
-    cmake \
-    libgtk-3-dev \
-    ninja-build \
-    pkg-config \
-    && apt-get clean
-
-RUN flutter pub get
+COPY /mobile/pubspec.lock .
+COPY /mobile/pubspec.yaml .
 
 RUN adb devices
+
+RUN flutter pub get
 
 CMD tail -f /dev/null

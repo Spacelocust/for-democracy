@@ -26,6 +26,11 @@ up: ## Start the project
 up-recreate: ## Start the project and recreate the containers
 	$(COMPOSE) up -d --remove-orphans --force-recreate
 
+up-mobile: ## Copy SDK and install packages for IDE
+	$(COMPOSE) cp mobile:/sdks/flutter ./sdks/flutter
+	sudo chown -R $$(whoami) mobile
+	cd mobile && flutter pub get
+
 stop: ## Stop containers project
 	$(COMPOSE) stop
 

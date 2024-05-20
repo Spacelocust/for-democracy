@@ -93,11 +93,9 @@ class ForDemocracyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        primaryColor: ThemeColors.primary,
-        secondaryHeaderColor: ThemeColors.secondary,
         colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: ThemeColors.primaryMaterial,
-          accentColor: ThemeColors.secondary,
+          backgroundColor: Colors.white,
+          primarySwatch: ThemeColors.primary,
         ),
         useMaterial3: true,
       ),

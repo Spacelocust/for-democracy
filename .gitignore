@@ -9,3 +9,5 @@ compose.*.yml
 .idea/
 
 .history
+
+sdks/*
