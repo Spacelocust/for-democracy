@@ -15,15 +15,17 @@ const (
 )
 
 func (st *StratagemType) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
+	str, ok := value.(string)
+
+	if ok {
 		switch value.(string) {
 		case string(Supply), string(Mission), string(Defensive), string(Offensive):
-			*st = StratagemType(b)
+			*st = StratagemType(str)
 		default:
 			return fmt.Errorf("invalid value for StratagemType: %v", value)
 		}
 	}
+
 	return nil
 }
 

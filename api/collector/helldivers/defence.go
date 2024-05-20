@@ -19,11 +19,11 @@ import (
 )
 
 type Event struct {
-	EnnemyFaction   string `json:"faction"`
-	EnnemyHealth    int    `json:"health"`
-	EnnemyMaxHealth int    `json:"maxHealth"`
-	StartAt         string `json:"startTime"`
-	EndAt           string `json:"endTime"`
+	EnemyFaction   string `json:"faction"`
+	EnemyHealth    int    `json:"health"`
+	EnemyMaxHealth int    `json:"maxHealth"`
+	StartAt        string `json:"startTime"`
+	EndAt          string `json:"endTime"`
 }
 
 type Defence struct {
@@ -91,20 +91,20 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 				return errorDefence.Error(err, "error parsing end date")
 			}
 
-			faction, err := getFaction(defence.Event.EnnemyFaction)
+			faction, err := getFaction(defence.Event.EnemyFaction)
 			if err != nil {
-				return errorDefence.Error(err, "error getting ennemy faction")
+				return errorDefence.Error(err, "error getting enemy faction")
 			}
 
 			newDefence := model.Defence{
-				Health:          defence.Health,
-				EnnemyFaction:   faction,
-				EnnemyHealth:    defence.Event.EnnemyHealth,
-				EnnemyMaxHealth: defence.Event.EnnemyMaxHealth,
-				StartAt:         startDate,
-				EndAt:           endDate,
-				HelldiversID:    defence.Target,
-				PlanetID:        planet.ID,
+				Health:         defence.Health,
+				EnemyFaction:   faction,
+				EnemyHealth:    defence.Event.EnemyHealth,
+				EnemyMaxHealth: defence.Event.EnemyMaxHealth,
+				StartAt:        startDate,
+				EndAt:          endDate,
+				HelldiversID:   defence.Target,
+				PlanetID:       planet.ID,
 			}
 
 			// Delete all liberations not in the new liberations (remove old liberations)
@@ -123,7 +123,7 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "ennemy_health", "ennemy_max_health", "start_at", "end_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"health", "enemy_health", "enemy_max_health", "start_at", "end_at"}),
 			}).Create(&newDefence).Error
 
 			if err != nil {

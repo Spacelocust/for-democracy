@@ -15,15 +15,17 @@ const (
 )
 
 func (f *Faction) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		switch value.(string) {
+	str, ok := value.(string)
+
+	if ok {
+		switch str {
 		case string(Humans), string(Terminids), string(Automatons), string(Illuminates):
-			*f = Faction(b)
+			*f = Faction(str)
 		default:
 			return fmt.Errorf("invalid value for Faction: %v", value)
 		}
 	}
+
 	return nil
 }
 

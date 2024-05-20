@@ -35,15 +35,17 @@ const (
 )
 
 func (ot *ObjectiveType) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
+	str, ok := value.(string)
+
+	if ok {
 		switch value.(string) {
 		case string(TerminateIllegalBroadcast), string(PumpFuelToICBM), string(UploadEscapePodData), string(ConductGeologicalSurvey), string(LaunchICBM), string(RetrieveValuableData), string(EmergencyEvacuation), string(SpreadDemocracy), string(EliminateBroodCommanders), string(PurgeHatcheries), string(ActivateE710Pumps), string(BlitzSearchAndDestroyTerminids), string(EliminateChargers), string(EradicateTerminidSwarm), string(EliminateBileTitans), string(EnableE710Extraction), string(EliminateDevastators), string(SabotageSupplyBases), string(DestroyTransmissionNetwork), string(EradicateAutomatonForces), string(BlitzSearchAndDestroyAutomatons), string(SabotageAirBase), string(EliminateAutomatonFactoryStrider), string(DestroyCommandBunkers):
-			*ot = ObjectiveType(b)
+			*ot = ObjectiveType(str)
 		default:
 			return fmt.Errorf("invalid value for ObjectiveType: %v", value)
 		}
 	}
+
 	return nil
 }
 
