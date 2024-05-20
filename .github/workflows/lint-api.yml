@@ -39,3 +39,4 @@ jobs:
         with:
           version: v1.58
           working-directory: api
+          args: --timeout 5m

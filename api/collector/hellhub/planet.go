@@ -16,6 +16,7 @@ import (
 type Environment struct {
 	biomes  *[]model.Biome
 	effects *[]model.Effect
+	sectors *[]model.Sector
 }
 
 type Statistic struct {
@@ -32,11 +33,6 @@ type Statistic struct {
 	FriendlyKills      int `json:"friendlyKills"`
 	MissionSuccessRate int `json:"missionSuccessRate"`
 	Accuracy           int `json:"accuracy"`
-}
-
-type Sector struct {
-	HelldiversID int    `json:"index"`
-	Name         string `json:"name"`
 }
 
 type Planet struct {
@@ -90,16 +86,9 @@ func (p *Planet) NewStatistic() *model.Statistic {
 	}
 }
 
-func (p *Planet) NewSector() *model.Sector {
-	return &model.Sector{
-		HelldiversID: p.Sector.HelldiversID,
-		Name:         p.Sector.Name,
-	}
-}
-
 // Store the planets in the database
 func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) error {
-	biomes, effects := environnement.biomes, environnement.effects
+	biomes, effects, sectors := environnement.biomes, environnement.effects, environnement.sectors
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		for _, planet := range planets {
@@ -107,7 +96,6 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create a new model.Planet and model.Statistic
 			newPlanet := planet.NewPlanet()
 			newStatistic := planet.NewStatistic()
-			newSector := planet.NewSector()
 
 			// Find the index of the current planet's biome in the biomes slice
 			planetBiomeIndex := slices.IndexFunc(*biomes, func(biome model.Biome) bool {
@@ -119,9 +107,9 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			}
 
 			// Set the new planet's biome and biome ID
-			newPlanet.Biome = (*biomes)[planetBiomeIndex]
 			newPlanet.BiomeID = (*biomes)[planetBiomeIndex].ID
 
+			// Find the owner and initial owner factions
 			owner, err := getFaction(planet.Owner)
 			if err != nil {
 				return errorPlanet.Error(err, "error getting owner faction")
@@ -134,19 +122,6 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 
 			newPlanet.Owner = owner
 			newPlanet.InitialOwner = initialOwner
-
-			// Create the new sector
-			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"name"}),
-			}).Create(&newSector).Error
-
-			if err != nil {
-				return errorPlanet.Error(err, "error creating sector")
-			}
-
-			// Add the foreign key to the planet
-			newPlanet.SectorID = newSector.ID
 
 			// Find the index of the current planet's effects in the effects slice
 			planetEffects := make([]model.Effect, len(planet.Effects))
@@ -161,6 +136,17 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 
 				planetEffects[i] = (*effects)[planetEffectIndex]
 			}
+
+			// Find the index of the current planet's sector in the sectors slice
+			planetSectorIndex := slices.IndexFunc(*sectors, func(sector model.Sector) bool {
+				return sector.Name == planet.Sector.Name
+			})
+
+			if planetSectorIndex == -1 {
+				return errorPlanet.Error(nil, fmt.Sprintf("sector %s not found", planet.Sector.Name))
+			}
+
+			newPlanet.SectorID = (*sectors)[planetSectorIndex].ID
 
 			// Create the new planet
 			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{

@@ -35,22 +35,27 @@ func fetch[T any](url string) ([]T, error) {
 	return data.List, nil
 }
 
+// Number of goroutines to use for fetching data
+const goroutines = 4
+
 func GetData() error {
 	// Channel to send errors from the goroutines
-	errpch := make(chan error, 3)
+	errpch := make(chan error, goroutines)
 	wg := &sync.WaitGroup{}
 
 	environment := Environment{
 		biomes:  &[]model.Biome{},
 		effects: &[]model.Effect{},
+		sectors: &[]model.Sector{},
 	}
 
-	wg.Add(3)
+	wg.Add(goroutines)
 
 	// Using go routines to fetch data concurrently
 	go storeStratagems(errpch, wg)
 	go storeBiomes(environment.biomes, errpch, wg)
 	go storeEffects(environment.effects, errpch, wg)
+	go storeSectors(environment.sectors, errpch, wg)
 
 	wg.Wait()
 	close(errpch)
