@@ -6,6 +6,7 @@ import (
 
 type Statistic struct {
 	gorm.Model
+	Planet             *Planet
 	PlanetID           uint
 	HelldiversID       int `gorm:"not null;unique"`
 	MissionsWon        int `gorm:"not null;default:0"`

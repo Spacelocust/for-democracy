@@ -5,6 +5,8 @@
     "events": "Events",
     "groups": "Groups",
     "retry": "Retry",
+    "map": "Map",
+    "list": "List",
     "@MAIN_DRAWER": {},
     "mainDrawerTitle": "For Democracy - Helldivers 2",
     "@USER_DRAWER": {},
@@ -12,5 +14,45 @@
     "userDrawerTitle": "Account",
     "@PLANET_SCREEN": {},
     "planetScreenLoading": "Loading planets...",
-    "planetScreenError": "Failed to load planets"
+    "planetScreenError": "Failed to load planets",
+    "@FACTION": {},
+    "factionHumans": "Humans",
+    "factionTerminids": "Terminids",
+    "factionAutomatons": "Automatons",
+    "factionIlluminates": "Illuminates",
+    "@PLANET": {},
+    "planetLiberationInProgress": "Liberation in progress",
+    "planetDefenceInProgress": "Defence in progress",
+    "planetUnderControl": "Planet under control.",
+    "planetUnderAttack": "The planet is under attack by the {enemyFaction}.",
+    "@planetUnderAttack": {
+        "placeholders": {
+            "enemyFaction": {
+                "type": "String",
+                "example": "Illuminates",
+                "description": "The name of the enemy faction attacking the planet."
+            }
+        }
+    },
+    "planetBeingLiberated": "The planet is being liberated from the {ownerFaction}.",
+    "@planetBeingLiberated": {
+        "placeholders": {
+            "ownerFaction": {
+                "type": "String",
+                "example": "Illuminates",
+                "description": "The name of the enemy faction owning the planet."
+            }
+        }
+    },
+    "planetOccupied": "The planet is occupied by the {ownerFaction}.",
+    "@planetOccupied": {
+        "placeholders": {
+            "ownerFaction": {
+                "type": "String",
+                "example": "Humans",
+                "description": "The name of the enemy faction owning the planet."
+            }
+        }
+    },
+    "planetLongPressSeeEvent": "Long press to view the event details."
 }

@@ -7,6 +7,6 @@ type Liberation struct {
 	Health       int `gorm:"not null"`
 	Players      int `gorm:"not null"`
 	HelldiversID int `gorm:"not null;unique"`
-	Planet       Planet
+	Planet       *Planet
 	PlanetID     uint
 }

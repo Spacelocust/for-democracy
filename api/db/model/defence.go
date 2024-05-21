@@ -16,6 +16,6 @@ type Defence struct {
 	EnemyHealth    int          `gorm:"not null"`
 	EnemyMaxHealth int          `gorm:"not null"`
 	HelldiversID   int          `gorm:"not null;unique"`
-	Planet         Planet
+	Planet         *Planet
 	PlanetID       uint
 }

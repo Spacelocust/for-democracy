@@ -9,7 +9,7 @@ import 'package:mobile/widgets/layout/main_scaffold.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final _router = GoRouter(
-  initialLocation: '/planets',
+  initialLocation: PlanetsScreen.routeName,
   routes: [
     ShellRoute(
       builder: (context, state, child) {
@@ -17,15 +17,15 @@ final _router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: '/planets',
+          path: PlanetsScreen.routeName,
           builder: (context, state) => const PlanetsScreen(),
         ),
         GoRoute(
-          path: '/events',
+          path: EventsScreen.routeName,
           builder: (context, state) => const EventsScreen(),
         ),
         GoRoute(
-          path: '/groups',
+          path: GroupsScreen.routeName,
           builder: (context, state) => const GroupsScreen(),
         ),
       ],
