@@ -17,7 +17,7 @@ enum Faction {
 
   const Faction(this.name);
 
-  /// The untranslated name of the faction. Use [translate] to get the translated name.
+  /// The untranslated name of the faction. Use [translatedName] to get the translated name.
   final String name;
 
   String translatedName(BuildContext context) {
