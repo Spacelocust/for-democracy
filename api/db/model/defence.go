@@ -10,6 +10,7 @@ import (
 type Defence struct {
 	gorm.Model
 	Health         int `gorm:"not null"`
+	Players        int `gorm:"not null"`
 	StartAt        time.Time
 	EndAt          time.Time
 	EnemyFaction   enum.Faction `gorm:"not null;type:faction"`
