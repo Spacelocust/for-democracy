@@ -5,6 +5,8 @@
     "events": "Événements",
     "groups": "Groupes",
     "retry": "Réessayer",
+    "map": "Carte",
+    "list": "Liste",
     "@MAIN_DRAWER": {},
     "mainDrawerTitle": "For Democracy - Helldivers 2",
     "@USER_DRAWER": {},
@@ -12,5 +14,39 @@
     "userDrawerTitle": "Mon compte",
     "@PLANET_SCREEN": {},
     "planetScreenLoading": "Chargement des planètes...",
-    "planetScreenError": "Impossible de charger les planètes"
+    "planetScreenError": "Impossible de charger les planètes",
+    "@FACTION": {},
+    "factionHumans": "Humains",
+    "factionTerminids": "Terminids",
+    "factionAutomatons": "Automates",
+    "factionIlluminates": "Illuminés",
+    "@PLANET": {},
+    "planetLiberationInProgress": "Libération en cours",
+    "planetDefenceInProgress": "Défense en cours",
+    "planetUnderControl": "Planète sous contrôle.",
+    "planetUnderAttack": "La planète est attaquée par les {enemyFaction}.",
+    "@planetUnderAttack": {
+        "placeholders": {
+            "enemyFaction": {
+                "type": "String"
+            }
+        }
+    },
+    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}.",
+    "@planetBeingLiberated": {
+        "placeholders": {
+            "ownerFaction": {
+                "type": "String"
+            }
+        }
+    },
+    "planetOccupied": "La planète est occupée par les {ownerFaction}.",
+    "@planetOccupied": {
+        "placeholders": {
+            "ownerFaction": {
+                "type": "String"
+            }
+        }
+    },
+    "planetLongPressSeeEvent": "Appuyez longuement pour voir les détails de l'événement."
 }
