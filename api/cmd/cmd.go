@@ -12,8 +12,8 @@ func RunCLI() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			exampleCmd,
-			serverCmd,
 			gatherCmd,
+			ginCmd,
 		},
 	}
 
