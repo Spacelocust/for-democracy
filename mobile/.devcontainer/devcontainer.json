@@ -1,0 +1,11 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": ["Dart-Code.flutter", "Dart-Code.dart-code"]
+    }
+  },
+  "dockerComposeFile": "../../compose.override.yml",
+  // "postStartCommand": "cd /app && make up",
+  "service": "mobile",
+  "workspaceFolder": "/app"
+}

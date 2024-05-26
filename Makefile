@@ -5,7 +5,6 @@ PWD=$(shell pwd)
 COMPOSE=docker compose
 EXECAPI=$(COMPOSE) exec api
 EXECPG=$(COMPOSE) exec postgres
-EXECMOBILE=$(COMPOSE) exec mobile
 
 ## All commands available in the Makefile
 
@@ -26,11 +25,6 @@ up: ## Start the project
 up-recreate: ## Start the project and recreate the containers
 	$(COMPOSE) up -d --remove-orphans --force-recreate
 
-up-mobile: ## Copy SDK and install packages for IDE
-	$(COMPOSE) cp mobile:/sdks/flutter ./sdks/flutter
-	sudo chown -R $$(whoami) mobile
-	cd mobile && flutter pub get
-
 stop: ## Stop containers project
 	$(COMPOSE) stop
 
@@ -46,9 +40,6 @@ ssh: ## SSH into the next container
 
 ssh-pg: ## SSH into the postgres container
 	$(EXECPG) bash
-
-ssh-mobile:
-	$(EXECMOBILE) bash
 
 ##@ Golang
 tidy: ## Run go mod tidy

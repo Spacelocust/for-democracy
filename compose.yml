@@ -64,8 +64,9 @@ services:
   #   build:
   #     context: .
   #     dockerfile: ./docker/dev/flutter/Dockerfile
+  #   network_mode: host
   #   ports:
-  #     - "5037:5037"
+  #     - 5037:5037
   #   privileged: true
   #   volumes:
   #     - /app/.dart_tool
