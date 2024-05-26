@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/screens/events_screen.dart';
+import 'package:mobile/screens/groups_screen.dart';
+import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -13,16 +16,16 @@ class MainBottomNavigationBar extends StatefulWidget {
 
 class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
   final Map<String, int> routeIndexMapping = {
-    '/planets': 0,
-    '/events': 1,
-    '/groups': 2,
+    PlanetsScreen.routePath: 0,
+    EventsScreen.routePath: 1,
+    GroupsScreen.routePath: 2,
   };
 
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    GoRouterState routerState = GoRouterState.of(context);
+    final GoRouterState routerState = GoRouterState.of(context);
 
     return NavigationBar(
       onDestinationSelected: (int index) {

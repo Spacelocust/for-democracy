@@ -23,6 +23,7 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
   return Defence(
     id: (json['ID'] as num).toInt(),
     health: (json['Health'] as num).toInt(),
+    players: (json['Players'] as num).toInt(),
     startAt: DateTime.parse(json['StartAt'] as String),
     endAt: DateTime.parse(json['EndAt'] as String),
     enemyFaction: $enumDecode(_$FactionEnumMap, json['EnemyFaction']),
@@ -38,6 +39,7 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$DefenceToJson(Defence instance) => <String, dynamic>{
       'ID': instance.id,
       'Health': instance.health,
+      'Players': instance.players,
       'StartAt': instance.startAt.toIso8601String(),
       'EndAt': instance.endAt.toIso8601String(),
       'EnemyFaction': _$FactionEnumMap[instance.enemyFaction]!,

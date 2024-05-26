@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GroupsScreen extends StatefulWidget {
-  static const String routeName = '/groups';
+  static const String routePath = '/groups';
+  static const String routeName = 'groups';
 
   const GroupsScreen({super.key});
 

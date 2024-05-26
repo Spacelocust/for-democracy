@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/models/drawer_destination.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobile/screens/events_screen.dart';
+import 'package:mobile/screens/groups_screen.dart';
+import 'package:mobile/screens/planets_screen.dart';
 
 class MainNavigationDrawer extends StatelessWidget {
   const MainNavigationDrawer({super.key});
@@ -11,7 +14,7 @@ class MainNavigationDrawer extends StatelessWidget {
     final GoRouterState routerState = GoRouterState.of(context);
     final List<DrawerDestination> destinations = [
       DrawerDestination(
-        path: '/planets',
+        path: PlanetsScreen.routePath,
         destination: NavigationDrawerDestination(
           icon: const Icon(Icons.home_outlined),
           selectedIcon: const Icon(Icons.home),
@@ -19,7 +22,7 @@ class MainNavigationDrawer extends StatelessWidget {
         ),
       ),
       DrawerDestination(
-        path: '/events',
+        path: EventsScreen.routePath,
         destination: NavigationDrawerDestination(
           icon: const Icon(Icons.event_outlined),
           selectedIcon: const Icon(Icons.event),
@@ -27,7 +30,7 @@ class MainNavigationDrawer extends StatelessWidget {
         ),
       ),
       DrawerDestination(
-        path: '/groups',
+        path: GroupsScreen.routePath,
         destination: NavigationDrawerDestination(
           icon: const Icon(Icons.group_outlined),
           selectedIcon: const Icon(Icons.group),

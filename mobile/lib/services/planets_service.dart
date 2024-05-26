@@ -11,4 +11,11 @@ abstract class PlanetsService {
 
     return planetsData.map((planet) => Planet.fromJson(planet)).toList();
   }
+
+  static Future<Planet> getPlanet(int planetId) async {
+    var dio = APIService.getDio();
+    var planet = await dio.get('$planetsUrl/$planetId');
+
+    return Planet.fromJson(planet.data);
+  }
 }

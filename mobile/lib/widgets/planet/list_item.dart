@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -48,9 +49,17 @@ class PlanetListItem extends ListItem {
   }
 
   Text? getTrailing(BuildContext context) {
-    if (hasLiberation) {
+    int? players;
+
+    if (hasDefence) {
+      players = planet.defence!.players;
+    } else if (hasLiberation) {
+      players = planet.liberation!.players;
+    }
+
+    if (players != null) {
       return Text(
-        "${NumberFormat.decimalPattern().format(planet.liberation!.players)} players",
+        AppLocalizations.of(context)!.playerCount(players),
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
@@ -81,6 +90,10 @@ class PlanetListItem extends ListItem {
       title: getTitle(context),
       trailing: getTrailing(context),
       subtitle: getSubtitle(context),
+      onTap: () => context.go(context.namedLocation(
+        PlanetScreen.routeName,
+        pathParameters: {'planetId': planet.id.toString()},
+      )),
     );
   }
 }

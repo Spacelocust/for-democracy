@@ -77,6 +77,24 @@ class Planet {
     required this.sector,
   });
 
+  int? get players {
+    if (liberation != null) {
+      return liberation!.players;
+    }
+
+    if (defence != null) {
+      return defence!.players;
+    }
+
+    return null;
+  }
+
+  bool get hasLiberation => liberation != null;
+
+  bool get hasDefence => defence != null;
+
+  bool get hasLiberationOrDefence => hasLiberation || hasDefence;
+
   factory Planet.fromJson(Map<String, dynamic> json) => _$PlanetFromJson(json);
 
   Map<String, dynamic> toJson() => _$PlanetToJson(this);

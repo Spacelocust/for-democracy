@@ -12,6 +12,9 @@ class Defence {
   @JsonKey(required: true, name: 'Health')
   final int health;
 
+  @JsonKey(name: 'Players')
+  final int players;
+
   @JsonKey(required: true, name: 'StartAt')
   final DateTime startAt;
 
@@ -36,6 +39,7 @@ class Defence {
   Defence({
     required this.id,
     required this.health,
+    required this.players,
     required this.startAt,
     required this.endAt,
     required this.enemyFaction,
