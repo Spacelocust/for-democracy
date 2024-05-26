@@ -16,17 +16,22 @@ import (
 )
 
 type PlanetEvent struct {
-	Target         int    `json:"planetIndex"`
-	EnemyFaction   int    `json:"race"`
-	EnemyHealth    int    `json:"health"`
-	EnemyMaxHealth int    `json:"maxHealth"`
-	StartAt        string `json:"startTime"`
-	EndAt          string `json:"endTime"`
+	Target         int `json:"planetIndex"`
+	EnemyFaction   int `json:"race"`
+	EnemyHealth    int `json:"health"`
+	EnemyMaxHealth int `json:"maxHealth"`
+	StartAt        int `json:"startTime"`
+	EndAt          int `json:"expireTime"`
 }
-
 type DefencesWar struct {
+	Time         int64          `json:"time"`
 	PlanetStatus []PlanetStatus `json:"planetStatus"`
 	PlanetEvents []PlanetEvent  `json:"planetEvents"`
+}
+
+type WarInfo struct {
+	EndDate   int64 `json:"endDate"`
+	StartDate int64 `json:"startDate"`
 }
 
 type Defence struct {
@@ -36,8 +41,8 @@ type Defence struct {
 	EnemyFaction   int
 	EnemyHealth    int
 	EnemyMaxHealth int
-	StartAt        string
-	EndAt          string
+	StartAt        int64
+	EndAt          int64
 }
 
 var errorDefence = err.NewError("[defence]")
@@ -52,9 +57,14 @@ func formatDefences(defencesWar *DefencesWar) *[]Defence {
 
 		if indexPlanet != -1 {
 			defences = append(defences, Defence{
-				Target:  planet.Target,
-				Health:  defencesWar.PlanetStatus[indexPlanet].Health,
-				Players: defencesWar.PlanetStatus[indexPlanet].Players,
+				Target:         planet.Target,
+				Health:         defencesWar.PlanetStatus[indexPlanet].Health,
+				Players:        defencesWar.PlanetStatus[indexPlanet].Players,
+				EnemyFaction:   planet.EnemyFaction,
+				EnemyHealth:    planet.EnemyHealth,
+				EnemyMaxHealth: planet.EnemyMaxHealth,
+				StartAt:        int64(planet.StartAt),
+				EndAt:          int64(planet.EndAt),
 			})
 		}
 	}
@@ -64,6 +74,14 @@ func formatDefences(defencesWar *DefencesWar) *[]Defence {
 
 func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 	db := db.GetDB()
+
+	warInfo, err := fetchWar[WarInfo]("/WarSeason/801/WarInfo")
+	if err != nil {
+		merrch <- errorDefence.Error(err, "error getting warInfo")
+		wg.Done()
+		return
+	}
+
 	defencesWar, err := fetchWar[DefencesWar]("/WarSeason/801/Status")
 	if err != nil {
 		merrch <- errorDefence.Error(err, "error getting defencesWar")
@@ -73,6 +91,15 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 
 	defences := formatDefences(&defencesWar)
 	newDefences := make([]model.Defence, 0)
+
+	// Get the game time
+	gameTime := time.Unix(warInfo.StartDate+defencesWar.Time, 0)
+
+	// Get the deviation between the game time and the current time
+	gameTimeDeviation := time.Now().UTC().Sub(gameTime)
+
+	// Get the relative game start time
+	relativeGameStart := time.Unix(0, 0).Add(gameTimeDeviation).Add(time.Duration(warInfo.StartDate) * time.Second)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 
@@ -88,12 +115,13 @@ func storeDefences(merrch chan<- error, wg *sync.WaitGroup) {
 					return errorDefence.Error(err, "error getting planet")
 				}
 
-				startDate, err := time.Parse(time.RFC3339, defence.StartAt)
+				startDate := relativeGameStart.Add(time.Duration(defence.StartAt) * time.Second)
 				if err != nil {
 					return errorDefence.Error(err, "error parsing start date")
 				}
 
-				endDate, err := time.Parse(time.RFC3339, defence.EndAt)
+				// Convert unix time to RFC3339
+				endDate := relativeGameStart.Add(time.Duration(defence.EndAt) * time.Second)
 				if err != nil {
 					return errorDefence.Error(err, "error parsing end date")
 				}
