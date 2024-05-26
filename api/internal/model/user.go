@@ -12,5 +12,6 @@ type User struct {
 	Password   *string
 	AvatarUrl  *string
 	Role       enum.Role `gorm:"not null;type:role"`
+	Session    *Session
 	GroupUsers []GroupUser
 }

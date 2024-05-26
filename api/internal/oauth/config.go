@@ -10,7 +10,8 @@ import (
 	"github.com/markbates/goth/providers/steam"
 )
 
-var baseUrl = os.Getenv("SITE_BASE_URL")
+// TODO: Just for testing purposes
+var baseUrl = "http://10.0.2.2:5000"
 
 func init() {
 	key := "big-key"  // Replace with your SESSION_SECRET or similar

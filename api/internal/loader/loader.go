@@ -67,6 +67,7 @@ func loadModels(sb *strings.Builder) {
 		&model.Statistic{},
 		&model.Stratagem{},
 		&model.User{},
+		&model.Session{},
 	}
 	stmts, err := gormschema.New("postgres").Load(models...)
 	if err != nil {

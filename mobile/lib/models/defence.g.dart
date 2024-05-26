@@ -12,6 +12,7 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
     requiredKeys: const [
       'ID',
       'Health',
+      'Players',
       'StartAt',
       'EndAt',
       'EnemyFaction',

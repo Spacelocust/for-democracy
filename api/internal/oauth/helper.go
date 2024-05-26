@@ -11,7 +11,17 @@ import (
 	"github.com/markbates/goth/gothic"
 )
 
-func CompleteUserAuth(c *gin.Context) (goth.User, error) {
+type Config struct {
+	// LogoutAfterAuth determines if the user should be logged out after authentication completes
+	LogoutAfterAuth bool
+}
+
+func CompleteUserAuth(c *gin.Context, config ...Config) (goth.User, error) {
+	logoutAfterAuth := true
+	if len(config) > 0 {
+		logoutAfterAuth = config[0].LogoutAfterAuth
+	}
+
 	res, req := c.Writer, c.Request
 
 	q := c.Request.URL.Query()
@@ -26,6 +36,16 @@ func CompleteUserAuth(c *gin.Context) (goth.User, error) {
 	provider, err := goth.GetProvider(providerName)
 	if err != nil {
 		return goth.User{}, err
+	}
+
+	// logout user after authentication completes
+	if logoutAfterAuth {
+		defer func() {
+			if err := gothic.Logout(res, req); err != nil {
+				fmt.Fprintln(res, err)
+				return
+			}
+		}()
 	}
 
 	value, err := gothic.GetFromSession(providerName, req)
@@ -75,6 +95,10 @@ func CompleteUserAuth(c *gin.Context) (goth.User, error) {
 
 func BeginAuthHandler(c *gin.Context) {
 	res, req := c.Writer, c.Request
+
+	q := c.Request.URL.Query()
+	q.Add("provider", c.Param("provider"))
+	c.Request.URL.RawQuery = q.Encode()
 
 	url, err := gothic.GetAuthURL(res, req)
 	if err != nil {
