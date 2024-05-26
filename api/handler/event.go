@@ -4,7 +4,6 @@ import (
 	"github.com/Spacelocust/for-democracy/db"
 	"github.com/Spacelocust/for-democracy/db/model"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm/clause"
 )
 
 type Event struct {
@@ -26,11 +25,11 @@ func GetEvents(c *fiber.Ctx) error {
 	defences := []model.Defence{}
 	liberations := []model.Liberation{}
 
-	if err := db.Preload(clause.Associations).Find(&defences).Error; err != nil {
+	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Find(&defences).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get defences")
 	}
 
-	if err := db.Preload(clause.Associations).Find(&liberations).Error; err != nil {
+	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Find(&liberations).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get liberations")
 	}
 
