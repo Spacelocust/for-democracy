@@ -62,6 +62,7 @@ final _router = GoRouter(
 
 Future main() async {
   await dotenv.load(fileName: '.env');
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const ForDemocracyApp());
 }
