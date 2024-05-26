@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/screens/error_screen.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
+import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/widgets/page/bottom_sheet_page.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final _router = GoRouter(
-  initialLocation: PlanetsScreen.routeName,
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: PlanetsScreen.routePath,
+  errorBuilder: (context, state) => ErrorScaffold(
+    body: ErrorScreen(error: state.error),
+  ),
   routes: [
     ShellRoute(
       builder: (context, state, child) {
@@ -17,15 +27,32 @@ final _router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: PlanetsScreen.routeName,
+          name: PlanetsScreen.routeName,
+          path: PlanetsScreen.routePath,
           builder: (context, state) => const PlanetsScreen(),
+          routes: [
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorKey,
+              name: PlanetScreen.routeName,
+              path: PlanetScreen.routePath,
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return BottomSheetPage(
+                  child: PlanetScreen(
+                    planetId: int.parse(state.pathParameters['planetId']!),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
-          path: EventsScreen.routeName,
+          name: EventsScreen.routeName,
+          path: EventsScreen.routePath,
           builder: (context, state) => const EventsScreen(),
         ),
         GoRoute(
-          path: GroupsScreen.routeName,
+          name: GroupsScreen.routeName,
+          path: GroupsScreen.routePath,
           builder: (context, state) => const GroupsScreen(),
         ),
       ],

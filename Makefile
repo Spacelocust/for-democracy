@@ -40,7 +40,7 @@ ssh: ## SSH into the next container
 	$(EXECAPI) sh
 
 ssh-pg: ## SSH into the postgres container
-	$(EXECPG) sh
+	$(EXECPG) bash
 
 ssh-mobile:
 	$(EXECMOBILE) bash
