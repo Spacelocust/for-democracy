@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/widgets/event/detail.dart';
 
 class EventsScreen extends StatefulWidget {
   static const String routePath = '/events';
@@ -60,16 +61,24 @@ class _EventsScreenState extends State<EventsScreen> {
             ),
           ),
           ListView.builder(
-            shrinkWrap: true,
-            itemCount: liberation.length,
             itemBuilder: (context, index) {
               final liberationItem = liberation[index];
 
               return ListTile(
-                title: Text(liberationItem['planet']['name']),
                 subtitle: Text("Health: ${liberationItem['health']}"),
+                title: Text(liberationItem['planet']['name']),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const EventDetail(liberationItem['planet']);
+                    },
+                  );
+                },
               );
             },
+            itemCount: liberation.length,
+            shrinkWrap: true,
           ),
 
           const SizedBox(height: 16),
@@ -83,8 +92,6 @@ class _EventsScreenState extends State<EventsScreen> {
             ),
           ),
           ListView.builder(
-            itemCount: defences.length,
-            shrinkWrap: true,
             itemBuilder: (context, index) {
               final defenceItem = defences[index];
 
@@ -98,13 +105,15 @@ class _EventsScreenState extends State<EventsScreen> {
                     textAlign: TextAlign.start,
                   ),
                   ListTile(
-                    title: Text(defenceItem['planet']['name']),
                     subtitle: Text(
                         "${(defenceItem['health'] * 100 / defenceItem['planet']['maxHealth']).toStringAsFixed(2)}% liberated"),
+                    title: Text(defenceItem['planet']['name']),
                   ),
                 ],
               );
             },
+            itemCount: defences.length,
+            shrinkWrap: true,
           ),
         ],
       ),
