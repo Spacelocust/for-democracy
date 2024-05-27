@@ -67,6 +67,9 @@ logs-pg: ## Show logs for the postgres container
 	$(COMPOSE) logs postgres
 
 ##@ Dart
+lint-dart: ## Run dart lint
+	cd mobile && flutter analyze --suppress-analytics --no-fatal-infos
+
 dart-build-runner: ## Run build_runner
 	cd mobile && dart run build_runner build --delete-conflicting-outputs
 

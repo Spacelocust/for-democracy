@@ -2,11 +2,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/services/api_service.dart';
-import 'package:mobile/services/secure_storage_service.dart';
+import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/states/auth_state.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 class WebOauthScreen extends StatefulWidget {
@@ -43,12 +45,17 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
             if (url.contains(steamCallbackUrl)) {
               try {
                 final value = await getCookie(url, "token");
-                await storeToken(value);
+                if (value != null) {
+                  await OAuthService().setToken(value);
+                  if (mounted) {
+                    context.read<AuthState>().setToken(value);
+                  }
+                }
               } catch (e) {
                 log(e.toString());
+              } finally {
+                await cookieManager.clearCookies();
               }
-
-              await cookieManager.clearCookies();
 
               if (mounted) {
                 Navigator.pop(context);
@@ -83,15 +90,11 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
   }
 
   // Retrieve the cookie value from the WebView
-  Future<String> getCookie(String url, String name) async {
+  Future<String?> getCookie(String url, String name) async {
     final cookies = await cookieManager.getCookies(url);
 
-    final Cookie cookie = cookies.firstWhere((cookie) => cookie.name == name);
-    return cookie.value;
-  }
-
-  // Store the token in the secure storage
-  Future<void> storeToken(String token) async {
-    await SecureStorageService().writeSecureData("token", token);
+    final Cookie cookie = cookies.firstWhere((cookie) => cookie.name == name,
+        orElse: () => Cookie(name, ""));
+    return cookie.value.isEmpty ? null : cookie.value;
   }
 }

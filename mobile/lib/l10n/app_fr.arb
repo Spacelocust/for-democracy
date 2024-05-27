@@ -1,113 +1,114 @@
 {
-    "@@locale": "fr",
-    "@COMMON": {},
-    "close": "Fermer",
-    "planets": "Planètes",
-    "events": "Événements",
-    "groups": "Groupes",
-    "retry": "Réessayer",
-    "map": "Carte",
-    "list": "Liste",
-    "goHome": "Retour à l'accueil",
-    "playerCount": "{count, plural, zero{aucun joueur} one{{count} joueur} other{{count} joueurs}}",
-    "@playerCount": {
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "format": "compact"
-            }
-        }
-    },
-    "findGroup": "Trouver un groupe",
-    "createGroup": "Créer un groupe",
-    "viewEvent": "Voir l'événement",
-    "liberation": "Libération",
-    "defence": "Défense",
-    "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
-    "@hours": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "days": "{count, plural, zero{0 jour} one{1 jour} other{{count} jours}}",
-    "@days": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "@ERROR": {},
-    "pageNotFound": "Page non trouvée",
-    "unknownError": "Une erreur inconnue s'est produite.",
-    "@MAIN_DRAWER": {},
-    "mainDrawerTitle": "For Democracy - Helldivers 2",
-    "@USER_DRAWER": {},
-    "userDrawerTooltip": "Ouvrir le menu utilisateur",
-    "userDrawerTitle": "Mon compte",
-    "@PLANETS_SCREEN": {},
-    "planetsScreenLoading": "Chargement des planètes...",
-    "planetsScreenError": "Impossible de charger les planètes",
-    "@PLANET_SCREEN": {},
-    "planetScreenLoading": "Chargement de la planète...",
-    "planetScreenError": "Impossible de charger la planète",
-    "@FACTION": {},
-    "factionHumans": "Humains",
-    "factionTerminids": "Terminids",
-    "factionAutomatons": "Automates",
-    "factionIlluminates": "Illuminés",
-    "@PLANET": {},
-    "planetLiberationInProgress": "Libération en cours",
-    "planetDefenceInProgress": "Défense en cours",
-    "planetUnderControl": "Planète sous contrôle.",
-    "planetUnderAttack": "La planète est attaquée par les {enemyFaction}.",
-    "@planetUnderAttack": {
-        "placeholders": {
-            "enemyFaction": {
-                "type": "String"
-            }
-        }
-    },
-    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}.",
-    "@planetBeingLiberated": {
-        "placeholders": {
-            "ownerFaction": {
-                "type": "String"
-            }
-        }
-    },
-    "planetOccupied": "La planète est occupée par les {ownerFaction}.",
-    "@planetOccupied": {
-        "placeholders": {
-            "ownerFaction": {
-                "type": "String"
-            }
-        }
-    },
-    "planetLongPressSeeEvent": "Appuyez longuement pour voir les détails de l'événement.",
-    "planetEventProgress": "{percentage} complet, {remainingDays, plural, zero{moins d'un jour} one{1 jour} other{{remainingDays} jours}} restants.",
-    "@planetEventProgress": {
-        "placeholders": {
-            "percentage": {
-                "type": "double",
-                "format": "decimalPercentPattern"
-            },
-            "remainingDays": {
-                "type": "int"
-            }
-        }
-    },
-    "@STATISTIC": {},
-    "statisticMissionsWon": "Missions gagnées",
-    "statisticMissionTime": "Temps de mission",
-    "statisticBugKills": "Insectes tués",
-    "statisticAutomatonKills": "Automates tués",
-    "statisticIlluminateKills": "Illuminés tués",
-    "statisticBulletsFired": "Balles tirées",
-    "statisticBulletsHit": "Balles touchées",
-    "statisticTimePlayed": "Temps de jeu",
-    "statisticDeaths": "Morts",
-    "statisticRevives": "Résurrections"
+  "@@locale": "fr",
+  "@COMMON": {},
+  "logout": "Déconnexion",
+  "close": "Fermer",
+  "planets": "Planètes",
+  "events": "Événements",
+  "groups": "Groupes",
+  "retry": "Réessayer",
+  "map": "Carte",
+  "list": "Liste",
+  "goHome": "Retour à l'accueil",
+  "playerCount": "{count, plural, zero{aucun joueur} one{{count} joueur} other{{count} joueurs}}",
+  "@playerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
+    }
+  },
+  "findGroup": "Trouver un groupe",
+  "createGroup": "Créer un groupe",
+  "viewEvent": "Voir l'événement",
+  "liberation": "Libération",
+  "defence": "Défense",
+  "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
+  "@hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "days": "{count, plural, zero{0 jour} one{1 jour} other{{count} jours}}",
+  "@days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@ERROR": {},
+  "pageNotFound": "Page non trouvée",
+  "unknownError": "Une erreur inconnue s'est produite.",
+  "@MAIN_DRAWER": {},
+  "mainDrawerTitle": "For Democracy - Helldivers 2",
+  "@USER_DRAWER": {},
+  "userDrawerTooltip": "Ouvrir le menu utilisateur",
+  "userDrawerTitle": "Mon compte",
+  "@PLANETS_SCREEN": {},
+  "planetsScreenLoading": "Chargement des planètes...",
+  "planetsScreenError": "Impossible de charger les planètes",
+  "@PLANET_SCREEN": {},
+  "planetScreenLoading": "Chargement de la planète...",
+  "planetScreenError": "Impossible de charger la planète",
+  "@FACTION": {},
+  "factionHumans": "Humains",
+  "factionTerminids": "Terminids",
+  "factionAutomatons": "Automates",
+  "factionIlluminates": "Illuminés",
+  "@PLANET": {},
+  "planetLiberationInProgress": "Libération en cours",
+  "planetDefenceInProgress": "Défense en cours",
+  "planetUnderControl": "Planète sous contrôle.",
+  "planetUnderAttack": "La planète est attaquée par les {enemyFaction}.",
+  "@planetUnderAttack": {
+    "placeholders": {
+      "enemyFaction": {
+        "type": "String"
+      }
+    }
+  },
+  "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}.",
+  "@planetBeingLiberated": {
+    "placeholders": {
+      "ownerFaction": {
+        "type": "String"
+      }
+    }
+  },
+  "planetOccupied": "La planète est occupée par les {ownerFaction}.",
+  "@planetOccupied": {
+    "placeholders": {
+      "ownerFaction": {
+        "type": "String"
+      }
+    }
+  },
+  "planetLongPressSeeEvent": "Appuyez longuement pour voir les détails de l'événement.",
+  "planetEventProgress": "{percentage} complet, {remainingDays, plural, zero{moins d'un jour} one{1 jour} other{{remainingDays} jours}} restants.",
+  "@planetEventProgress": {
+    "placeholders": {
+      "percentage": {
+        "type": "double",
+        "format": "decimalPercentPattern"
+      },
+      "remainingDays": {
+        "type": "int"
+      }
+    }
+  },
+  "@STATISTIC": {},
+  "statisticMissionsWon": "Missions gagnées",
+  "statisticMissionTime": "Temps de mission",
+  "statisticBugKills": "Insectes tués",
+  "statisticAutomatonKills": "Automates tués",
+  "statisticIlluminateKills": "Illuminés tués",
+  "statisticBulletsFired": "Balles tirées",
+  "statisticBulletsHit": "Balles touchées",
+  "statisticTimePlayed": "Temps de jeu",
+  "statisticDeaths": "Morts",
+  "statisticRevives": "Résurrections"
 }
