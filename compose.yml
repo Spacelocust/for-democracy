@@ -60,16 +60,15 @@ services:
 
   # Uncomment to use Flutter
   # mobile:
-  #   container_name: fd-mobile
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/dev/flutter/Dockerfile
-  #   network_mode: host
-  #   ports:
-  #     - 5037:5037
-  #   privileged: true
-  #   volumes:
-  #     - /app/.dart_tool
-  #     - /app/build
-  #     - ./mobile:/app
-  #     - /dev/bus/usb:/dev/bus/usb
+    # container_name: fd-mobile
+    # build:
+    #   context: .
+    #   dockerfile: ./docker/dev/flutter/Dockerfile
+    # network_mode: host
+    # ports:
+    #   - 5037:5037
+    # privileged: true
+    # volumes:
+    #   - ./mobile:/app
+    #   - /dev/bus/usb:/dev/bus/usb
+    #   - /var/run/docker.sock:/var/run/docker.sock
