@@ -89,17 +89,17 @@ class ForDemocracyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'For Democracy',
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-          backgroundColor: Colors.white,
-          primarySwatch: ThemeColors.primary,
+        colorScheme: ColorScheme.dark(
+          primary: ThemeColors.primary,
+          secondary: ThemeColors.primary,
+          // background: ThemeColors.surface,
         ),
-        useMaterial3: true,
       ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: _router,
+      supportedLocales: AppLocalizations.supportedLocales,
+      title: 'For Democracy',
     );
   }
 }

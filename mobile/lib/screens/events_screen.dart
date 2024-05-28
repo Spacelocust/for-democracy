@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mobile/models/defence.dart';
-import 'package:mobile/models/liberation.dart';
 import 'package:mobile/services/events_service.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -64,24 +62,40 @@ class _EventsScreenState extends State<EventsScreen> {
             // Success state
             final events = snapshot.data;
 
+            if (events == null) {
+              return const Center();
+            }
+
             return ListView.builder(
               itemCount: 2,
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  final List<Defence> item = events?.defences;
-                } else if (index == 1) {
-                  final List<Liberation> item = events?.liberations;
-                }
-
-                // If item is not defined
-                if (item == null) {}
-
                 return Padding(
                   padding: const EdgeInsets.only(
                     left: 8,
                     right: 8,
                   ),
-                  child: item.build(context),
+                  child: Column(children: [
+                    // Defences
+                    ListTile(
+                      title: Text('Ongoing defenses',
+                          style: Theme.of(context).textTheme.headlineLarge),
+                    ),
+                    ...events.defences.map(
+                      (defence) => ListTile(
+                        title: Text(defence.planet?.name ?? ''),
+                      ),
+                    ),
+                    // Liberations
+                    ListTile(
+                      title: Text('Ongoing liberations',
+                          style: Theme.of(context).textTheme.headlineLarge),
+                    ),
+                    ...events.liberations.map(
+                      (liberation) => ListTile(
+                        title: Text(liberation.planet?.name ?? ''),
+                      ),
+                    ),
+                  ]),
                 );
               },
             );
