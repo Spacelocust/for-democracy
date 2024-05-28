@@ -4,7 +4,7 @@ import 'package:mobile/models/planet.dart';
 class EventDetail extends StatelessWidget {
   final Planet planet;
 
-  const EventDetail({Key? key, required this.planet}) : super(key: key);
+  const EventDetail({super.key, required this.planet});
 
   @override
   Widget build(BuildContext context) {

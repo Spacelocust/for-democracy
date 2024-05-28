@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/widgets/event/detail.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobile/models/defence.dart';
+import 'package:mobile/models/liberation.dart';
+import 'package:mobile/services/events_service.dart';
 
 class EventsScreen extends StatefulWidget {
   static const String routePath = '/events';
@@ -12,110 +15,78 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  final List<dynamic> defences = [
-    {
-      "health": 69,
-      "planet": {
-        "maxHealth": 420,
-        "name": "Super Earth",
-      },
-    },
-    {
-      "health": 69,
-      "planet": {
-        "maxHealth": 420,
-        "name": "Super Earth",
-      },
-    }
-  ];
+  Future<Events>? _eventsFuture;
 
-  final List<dynamic> liberation = [
-    {
-      "health": 69,
-      "planet": {
-        "maxHealth": 420,
-        "name": "Big Earth",
-      },
-    },
-    {
-      "health": 69,
-      "planet": {
-        "maxHealth": 420,
-        "name": "Big Earth",
-      },
-    }
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchEvents();
+  }
+
+  void fetchEvents() {
+    setState(() {
+      _eventsFuture = EventsService.getEvents();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Liberations
-          const Text(
-            "Ongoing Liberations",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          ListView.builder(
-            itemBuilder: (context, index) {
-              final liberationItem = liberation[index];
-
-              return ListTile(
-                subtitle: Text("Health: ${liberationItem['health']}"),
-                title: Text(liberationItem['planet']['name']),
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const EventDetail(liberationItem['planet']);
-                    },
-                  );
-                },
-              );
-            },
-            itemCount: liberation.length,
-            shrinkWrap: true,
-          ),
-
-          const SizedBox(height: 16),
-
-          // Defences
-          const Text(
-            "Ongoing Defences",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          ListView.builder(
-            itemBuilder: (context, index) {
-              final defenceItem = defences[index];
-
-              return Column(
+      child: FutureBuilder<Events>(
+        future: _eventsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading state
+            return Center(
+              child: CircularProgressIndicator(
+                semanticsLabel:
+                    AppLocalizations.of(context)!.planetsScreenLoading,
+              ),
+            );
+          } else if (snapshot.hasError) {
+            // Error state
+            return Center(
+              child: Column(
                 children: [
-                  const Text(
-                    "Victory in 420H 42M, 69 hours left",
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.start,
+                  Text(
+                    AppLocalizations.of(context)!.eventsScreenError,
+                    style: const TextStyle(color: Colors.red),
                   ),
-                  ListTile(
-                    subtitle: Text(
-                        "${(defenceItem['health'] * 100 / defenceItem['planet']['maxHealth']).toStringAsFixed(2)}% liberated"),
-                    title: Text(defenceItem['planet']['name']),
+                  TextButton(
+                    onPressed: () => fetchEvents(),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
-              );
-            },
-            itemCount: defences.length,
-            shrinkWrap: true,
-          ),
-        ],
+              ),
+            );
+          } else {
+            // Success state
+            final events = snapshot.data;
+
+            return ListView.builder(
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  final List<Defence> item = events?.defences;
+                } else if (index == 1) {
+                  final List<Liberation> item = events?.liberations;
+                }
+
+                // If item is not defined
+                if (item == null) {}
+
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                  ),
+                  child: item.build(context),
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }
