@@ -1,6 +1,6 @@
 import 'package:mobile/services/secure_storage_service.dart';
 
-class OAuthService {
+class TokenService {
   Future<String?> getToken() async {
     return await SecureStorageService().readSecureData("token");
   }

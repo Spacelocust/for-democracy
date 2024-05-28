@@ -9,23 +9,31 @@ import (
 )
 
 func (s *Server) OAuthMiddleware(c *gin.Context) {
+	db := s.db.GetDB()
 
 	tokenString, err := c.Cookie("token")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token missing"})
-		c.Abort()
 		return
 	}
 
 	// Verify the token
-	token, err := utils.VerifyToken(tokenString)
+	_, err = utils.VerifyToken(tokenString)
+	if err.Error() == utils.ExpiredToken {
+		// Delete the token from the database
+		db.Delete(&model.Token{}, "token = ?", tokenString)
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		// Delete the cookie
+		c.SetCookie("token", "", -1, "/", "", false, true)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
 		return
 	}
 
-	steamId, err := token.Claims.GetSubject()
+	if err.Error() == utils.InvalidToken {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
@@ -33,9 +41,9 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 
 	// Get the user from the database
 	var user model.User
-	err = s.db.GetDB().Where("steam_id = ?", steamId).First(&user).Error
+	err = db.Model(&model.Token{}).Where("token = ?", tokenString).Association("User").Find(&user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 

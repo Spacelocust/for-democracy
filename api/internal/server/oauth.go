@@ -15,7 +15,16 @@ import (
 func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
 	r.GET("/oauth/:provider/callback", s.OAuthCallback)
 	r.GET("/oauth/logout/:provider", s.OAuthLogout)
+	r.GET("/oauth/me", s.OAuthMiddleware, s.OAuthMe)
 	r.GET("/oauth/:provider", s.OAuth)
+}
+
+func (s *Server) OAuthMe(c *gin.Context) {
+	if user, ok := c.MustGet("user").(model.User); !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+	} else {
+		c.JSON(http.StatusOK, user)
+	}
 }
 
 // @Summary			 Get the user after authentication is complete from the provider
@@ -28,6 +37,7 @@ func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
 // @Failure      500  {object}  gin.Error
 // @Router       /oauth/{provider}/callback [get]
 func (s *Server) OAuthCallback(c *gin.Context) {
+	db := s.db.GetDB()
 	user, err := oauth.CompleteUserAuth(c)
 
 	if err != nil {
@@ -43,7 +53,7 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 		Role:      enum.User,
 	}
 
-	err = s.db.GetDB().Clauses(clause.OnConflict{
+	err = db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "steam_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"username", "avatar_url"}),
 	}).Create(&newUser).Error
@@ -58,6 +68,15 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error creating token")
 		return
+	}
+
+	if err := db.Create(&model.Token{
+		Token:  tokenString,
+		UserId: newUser.ID,
+	}).Error; err != nil {
+		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
+			return
+		}
 	}
 
 	c.SetCookie("token", tokenString, 3600, "/", "", false, true)

@@ -7,7 +7,7 @@ import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
-import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/services/token_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
@@ -67,13 +67,11 @@ Future main() async {
   await dotenv.load(fileName: '.env');
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? token = await OAuthService().getToken();
+  String? token = await TokenService().getToken();
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthState(token: token)),
-      ],
+    ChangeNotifierProvider(
+      create: (_) => AuthState(token: token),
       child: const ForDemocracyApp(),
     ),
   );
