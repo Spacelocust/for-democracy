@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/widgets/components/square_avatar.dart';
 import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
 import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
 import 'package:mobile/widgets/layout/user_navigation_drawer.dart';
@@ -28,7 +29,7 @@ class MainScaffold extends StatelessWidget {
         ),
         actions: [
           Builder(
-            builder: (context) {
+            builder: (BuildContext context) {
               return const UserProfileButton();
             },
           ),
@@ -50,29 +51,32 @@ class UserProfileButton extends StatelessWidget {
     return FutureBuilder<User?>(
       future: context.watch<AuthState>().getUser(),
       builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData) {
-            return GestureDetector(
-                onTap: () => Scaffold.of(context).openEndDrawer(),
-                child: Padding(
-                    padding: const EdgeInsets.only(right: 10.0),
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5.0),
-                        child: Image.network(
-                          snapshot.data!.avatarUrl,
-                          width: 40,
-                          height: 40,
-                        ))));
-          } else {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const CircularProgressIndicator();
+          case ConnectionState.done:
+            if (snapshot.hasData) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: SquareAvatar(
+                  avatar: Image.network(snapshot.data!.avatarUrl),
+                  onTap: () => Scaffold.of(context).openEndDrawer(),
+                ),
+              );
+            } else {
+              return IconButton(
+                icon: const Icon(Icons.account_circle),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                tooltip: AppLocalizations.of(context)!.userDrawerTooltip,
+              );
+            }
+          default:
             return IconButton(
               icon: const Icon(Icons.account_circle),
               onPressed: () => Scaffold.of(context).openEndDrawer(),
               tooltip: AppLocalizations.of(context)!.userDrawerTooltip,
             );
-          }
         }
-
-        return const CircularProgressIndicator();
       },
     );
   }

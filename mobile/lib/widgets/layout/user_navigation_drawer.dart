@@ -6,6 +6,7 @@ import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/web_oauth_screen.dart';
 import 'package:mobile/services/secure_storage_service.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/widgets/components/square_avatar.dart';
 import 'package:provider/provider.dart';
 
 class UserNavigationDrawer extends StatelessWidget {
@@ -25,26 +26,31 @@ class UserNavigationDrawer extends StatelessWidget {
             drawerDestination.path == routerState.matchedLocation,
       ),
       children: <Widget>[
-        const Padding(
-          padding: EdgeInsets.fromLTRB(28, 16, 18, 10),
-          child: UserProfile(),
-        ),
+        const DrawerItem(child: UserProfile()),
         ...destinations.map(
           (DrawerDestination drawerDestination) =>
               drawerDestination.destination,
         ),
-        const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10), child: AuthButton()),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-          child: Divider(),
-        ),
+        const DrawerItem(child: AuthButton()),
+        const DrawerItem(child: Divider()),
       ],
     );
   }
 }
 
-// UserProfile is a widget that displays the user's profile information.
+/// Display an item in the drawer.
+class DrawerItem extends StatelessWidget {
+  final Widget child;
+  const DrawerItem({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(28, 16, 28, 10), child: child);
+  }
+}
+
+/// Display the user's profile information.
 class UserProfile extends StatelessWidget {
   const UserProfile({super.key});
 
@@ -53,39 +59,43 @@ class UserProfile extends StatelessWidget {
     return FutureBuilder<User?>(
       future: context.watch<AuthState>().getUser(),
       builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData) {
-            return Row(
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5.0),
-                  child: Image.network(snapshot.data!.avatarUrl, height: 45),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  snapshot.data!.username,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
-            );
-          } else {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const CircularProgressIndicator();
+          case ConnectionState.done:
+            if (snapshot.hasData) {
+              return Row(
+                children: <Widget>[
+                  SquareAvatar(
+                    size: 45,
+                    avatar: Image.network(snapshot.data!.avatarUrl),
+                    onTap: () => Scaffold.of(context).openEndDrawer(),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    snapshot.data!.username,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              );
+            } else {
+              return Text(
+                AppLocalizations.of(context)!.userDrawerTitle,
+                style: Theme.of(context).textTheme.titleSmall,
+              );
+            }
+          default:
             return Text(
               AppLocalizations.of(context)!.userDrawerTitle,
               style: Theme.of(context).textTheme.titleSmall,
             );
-          }
-        } else {
-          return Text(
-            AppLocalizations.of(context)!.userDrawerTitle,
-            style: Theme.of(context).textTheme.titleSmall,
-          );
         }
       },
     );
   }
 }
 
-// AuthButton is a widget that displays a button that allows the user to log in or log out.
+/// Display the authentication button.
 class AuthButton extends StatelessWidget {
   const AuthButton({super.key});
 
