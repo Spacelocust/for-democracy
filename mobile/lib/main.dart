@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/error_screen.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
-import 'package:mobile/services/token_service.dart';
+import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
@@ -67,11 +68,16 @@ Future main() async {
   await dotenv.load(fileName: '.env');
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? token = await TokenService().getToken();
+  User? user;
+  try {
+    user = await OauthService.getMe();
+  } catch (e) {
+    user = null;
+  }
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AuthState(token: token),
+      create: (_) => AuthState(user: user),
       child: const ForDemocracyApp(),
     ),
   );

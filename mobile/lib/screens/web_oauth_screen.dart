@@ -1,10 +1,11 @@
-import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/services/token_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
@@ -46,13 +47,20 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
               try {
                 final value = await getCookie(url, "token");
                 if (value != null) {
-                  await OAuthService().setToken(value);
+                  await TokenService().setToken(value);
+                  User user = await OauthService.getMe();
                   if (mounted) {
-                    context.read<AuthState>().setToken(value);
+                    context.read<AuthState>().setUser(user);
                   }
                 }
               } catch (e) {
-                log(e.toString());
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString()),
+                    ),
+                  );
+                }
               } finally {
                 await cookieManager.clearCookies();
               }
@@ -63,10 +71,18 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
             }
           },
           onHttpError: (HttpResponseError error) {
-            log(error.toString());
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(error.toString()),
+              ),
+            );
           },
           onWebResourceError: (WebResourceError error) {
-            log(error.toString());
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(error.toString()),
+              ),
+            );
           },
         ),
       )

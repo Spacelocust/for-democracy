@@ -55,7 +55,6 @@
   "mainDrawerTitle": "For Democracy - Helldivers 2",
   "@USER_DRAWER": {},
   "userDrawerTooltip": "Open user menu",
-  "userDrawerTitle": "Account",
   "@PLANETS_SCREEN": {},
   "planetsScreenLoading": "Loading planets...",
   "planetsScreenError": "Failed to load planets",

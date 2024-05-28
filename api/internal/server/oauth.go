@@ -19,11 +19,29 @@ func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
 	r.GET("/oauth/:provider", s.OAuth)
 }
 
+type Me struct {
+	Username  string `json:"Username"`
+	AvatarUrl string `json:"AvatarUrl"`
+	SteamId   string `json:"SteamId"`
+}
+
+// @Summary			 Get the user
+// @Description  Route used to get the user
+// @Tags         authentication
+// @Produce      json
+// @Success      200  {object}  server.Me
+// @Failure      401  {object}  gin.Error
+// @Failure      500  {object}  gin.Error
+// @Router       /oauth/me [get]
 func (s *Server) OAuthMe(c *gin.Context) {
 	if user, ok := c.MustGet("user").(model.User); !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no user found", "type": "oauth"})
 	} else {
-		c.JSON(http.StatusOK, user)
+		c.JSON(http.StatusOK, Me{
+			Username:  user.Username,
+			AvatarUrl: *user.AvatarUrl,
+			SteamId:   *user.SteamId,
+		})
 	}
 }
 

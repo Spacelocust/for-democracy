@@ -87,6 +87,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/oauth/me": {
+            "get": {
+                "description": "Route used to get the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get the user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.Me"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/{provider}": {
             "get": {
                 "description": "Route used to authenticate the user",
@@ -653,6 +685,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.Liberation"
                     }
+                }
+            }
+        },
+        "server.Me": {
+            "type": "object",
+            "properties": {
+                "AvatarUrl": {
+                    "type": "string"
+                },
+                "SteamId": {
+                    "type": "string"
+                },
+                "Username": {
+                    "type": "string"
                 }
             }
         }

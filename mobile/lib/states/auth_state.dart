@@ -1,26 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/models/user.dart';
 
 class AuthState with ChangeNotifier, DiagnosticableTreeMixin {
-  String? _token;
+  User? _user;
 
-  AuthState({String? token}) : _token = token;
+  AuthState({User? user}) : _user = user;
 
-  String? get token => _token;
+  User? get user => _user;
 
-  Future<User?> getUser() async {
-    if (token != null) {
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
-
-      return User.fromJson(decodedToken['payload']);
-    }
-
-    return null;
-  }
-
-  void setToken(String? token) {
-    _token = token;
+  void setUser(User? user) {
+    _user = user;
     notifyListeners();
   }
 
@@ -28,6 +17,6 @@ class AuthState with ChangeNotifier, DiagnosticableTreeMixin {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(StringProperty('token', token));
+    properties.add(StringProperty('user', user.toString()));
   }
 }

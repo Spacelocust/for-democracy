@@ -11,16 +11,16 @@ import (
 
 var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
-var ExpiredToken = "Token expired"
-var InvalidToken = "Invalid token"
+const ExpiredToken = "expired token"
+const InvalidToken = "invalid token"
 
 func CreateToken(user model.User) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": *user.SteamId,                    // Subject (user identifier) // Custom payload
-		"iss": os.Getenv("SITE_BASE_URL"),       // Issuer
-		"aud": user.Role,                        // Audience (user role)
-		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
-		"iat": time.Now().Unix(),                // Issued at
+		"sub": *user.SteamId,                              // Subject (user identifier) // Custom payload
+		"iss": os.Getenv("SITE_BASE_URL"),                 // Issuer
+		"aud": user.Role,                                  // Audience (user role)
+		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(), // Expiration time
+		"iat": time.Now().Unix(),                          // Issued at
 	})
 
 	tokenString, err := claims.SignedString(secretKey)
@@ -37,23 +37,22 @@ func VerifyToken(tokenString string) (*jwt.Token, error) {
 		return secretKey, nil
 	})
 
-	// Check for verification errors
 	if err != nil {
-		return nil, err
+		expiredTime, err := token.Claims.GetExpirationTime()
+		if err != nil {
+			return nil, fmt.Errorf(InvalidToken)
+		}
+
+		if expiredTime.Before(time.Now()) {
+			return nil, fmt.Errorf(ExpiredToken)
+		}
+
+		return nil, fmt.Errorf(InvalidToken)
 	}
 
 	// Check if the token is valid
 	if !token.Valid {
 		return nil, fmt.Errorf(InvalidToken)
-	}
-
-	expiredTime, err := token.Claims.GetExpirationTime()
-	if err != nil {
-		return nil, fmt.Errorf(InvalidToken)
-	}
-
-	if !expiredTime.Before(time.Now()) {
-		return nil, fmt.Errorf(ExpiredToken)
 	}
 
 	// Return the verified token

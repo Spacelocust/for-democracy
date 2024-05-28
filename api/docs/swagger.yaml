@@ -289,6 +289,15 @@ definitions:
           $ref: '#/definitions/model.Liberation'
         type: array
     type: object
+  server.Me:
+    properties:
+      AvatarUrl:
+        type: string
+      SteamId:
+        type: string
+      Username:
+        type: string
+    type: object
 info:
   contact:
     email: support@for-democracy
@@ -389,6 +398,27 @@ paths:
           schema:
             $ref: '#/definitions/gin.Error'
       summary: Log the user out
+      tags:
+      - authentication
+  /oauth/me:
+    get:
+      description: Route used to get the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Me'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get the user
       tags:
       - authentication
   /planets:
