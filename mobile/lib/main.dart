@@ -41,8 +41,11 @@ final _router = GoRouter(
               path: PlanetScreen.routePath,
               pageBuilder: (BuildContext context, GoRouterState state) {
                 return BottomSheetPage(
+                  isScrollControlled: true,
                   child: PlanetScreen(
-                    planetId: int.parse(state.pathParameters['planetId']!),
+                    planetId: int.parse(
+                      state.pathParameters['planetId']!,
+                    ),
                   ),
                 );
               },

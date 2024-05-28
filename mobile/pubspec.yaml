@@ -81,6 +81,7 @@ flutter:
   assets:
     - assets/
     - .env
+    - assets/images/galaxy_map.png
 
   fonts:
     - family: Reddit Mono

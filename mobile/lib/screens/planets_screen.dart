@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/widgets/base/list_item.dart';
+import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
 import 'package:mobile/widgets/sector/list_item.dart';
 
@@ -54,16 +55,18 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
             FutureBuilder<List<Planet>>(
               future: _planetsFuture,
               builder: (context, snapshot) {
+                // Loading state
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Loading state
                   return Center(
                     child: CircularProgressIndicator(
                       semanticsLabel:
                           AppLocalizations.of(context)!.planetsScreenLoading,
                     ),
                   );
-                } else if (snapshot.hasError) {
-                  // Error state
+                }
+
+                // Error state
+                if (snapshot.hasError || !snapshot.hasData) {
                   return Center(
                     child: Column(
                       children: [
@@ -78,57 +81,63 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                       ],
                     ),
                   );
-                } else {
-                  // Success state
-                  final planets = snapshot.data!.toList()
-                    ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
-                  int? lastSectorId;
+                }
 
-                  final listItems = planets.fold<List<ListItem>>(
-                    [],
-                    (previousValue, planet) {
-                      if (lastSectorId != planet.sector.id) {
-                        lastSectorId = planet.sector.id;
+                // Success state
+                final planets = snapshot.data!.toList()
+                  ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
+                int? lastSectorId;
 
-                        previousValue.add(
-                          SectorListItem(sector: planet.sector),
-                        );
-                      }
+                final listItems = planets.fold<List<ListItem>>(
+                  [],
+                  (previousValue, planet) {
+                    if (lastSectorId != planet.sector.id) {
+                      lastSectorId = planet.sector.id;
 
                       previousValue.add(
-                        PlanetListItem(planet: planet),
+                        SectorListItem(sector: planet.sector),
                       );
+                    }
 
-                      return previousValue;
-                    },
-                  );
+                    previousValue.add(
+                      PlanetListItem(planet: planet),
+                    );
 
-                  return Expanded(
-                    child: TabBarView(
-                      children: [
-                        const Text('TODO: Map view'),
-                        ListView.builder(
-                          itemCount: listItems.length,
-                          itemBuilder: (context, index) {
-                            final item = listItems[index];
+                    return previousValue;
+                  },
+                );
 
-                            if (item is PlanetListItem) {
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 8,
-                                  right: 8,
-                                ),
-                                child: item.build(context),
-                              );
-                            }
+                return Expanded(
+                  child: TabBarView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      InteractiveViewer(
+                        boundaryMargin: const EdgeInsets.all(300),
+                        minScale: 0.1,
+                        maxScale: 2,
+                        child: const GalaxyMap(),
+                      ),
+                      ListView.builder(
+                        itemCount: listItems.length,
+                        itemBuilder: (context, index) {
+                          final item = listItems[index];
 
-                            return item.build(context);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                          if (item is PlanetListItem) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                left: 8,
+                                right: 8,
+                              ),
+                              child: item.build(context),
+                            );
+                          }
+
+                          return item.build(context);
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ],

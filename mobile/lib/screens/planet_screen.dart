@@ -39,40 +39,69 @@ class _PlanetScreenState extends State<PlanetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-      ),
-      padding: const EdgeInsets.only(
-        top: 22,
-        left: 16,
-        right: 16,
-        bottom: 16,
-      ),
-      constraints: const BoxConstraints.expand(),
-      child: FutureBuilder<Planet>(
-        future: _planetFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Loading state
-            return Center(
-              child: CircularProgressIndicator(
-                semanticsLabel:
-                    AppLocalizations.of(context)!.planetScreenLoading,
-              ),
-            );
-          } else if (snapshot.hasError) {
-            // Error state
-            return ErrorMessage(onPressed: () => fetchPlanet());
-          } else {
-            // Success state
-            return _PlanetScreenView(planet: snapshot.data!);
-          }
-        },
-      ),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      maxChildSize: 0.8,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+          ),
+          padding: const EdgeInsets.only(
+            top: 0,
+            left: 16,
+            right: 16,
+            bottom: 0,
+          ),
+          constraints: const BoxConstraints.expand(),
+          child: FutureBuilder<Planet>(
+            future: _planetFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // Loading state
+                return SingleChildScrollView(
+                  controller: scrollController,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      semanticsLabel:
+                          AppLocalizations.of(context)!.planetScreenLoading,
+                    ),
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                // Error state
+                return SingleChildScrollView(
+                  controller: scrollController,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.planetScreenError,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        TextButton(
+                          onPressed: () => fetchPlanet(),
+                          child: Text(AppLocalizations.of(context)!.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              } else {
+                // Success state
+                return _PlanetScreenView(
+                  planet: snapshot.data!,
+                  scrollController: scrollController,
+                );
+              }
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -82,7 +111,12 @@ class _PlanetScreenView extends StatelessWidget {
 
   final Planet planet;
 
-  const _PlanetScreenView({required this.planet});
+  final ScrollController scrollController;
+
+  const _PlanetScreenView({
+    required this.planet,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +188,14 @@ class _PlanetScreenView extends StatelessWidget {
       ];
     }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: view,
+    return SingleChildScrollView(
+      controller: scrollController,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: view,
+      ),
     );
   }
 }
