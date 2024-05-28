@@ -137,7 +137,7 @@ class AuthButton extends StatelessWidget {
           builder: (context, scrollController) => SafeArea(
             child: SingleChildScrollView(
               controller: scrollController,
-              child: const WebOauthScreen(),
+              child: const WebOAuthScreen(),
             ),
           ),
         ),
@@ -146,25 +146,27 @@ class AuthButton extends StatelessWidget {
 
     if (context.watch<AuthState>().user != null) {
       return ElevatedButton(
-          onPressed: () {
-            context.read<AuthState>().setUser(null);
-            SecureStorageService().deleteSecureData("token");
-          },
-          child: Text(
-            AppLocalizations.of(context)!.logout,
-            style: Theme.of(context).textTheme.titleSmall,
-          ));
-    } else {
-      return ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-          onPressed: openSteamModal,
-          child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Image(
-                image: AssetImage('assets/steam-logo.png'),
-                height: 30,
-                alignment: Alignment.centerLeft,
-              )));
+        onPressed: () {
+          context.read<AuthState>().setUser(null);
+          SecureStorageService().deleteSecureData("token");
+        },
+        child: Text(
+          AppLocalizations.of(context)!.logout,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+      );
     }
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+      onPressed: openSteamModal,
+      child: const Padding(
+        padding: EdgeInsets.all(10),
+        child: Image(
+          image: AssetImage('assets/steam-logo.png'),
+          height: 30,
+          alignment: Alignment.centerLeft,
+        ),
+      ),
+    );
   }
 }

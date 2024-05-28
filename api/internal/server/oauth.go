@@ -140,7 +140,7 @@ const pageLoading = `<!DOCTYPE html>
 <head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Centered Image</title>
+		<title>For Democracy - Login</title>
 		<style>
 				body {
 						display: flex;

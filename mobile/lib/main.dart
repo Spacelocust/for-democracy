@@ -70,7 +70,7 @@ Future main() async {
 
   User? user;
   try {
-    user = await OauthService.getMe();
+    user = await OAuthService.getMe();
   } catch (e) {
     user = null;
   }

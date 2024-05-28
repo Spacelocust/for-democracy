@@ -12,20 +12,21 @@ import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
-class WebOauthScreen extends StatefulWidget {
-  const WebOauthScreen({super.key});
+class WebOAuthScreen extends StatefulWidget {
+  const WebOAuthScreen({super.key});
 
   @override
-  State<WebOauthScreen> createState() => _WebOauthScreenState();
+  State<WebOAuthScreen> createState() => _WebOAuthScreenState();
 }
 
-class _WebOauthScreenState extends State<WebOauthScreen> {
+class _WebOAuthScreenState extends State<WebOAuthScreen> {
   late final WebViewController _controller;
+
   final cookieManager = WebviewCookieManager();
 
-  String baseUrl = dotenv.get(APIService.baseUrlEnv);
-  String steamOauthUrl = '/oauth/steam';
-  String steamCallbackUrl = '/oauth/steam/callback';
+  final String baseUrl = dotenv.get(APIService.baseUrlEnv);
+  final String steamOauthUrl = '/oauth/steam';
+  final String steamCallbackUrl = '/oauth/steam/callback';
 
   @override
   void initState() {
@@ -42,34 +43,7 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (String url) async {
-            if (url.contains(steamCallbackUrl)) {
-              try {
-                final value = await getCookie(url, "token");
-                if (value != null) {
-                  await TokenService().setToken(value);
-                  User user = await OauthService.getMe();
-                  if (mounted) {
-                    context.read<AuthState>().setUser(user);
-                  }
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.toString()),
-                    ),
-                  );
-                }
-              } finally {
-                await cookieManager.clearCookies();
-              }
-
-              if (mounted) {
-                Navigator.pop(context);
-              }
-            }
-          },
+          onPageFinished: finishAuthentication,
           onHttpError: (HttpResponseError error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -88,6 +62,7 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
       )
       ..loadRequest(Uri.parse('$baseUrl$steamOauthUrl'));
 
+    // Enable debugging and disable media playback requires user gesture for Android
     if (controller.platform is AndroidWebViewController) {
       AndroidWebViewController.enableDebugging(true);
       (controller.platform as AndroidWebViewController)
@@ -95,6 +70,48 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
     }
 
     _controller = controller;
+  }
+
+  /// Check if the URL contains the callback URL for Steam and finish the authentication process.
+  void finishAuthentication(String url) async {
+    // Check if the URL contains the callback URL for Steam
+    // (this is the URL that the OAuth server will redirect to after authentication)
+    if (url.contains(steamCallbackUrl)) {
+      try {
+        // Retrieve the token from the cookie of the WebView
+        final token = await getCookie(url, "token");
+
+        // Check if the token is not null
+        if (token != null) {
+          // Save the token to the secure storage
+          await TokenService().setToken(token);
+
+          // Retrieve the user information
+          User user = await OAuthService.getMe();
+
+          if (mounted) {
+            // Set the user to the AuthState
+            context.read<AuthState>().setUser(user);
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Failed to authenticate"),
+            ),
+          );
+        }
+      }
+
+      // Clear the cookies of the WebView to prevent leaking the token
+      await cookieManager.clearCookies();
+    }
+
+    if (mounted) {
+      // Close the modal after
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -107,10 +124,15 @@ class _WebOauthScreenState extends State<WebOauthScreen> {
 
   // Retrieve the cookie value from the WebView
   Future<String?> getCookie(String url, String name) async {
+    // Retrieve the cookies from the WebView
     final cookies = await cookieManager.getCookies(url);
 
-    final Cookie cookie = cookies.firstWhere((cookie) => cookie.name == name,
-        orElse: () => Cookie(name, ""));
+    // Find the cookie with the specified name
+    final Cookie cookie = cookies.firstWhere(
+      (cookie) => cookie.name == name,
+      orElse: () => Cookie(name, ""),
+    );
+
     return cookie.value.isEmpty ? null : cookie.value;
   }
 }

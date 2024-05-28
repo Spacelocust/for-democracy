@@ -52,10 +52,11 @@ class UserProfileButton extends StatelessWidget {
           backgroundImage: NetworkImage(user.avatarUrl),
         ),
       );
-    } else {
-      return const Padding(
-          padding: EdgeInsets.only(right: 10.0),
-          child: Icon(Icons.account_circle));
     }
+
+    return const Padding(
+      padding: EdgeInsets.only(right: 10.0),
+      child: Icon(Icons.account_circle),
+    );
   }
 }

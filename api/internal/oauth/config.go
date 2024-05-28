@@ -10,11 +10,11 @@ import (
 	"github.com/markbates/goth/providers/steam"
 )
 
-// TODO: Just for testing purposes
-var baseUrl = "http://10.0.2.2:5000"
+var baseUrl = os.Getenv("SITE_BASE_URL")
+var secretKey = os.Getenv("API_SECRET")
 
 func init() {
-	key := "big-key"  // Replace with your SESSION_SECRET or similar
+	key := secretKey  // Replace with your SESSION_SECRET or similar
 	maxAge := 60 * 60 // 1 hour
 	isProd := false   // Set to true when serving over https
 
