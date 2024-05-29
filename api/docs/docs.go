@@ -23,7 +23,103 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/{provider}": {
+        "/events": {
+            "get": {
+                "description": "Get all events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get all events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.Event"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/logout/{provider}": {
+            "get": {
+                "description": "Route used to log the user out",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Log the user out",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/me": {
+            "get": {
+                "description": "Route used to get the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get the user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.Me"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/{provider}": {
             "get": {
                 "description": "Route used to authenticate the user",
                 "produces": [
@@ -43,19 +139,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
             }
         },
-        "/auth/{provider}/callback": {
+        "/oauth/{provider}/callback": {
             "get": {
                 "description": "Route used by the provide to send the user back after authentication",
                 "produces": [
@@ -84,77 +180,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/events": {
-            "get": {
-                "description": "Get all events",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "events"
-                ],
-                "summary": "Get all events",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Event"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/logout/{provider}": {
-            "get": {
-                "description": "Route used to log the user out",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "summary": "Log the user out",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Provider name",
-                        "name": "provider",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -183,7 +215,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -218,7 +250,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/fiber.Error"
+                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -241,16 +273,32 @@ const docTemplate = `{
                 "Illuminates"
             ]
         },
-        "fiber.Error": {
+        "gin.Error": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
+                "err": {},
+                "meta": {},
+                "type": {
+                    "$ref": "#/definitions/gin.ErrorType"
                 }
             }
+        },
+        "gin.ErrorType": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                4611686018427387904,
+                1,
+                2,
+                -1
+            ],
+            "x-enum-varnames": [
+                "ErrorTypeBind",
+                "ErrorTypeRender",
+                "ErrorTypePrivate",
+                "ErrorTypePublic",
+                "ErrorTypeAny"
+            ]
         },
         "gorm.DeletedAt": {
             "type": "object",
@@ -318,23 +366,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Event": {
-            "type": "object",
-            "properties": {
-                "defence": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Defence"
-                    }
-                },
-                "liberation": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Liberation"
-                    }
-                }
-            }
-        },
         "model.Biome": {
             "type": "object",
             "properties": {
@@ -376,13 +407,13 @@ const docTemplate = `{
                 "endAt": {
                     "type": "string"
                 },
-                "ennemyFaction": {
+                "enemyFaction": {
                     "$ref": "#/definitions/enum.Faction"
                 },
-                "ennemyHealth": {
+                "enemyHealth": {
                     "type": "integer"
                 },
-                "ennemyMaxHealth": {
+                "enemyMaxHealth": {
                     "type": "integer"
                 },
                 "health": {
@@ -394,7 +425,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "planet": {
+                    "$ref": "#/definitions/model.Planet"
+                },
                 "planetID": {
+                    "type": "integer"
+                },
+                "players": {
                     "type": "integer"
                 },
                 "startAt": {
@@ -451,6 +488,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "planet": {
+                    "$ref": "#/definitions/model.Planet"
                 },
                 "planetID": {
                     "type": "integer"
@@ -523,8 +563,43 @@ const docTemplate = `{
                 "regeneration": {
                     "type": "integer"
                 },
+                "sector": {
+                    "$ref": "#/definitions/model.Sector"
+                },
+                "sectorID": {
+                    "type": "integer"
+                },
                 "statistic": {
                     "$ref": "#/definitions/model.Statistic"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Sector": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "helldiversID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Planet"
+                    }
                 },
                 "updatedAt": {
                     "type": "string"
@@ -561,13 +636,13 @@ const docTemplate = `{
                 "friendlyKills": {
                     "type": "integer"
                 },
+                "helldiversID": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "illuminateKills": {
-                    "type": "integer"
-                },
-                "index": {
                     "type": "integer"
                 },
                 "missionSuccessRate": {
@@ -579,6 +654,9 @@ const docTemplate = `{
                 "missionsWon": {
                     "type": "integer"
                 },
+                "planet": {
+                    "$ref": "#/definitions/model.Planet"
+                },
                 "planetID": {
                     "type": "integer"
                 },
@@ -589,6 +667,37 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.Event": {
+            "type": "object",
+            "properties": {
+                "defence": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Defence"
+                    }
+                },
+                "liberation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Liberation"
+                    }
+                }
+            }
+        },
+        "server.Me": {
+            "type": "object",
+            "properties": {
+                "AvatarUrl": {
+                    "type": "string"
+                },
+                "SteamId": {
+                    "type": "string"
+                },
+                "Username": {
                     "type": "string"
                 }
             }

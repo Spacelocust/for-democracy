@@ -12,13 +12,27 @@ definitions:
     - Terminids
     - Automatons
     - Illuminates
-  fiber.Error:
+  gin.Error:
     properties:
-      code:
-        type: integer
-      message:
-        type: string
+      err: {}
+      meta: {}
+      type:
+        $ref: '#/definitions/gin.ErrorType'
     type: object
+  gin.ErrorType:
+    enum:
+    - -9223372036854775808
+    - 4611686018427387904
+    - 1
+    - 2
+    - -1
+    type: integer
+    x-enum-varnames:
+    - ErrorTypeBind
+    - ErrorTypeRender
+    - ErrorTypePrivate
+    - ErrorTypePublic
+    - ErrorTypeAny
   gorm.DeletedAt:
     properties:
       time:
@@ -63,17 +77,6 @@ definitions:
       userID:
         type: string
     type: object
-  handler.Event:
-    properties:
-      defence:
-        items:
-          $ref: '#/definitions/model.Defence'
-        type: array
-      liberation:
-        items:
-          $ref: '#/definitions/model.Liberation'
-        type: array
-    type: object
   model.Biome:
     properties:
       createdAt:
@@ -101,11 +104,11 @@ definitions:
         $ref: '#/definitions/gorm.DeletedAt'
       endAt:
         type: string
-      ennemyFaction:
+      enemyFaction:
         $ref: '#/definitions/enum.Faction'
-      ennemyHealth:
+      enemyHealth:
         type: integer
-      ennemyMaxHealth:
+      enemyMaxHealth:
         type: integer
       health:
         type: integer
@@ -113,7 +116,11 @@ definitions:
         type: integer
       id:
         type: integer
+      planet:
+        $ref: '#/definitions/model.Planet'
       planetID:
+        type: integer
+      players:
         type: integer
       startAt:
         type: string
@@ -151,6 +158,8 @@ definitions:
         type: integer
       id:
         type: integer
+      planet:
+        $ref: '#/definitions/model.Planet'
       planetID:
         type: integer
       players:
@@ -198,8 +207,31 @@ definitions:
         type: number
       regeneration:
         type: integer
+      sector:
+        $ref: '#/definitions/model.Sector'
+      sectorID:
+        type: integer
       statistic:
         $ref: '#/definitions/model.Statistic'
+      updatedAt:
+        type: string
+    type: object
+  model.Sector:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      helldiversID:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      planets:
+        items:
+          $ref: '#/definitions/model.Planet'
+        type: array
       updatedAt:
         type: string
     type: object
@@ -223,11 +255,11 @@ definitions:
         $ref: '#/definitions/gorm.DeletedAt'
       friendlyKills:
         type: integer
+      helldiversID:
+        type: integer
       id:
         type: integer
       illuminateKills:
-        type: integer
-      index:
         type: integer
       missionSuccessRate:
         type: integer
@@ -235,6 +267,8 @@ definitions:
         type: integer
       missionsWon:
         type: integer
+      planet:
+        $ref: '#/definitions/model.Planet'
       planetID:
         type: integer
       revives:
@@ -242,6 +276,26 @@ definitions:
       timePlayed:
         type: integer
       updatedAt:
+        type: string
+    type: object
+  server.Event:
+    properties:
+      defence:
+        items:
+          $ref: '#/definitions/model.Defence'
+        type: array
+      liberation:
+        items:
+          $ref: '#/definitions/model.Liberation'
+        type: array
+    type: object
+  server.Me:
+    properties:
+      AvatarUrl:
+        type: string
+      SteamId:
+        type: string
+      Username:
         type: string
     type: object
 info:
@@ -256,7 +310,24 @@ info:
   title: For Democracy API
   version: "1.0"
 paths:
-  /auth/{provider}:
+  /events:
+    get:
+      description: Get all events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Event'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get all events
+      tags:
+      - events
+  /oauth/{provider}:
     get:
       description: Route used to authenticate the user
       produces:
@@ -269,15 +340,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
       summary: Authenticate the user
       tags:
       - authentication
-  /auth/{provider}/callback:
+  /oauth/{provider}/callback:
     get:
       description: Route used by the provide to send the user back after authentication
       parameters:
@@ -296,32 +367,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
       summary: Get the user after authentication is complete from the provider
       tags:
       - authentication
-  /events:
-    get:
-      description: Get all events
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.Event'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/fiber.Error'
-      summary: Get all events
-      tags:
-      - events
-  /logout/{provider}:
+  /oauth/logout/{provider}:
     get:
       description: Route used to log the user out
       parameters:
@@ -338,12 +392,33 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
       summary: Log the user out
+      tags:
+      - authentication
+  /oauth/me:
+    get:
+      description: Route used to get the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Me'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gin.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get the user
       tags:
       - authentication
   /planets:
@@ -361,7 +436,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
       summary: Get all planets
       tags:
       - planets
@@ -384,7 +459,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/fiber.Error'
+            $ref: '#/definitions/gin.Error'
       summary: Get planet by ID
       tags:
       - planets

@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/Spacelocust/for-democracy/collector"
-	"github.com/Spacelocust/for-democracy/db"
+	"github.com/Spacelocust/for-democracy/internal/collector"
+	"github.com/Spacelocust/for-democracy/internal/database"
 	"github.com/urfave/cli/v2"
 )
 
@@ -15,9 +16,15 @@ var gatherCmd = &cli.Command{
 	Aliases: []string{"c"},
 	Action: func(c *cli.Context) error {
 		fmt.Println("Collecting data from the HellHub API")
-		// Set up the database
-		db.ConnectDb()
-		collector.CollectData()
+
+		NewCollector := collector.NewCollector(database.New())
+
+		if health := NewCollector.Db.Health(); len(health) < 1 {
+			log.Fatal("Database is not healthy")
+			return nil
+		}
+
+		NewCollector.CollectData()
 		return nil
 	},
 }

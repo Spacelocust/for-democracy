@@ -1,6 +1,7 @@
 {
     "@@locale": "fr",
     "@COMMON": {},
+    "logout": "Déconnexion",
     "close": "Fermer",
     "planets": "Planètes",
     "events": "Événements",

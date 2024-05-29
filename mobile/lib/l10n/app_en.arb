@@ -1,6 +1,7 @@
 {
     "@@locale": "en",
     "@COMMON": {},
+    "logout": "Logout",
     "close": "Close",
     "planets": "Planets",
     "events": "Events",

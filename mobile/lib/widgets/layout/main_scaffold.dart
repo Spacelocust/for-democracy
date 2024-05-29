@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
 import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
-import 'package:mobile/widgets/layout/user_navigation_drawer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget body;
@@ -25,20 +25,38 @@ class MainScaffold extends StatelessWidget {
         ),
         actions: [
           Builder(
-            builder: (context) {
-              return IconButton(
-                icon: const Icon(Icons.account_circle),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                tooltip: AppLocalizations.of(context)!.userDrawerTooltip,
-              );
+            builder: (BuildContext context) {
+              return const UserProfileButton();
             },
           ),
         ],
       ),
       bottomNavigationBar: const MainBottomNavigationBar(),
       drawer: const MainNavigationDrawer(),
-      endDrawer: const UserNavigationDrawer(),
       body: body,
+    );
+  }
+}
+
+class UserProfileButton extends StatelessWidget {
+  const UserProfileButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthState>().user;
+
+    if (user != null) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 10.0),
+        child: CircleAvatar(
+          backgroundImage: NetworkImage(user.avatarUrl),
+        ),
+      );
+    }
+
+    return const Padding(
+      padding: EdgeInsets.only(right: 10.0),
+      child: Icon(Icons.account_circle),
     );
   }
 }

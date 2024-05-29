@@ -67,6 +67,9 @@ logs-pg: ## Show logs for the postgres container
 	$(COMPOSE) logs postgres
 
 ##@ Dart
+lint-dart: ## Run dart lint
+	cd mobile && flutter analyze --suppress-analytics --no-fatal-infos
+
 dart-build-runner: ## Run build_runner
 	cd mobile && dart run build_runner build --delete-conflicting-outputs
 
@@ -87,7 +90,7 @@ db-create-migration: ## Create a new migration
 dcm: db-create-migration ## Alias for db-create-migration
 
 db-migrate-apply: ## Apply the migrations
-	$(EXECAPI) atlas migrate apply --dir "file://db/migration" --url ${DB_URL} --allow-dirty
+	$(EXECAPI) atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 
 db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
