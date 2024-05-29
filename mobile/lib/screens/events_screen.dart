@@ -60,11 +60,7 @@ class _EventsScreenState extends State<EventsScreen> {
             );
           } else {
             // Success state
-            final events = snapshot.data;
-
-            if (events == null) {
-              return const Center();
-            }
+            final events = snapshot.data!;
 
             return ListView.builder(
               itemCount: 2,
@@ -77,8 +73,10 @@ class _EventsScreenState extends State<EventsScreen> {
                   child: Column(children: [
                     // Defences
                     ListTile(
-                      title: Text('Ongoing defenses',
-                          style: Theme.of(context).textTheme.headlineLarge),
+                      title: Text(
+                        'Ongoing defenses',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
                     ),
                     ...events.defences.map(
                       (defence) => ListTile(
@@ -87,8 +85,10 @@ class _EventsScreenState extends State<EventsScreen> {
                     ),
                     // Liberations
                     ListTile(
-                      title: Text('Ongoing liberations',
-                          style: Theme.of(context).textTheme.headlineLarge),
+                      title: Text(
+                        'Ongoing liberations',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
                     ),
                     ...events.liberations.map(
                       (liberation) => ListTile(

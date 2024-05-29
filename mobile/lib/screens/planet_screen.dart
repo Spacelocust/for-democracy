@@ -8,6 +8,7 @@ import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:mobile/widgets/layout/error_message.dart';
 
 class PlanetScreen extends StatefulWidget {
   static const String routePath = ":planetId";
@@ -65,20 +66,7 @@ class _PlanetScreenState extends State<PlanetScreen> {
             );
           } else if (snapshot.hasError) {
             // Error state
-            return Center(
-              child: Column(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.planetScreenError,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  TextButton(
-                    onPressed: () => fetchPlanet(),
-                    child: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                ],
-              ),
-            );
+            return ErrorMessage(onPressed: () => fetchPlanet());
           } else {
             // Success state
             return _PlanetScreenView(planet: snapshot.data!);

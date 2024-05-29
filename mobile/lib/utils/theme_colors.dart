@@ -19,5 +19,5 @@ abstract final class ThemeColors {
     },
   );
 
-  static Color surface = const Color(0xff1c1917);
+  static Color surface = const Color(0xff171717);
 }

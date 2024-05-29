@@ -89,16 +89,19 @@ class ForDemocracyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      routerConfig: _router,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.dark(
           primary: ThemeColors.primary,
           secondary: ThemeColors.primary,
-          // background: ThemeColors.surface,
+          background: ThemeColors.surface,
+          surfaceTint: ThemeColors.surface,
         ),
+        fontFamily: 'Reddit Mono',
+        useMaterial3: true,
       ),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: _router,
-      supportedLocales: AppLocalizations.supportedLocales,
       title: 'For Democracy',
     );
   }
