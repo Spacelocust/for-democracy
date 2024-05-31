@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PlanetScreen extends StatefulWidget {
   static const String routePath = ":planetId";
@@ -110,9 +112,22 @@ class _PlanetScreenView extends StatelessWidget {
 
     columns = [
       ...columns,
-      // TODO: Proper image
-      Image.network(
-          'https://static.wikia.nocookie.net/helldivers_gamepedia/images/d/d9/Erate_Prime_Landscape.png/revision/latest?cb=20240216234130'),
+      CachedNetworkImage(
+        imageUrl: planet.backgroundUrl,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => SizedBox(
+          width: double.infinity,
+          height: 120,
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.yellow,
+            child: Container(
+              color: Colors.white,
+            ),
+          ),
+        ),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+      ),
       const SizedBox(height: columnSpacing),
       _PlanetViewStatistic(statistic: planet.statistic),
     ];

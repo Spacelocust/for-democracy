@@ -3,6 +3,7 @@ package hellhub
 import (
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 
 	err "github.com/Spacelocust/for-democracy/error"
@@ -11,6 +12,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+var bgUrl = "https://helldiverscompanion.com/biomes/"
 
 type Environment struct {
 	biomes  *[]model.Biome
@@ -108,6 +111,8 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Set the new planet's biome and biome ID
 			newPlanet.BiomeID = (*biomes)[planetBiomeIndex].ID
 
+			newPlanet.BackgroundURL = getBiomeBackgrounds(planet.Biome.Name)
+
 			// Find the owner and initial owner factions
 			owner, err := getFaction(planet.Owner)
 			if err != nil {
@@ -150,7 +155,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create the new planet
 			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "name"}},
-				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url"}),
+				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url", "background_url"}),
 			}).Create(&newPlanet).Error
 
 			if err != nil {
@@ -193,7 +198,7 @@ func storePlanets(db *gorm.DB, environment Environment, totalPage int) error {
 
 	pwg.Add(totalPage)
 	for i := range totalPage {
-		go func() {
+		go func(i int) {
 			start := i * 100
 			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome&include[]=sector", start))
 			if err != nil {
@@ -211,7 +216,7 @@ func storePlanets(db *gorm.DB, environment Environment, totalPage int) error {
 			// Send nil to the page channel to indicate that the page was successfully fetched
 			errch <- nil
 			pwg.Done()
-		}()
+		}(i)
 	}
 
 	// Wait for all the goroutines to finish
@@ -241,4 +246,30 @@ func getFaction(id int) (enum.Faction, error) {
 	default:
 		return "", fmt.Errorf("invalid faction ID: %d", id)
 	}
+}
+
+var coorealationBiomeBackground = map[string]string{
+	"Toxic":           "acidic",
+	"Unkown":          "superearth",
+	"Tundra":          "taiga",
+	"Icemoss Special": "cyberstan",
+	"Crimsonmoor":     "crimson",
+	"Desolate":        "inferno",
+}
+
+var coorelationPlanetBackground = map[string]string{
+	"Meridia": "meridia",
+}
+
+// Get the background image URL from the biome name
+func getBiomeBackgrounds(name string) string {
+	if bg, ok := coorealationBiomeBackground[name]; ok {
+		return fmt.Sprintf("%s%s%s", bgUrl, bg, ".webp")
+	}
+
+	if bg, ok := coorelationPlanetBackground[name]; ok {
+		return fmt.Sprintf("%s%s%s", bgUrl, bg, ".webp")
+	}
+
+	return fmt.Sprintf("%s%s%s", bgUrl, strings.ReplaceAll(strings.ToLower(name), " ", "_"), ".webp")
 }

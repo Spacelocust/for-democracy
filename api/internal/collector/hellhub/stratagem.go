@@ -67,7 +67,7 @@ func storeStratagems(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 	swg.Add(len(splitStratagems))
 
 	for _, splitStratagem := range splitStratagems {
-		go func() {
+		go func(splitStratagem []Stratagem) {
 			if err := db.Transaction(func(tx *gorm.DB) error {
 				for _, stratagem := range splitStratagem {
 					// Convert the string keys to enum keys
@@ -116,7 +116,7 @@ func storeStratagems(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 
 			errch <- nil
 			swg.Done()
-		}()
+		}(splitStratagem)
 	}
 
 	// Wait for all the goroutines to finish
