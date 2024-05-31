@@ -42,7 +42,9 @@ class _EventsScreenState extends State<EventsScreen> {
                     AppLocalizations.of(context)!.planetsScreenLoading,
               ),
             );
-          } else if (snapshot.hasError) {
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
             // Error state
             return Center(
               child: Column(
@@ -58,48 +60,48 @@ class _EventsScreenState extends State<EventsScreen> {
                 ],
               ),
             );
-          } else {
-            // Success state
-            final events = snapshot.data!;
-
-            return ListView.builder(
-              itemCount: 2,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: 8,
-                    right: 8,
-                  ),
-                  child: Column(children: [
-                    // Defences
-                    ListTile(
-                      title: Text(
-                        'Ongoing defenses',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                    ),
-                    ...events.defences.map(
-                      (defence) => ListTile(
-                        title: Text(defence.planet?.name ?? ''),
-                      ),
-                    ),
-                    // Liberations
-                    ListTile(
-                      title: Text(
-                        'Ongoing liberations',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                    ),
-                    ...events.liberations.map(
-                      (liberation) => ListTile(
-                        title: Text(liberation.planet?.name ?? ''),
-                      ),
-                    ),
-                  ]),
-                );
-              },
-            );
           }
+
+          // Success state
+          final events = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  left: 8,
+                  right: 8,
+                ),
+                child: Column(children: [
+                  // Defences
+                  ListTile(
+                    title: Text(
+                      'Ongoing defenses',
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
+                  ...events.defences.map(
+                    (defence) => ListTile(
+                      title: Text(defence.planet?.name ?? ''),
+                    ),
+                  ),
+                  // Liberations
+                  ListTile(
+                    title: Text(
+                      'Ongoing liberations',
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
+                  ...events.liberations.map(
+                    (liberation) => ListTile(
+                      title: Text(liberation.planet?.name ?? ''),
+                    ),
+                  ),
+                ]),
+              );
+            },
+          );
         },
       ),
     );
