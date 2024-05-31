@@ -30,13 +30,13 @@ func (s *Server) GetEvents(c *gin.Context) {
 	defences := []model.Defence{}
 	liberations := []model.Liberation{}
 
-	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Find(&defences).Error; err != nil {
+	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&defences).Error; err != nil {
 		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
 			return
 		}
 	}
 
-	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Find(&liberations).Error; err != nil {
+	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&liberations).Error; err != nil {
 		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
 			return
 		}
