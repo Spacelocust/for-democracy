@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
@@ -87,6 +89,18 @@ class PlanetListItem extends ListItem {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: CachedNetworkImage(
+        imageUrl: planet.imageUrl,
+        imageBuilder: (context, imageProvider) => CircleAvatar(
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (context, url) => const CircleAvatar(
+          child: CircularProgressIndicator(),
+        ),
+        errorWidget: (context, url, error) => const CircleAvatar(
+          child: Icon(Icons.error),
+        ),
+      ),
       title: getTitle(context),
       trailing: getTrailing(context),
       subtitle: getSubtitle(context),

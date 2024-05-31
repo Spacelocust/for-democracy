@@ -1,6 +1,7 @@
 package hellhub
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
-	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +29,7 @@ func fetch[T any](url string) ([]T, error) {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if err := sonic.Unmarshal(body, &data); err != nil {
+	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 
