@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
@@ -18,6 +19,9 @@ class PlanetsScreen extends StatefulWidget {
 }
 
 class _PlanetsScreenState extends State<PlanetsScreen> {
+  static const double yPadding = 16;
+  static const double xPadding = 8;
+
   Future<List<Planet>>? _planetsFuture;
 
   @override
@@ -34,25 +38,26 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        top: 16,
-        left: 8,
-        right: 8,
-        bottom: 16,
-      ),
-      child: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            TabBar(
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(
+              top: yPadding,
+              left: xPadding,
+              right: xPadding,
+              bottom: yPadding,
+            ),
+            child: TabBar(
               tabs: [
                 Tab(text: AppLocalizations.of(context)!.map),
                 Tab(text: AppLocalizations.of(context)!.list),
               ],
             ),
-            const SizedBox(height: 16),
-            FutureBuilder<List<Planet>>(
+          ),
+          Expanded(
+            child: FutureBuilder<List<Planet>>(
               future: _planetsFuture,
               builder: (context, snapshot) {
                 // Loading state
@@ -107,17 +112,19 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                   },
                 );
 
-                return Expanded(
-                  child: TabBarView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      InteractiveViewer(
-                        boundaryMargin: const EdgeInsets.all(300),
-                        minScale: 0.1,
-                        maxScale: 2,
-                        child: const GalaxyMap(),
+                return TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    GalaxyMap(
+                      planets: planets,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(
+                        left: xPadding,
+                        right: xPadding,
+                        bottom: yPadding,
                       ),
-                      ListView.builder(
+                      child: ListView.builder(
                         itemCount: listItems.length,
                         itemBuilder: (context, index) {
                           final item = listItems[index];
@@ -135,13 +142,13 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                           return item.build(context);
                         },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

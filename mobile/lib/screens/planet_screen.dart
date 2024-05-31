@@ -45,19 +45,12 @@ class _PlanetScreenState extends State<PlanetScreen> {
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-          ),
           padding: const EdgeInsets.only(
             top: 0,
             left: 16,
             right: 16,
             bottom: 0,
           ),
-          constraints: const BoxConstraints.expand(),
           child: FutureBuilder<Planet>(
             future: _planetFuture,
             builder: (context, snapshot) {
@@ -72,7 +65,9 @@ class _PlanetScreenState extends State<PlanetScreen> {
                     ),
                   ),
                 );
-              } else if (snapshot.hasError) {
+              }
+
+              if (snapshot.hasError || !snapshot.hasData) {
                 // Error state
                 return SingleChildScrollView(
                   controller: scrollController,
@@ -91,13 +86,13 @@ class _PlanetScreenState extends State<PlanetScreen> {
                     ),
                   ),
                 );
-              } else {
-                // Success state
-                return _PlanetScreenView(
-                  planet: snapshot.data!,
-                  scrollController: scrollController,
-                );
               }
+
+              // Success state
+              return _PlanetScreenView(
+                planet: snapshot.data!,
+                scrollController: scrollController,
+              );
             },
           ),
         );
