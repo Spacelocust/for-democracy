@@ -3,10 +3,6 @@ import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
 import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
-import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
-import 'package:mobile/widgets/layout/user_navigation_drawer.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget body;
