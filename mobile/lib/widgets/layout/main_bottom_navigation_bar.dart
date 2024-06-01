@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
-import 'package:mobile/utils/theme_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MainBottomNavigationBar extends StatefulWidget {
   const MainBottomNavigationBar({super.key});
@@ -36,7 +35,6 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
 
         context.go(route);
       },
-      indicatorColor: ThemeColors.primary,
       selectedIndex: routeIndexMapping[routerState.matchedLocation] ??
           routeIndexMapping.values.first,
       destinations: <Widget>[
