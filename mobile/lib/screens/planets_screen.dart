@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
@@ -10,6 +9,7 @@ import 'package:mobile/widgets/sector/list_item.dart';
 
 class PlanetsScreen extends StatefulWidget {
   static const String routePath = '/planets';
+
   static const String routeName = 'planets';
 
   const PlanetsScreen({super.key});
@@ -20,6 +20,7 @@ class PlanetsScreen extends StatefulWidget {
 
 class _PlanetsScreenState extends State<PlanetsScreen> {
   static const double yPadding = 16;
+
   static const double xPadding = 8;
 
   Future<List<Planet>>? _planetsFuture;

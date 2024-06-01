@@ -4,6 +4,7 @@ import 'package:mobile/services/events_service.dart';
 
 class EventsScreen extends StatefulWidget {
   static const String routePath = '/events';
+
   static const String routeName = 'events';
 
   const EventsScreen({super.key});

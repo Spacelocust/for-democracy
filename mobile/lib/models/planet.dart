@@ -104,6 +104,10 @@ class Planet {
 
   bool get hasLiberationOrDefence => hasLiberation || hasDefence;
 
+  double scaleXTo(double to) => (positionX + 1) * to;
+
+  double scaleYTo(double to) => (positionY + 1) * to;
+
   factory Planet.fromJson(Map<String, dynamic> json) => _$PlanetFromJson(json);
 
   Map<String, dynamic> toJson() => _$PlanetToJson(this);

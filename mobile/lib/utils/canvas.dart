@@ -1,16 +1,9 @@
-import 'dart:ui' as ui;
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-const String imageBasePath = 'assets/images/';
 const String svgBasePath = 'assets/svgs/';
-
-Future<ui.Image> loadImage(String imageName) async {
-  final data = await rootBundle.load("$imageBasePath$imageName");
-
-  return decodeImageFromList(data.buffer.asUint8List());
-}
 
 Future<PictureInfo> loadSvg(String svgName) async {
   final rawSvg = await rootBundle.loadString("$svgBasePath$svgName");

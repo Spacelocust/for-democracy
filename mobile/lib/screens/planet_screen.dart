@@ -12,6 +12,7 @@ import 'package:mobile/widgets/layout/error_message.dart';
 
 class PlanetScreen extends StatefulWidget {
   static const String routePath = ":planetId";
+
   static const String routeName = 'planet';
 
   final int planetId;
