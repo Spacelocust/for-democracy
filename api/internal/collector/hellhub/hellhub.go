@@ -8,10 +8,12 @@ import (
 	"os"
 	"sync"
 
+	"github.com/Spacelocust/for-democracy/internal/collector/helldivers"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"gorm.io/gorm"
 )
 
+// fetch makes a GET request to the Hellhub API and unmarshals the response into a slice of T
 func fetch[T any](url string) ([]T, error) {
 	var data struct {
 		List []T `json:"data"`
@@ -37,7 +39,7 @@ func fetch[T any](url string) ([]T, error) {
 }
 
 // Number of goroutines to use for fetching data
-const goroutines = 4
+const goroutines = 5
 
 func GetData(db *gorm.DB) error {
 	// Channel to send errors from the goroutines
@@ -45,9 +47,10 @@ func GetData(db *gorm.DB) error {
 	wg := &sync.WaitGroup{}
 
 	environment := Environment{
-		biomes:  &[]model.Biome{},
-		effects: &[]model.Effect{},
-		sectors: &[]model.Sector{},
+		biomes:             &[]model.Biome{},
+		effects:            &[]model.Effect{},
+		sectors:            &[]model.Sector{},
+		waypointsPerPlanet: &map[int][]model.Waypoint{},
 	}
 
 	wg.Add(goroutines)
@@ -57,6 +60,9 @@ func GetData(db *gorm.DB) error {
 	go storeBiomes(db, environment.biomes, errpch, wg)
 	go storeEffects(db, environment.effects, errpch, wg)
 	go storeSectors(db, environment.sectors, errpch, wg)
+
+	// Fetch waypoints for each planet
+	go helldivers.FetchWaypointsPerPlanet(environment.waypointsPerPlanet, errpch, wg)
 
 	wg.Wait()
 	close(errpch)

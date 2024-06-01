@@ -17,17 +17,17 @@ type Biome struct {
 var errorBiome = err.NewError("[biome]")
 
 // Get all biomes from the HellHub API and store them in the database
-func storeBiomes(db *gorm.DB, biomes *[]model.Biome, respch chan<- error, wg *sync.WaitGroup) {
+func storeBiomes(db *gorm.DB, biomes *[]model.Biome, errpch chan<- error, wg *sync.WaitGroup) {
 	parsedBiomes, err := fetch[Biome]("/biomes?limit=20")
 
 	if err != nil {
-		respch <- errorBiome.Error(err, "error getting biomes")
+		errpch <- errorBiome.Error(err, "error getting biomes")
 		wg.Done()
 		return
 	}
 
 	if len(parsedBiomes) < 1 {
-		respch <- errorBiome.Error(nil, "no biomes found")
+		errpch <- errorBiome.Error(nil, "no biomes found")
 		wg.Done()
 	}
 
@@ -46,11 +46,11 @@ func storeBiomes(db *gorm.DB, biomes *[]model.Biome, respch chan<- error, wg *sy
 	}).Create(&biomes).Error
 
 	if err != nil {
-		respch <- errorBiome.Error(err, "error creating biomes")
+		errpch <- errorBiome.Error(err, "error creating biomes")
 		wg.Done()
 		return
 	}
 
-	respch <- nil
+	errpch <- nil
 	wg.Done()
 }

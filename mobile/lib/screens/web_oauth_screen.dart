@@ -106,11 +106,11 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
 
       // Clear the cookies of the WebView to prevent leaking the token
       await cookieManager.clearCookies();
-    }
 
-    if (mounted) {
-      // Close the modal after
-      Navigator.of(context).pop();
+      if (mounted) {
+        // Close the modal after
+        Navigator.of(context).pop();
+      }
     }
   }
 

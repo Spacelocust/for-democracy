@@ -16,9 +16,10 @@ import (
 var bgUrl = "https://helldiverscompanion.com/biomes/"
 
 type Environment struct {
-	biomes  *[]model.Biome
-	effects *[]model.Effect
-	sectors *[]model.Sector
+	biomes             *[]model.Biome
+	effects            *[]model.Effect
+	sectors            *[]model.Sector
+	waypointsPerPlanet *map[int][]model.Waypoint
 }
 
 type Statistic struct {
@@ -90,7 +91,7 @@ func (p *Planet) NewStatistic() *model.Statistic {
 
 // Store the planets in the database
 func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) error {
-	biomes, effects, sectors := environnement.biomes, environnement.effects, environnement.sectors
+	biomes, effects, sectors, waypointsPerPlanet := environnement.biomes, environnement.effects, environnement.sectors, environnement.waypointsPerPlanet
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		for _, planet := range planets {
@@ -98,6 +99,11 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create a new model.Planet and model.Statistic
 			newPlanet := planet.NewPlanet()
 			newStatistic := planet.NewStatistic()
+
+			// Find the waypoints for the current planet
+			if waypoint, ok := (*waypointsPerPlanet)[planet.HelldiversID]; ok {
+				newPlanet.Waypoints = waypoint
+			}
 
 			// Find the index of the current planet's biome in the biomes slice
 			planetBiomeIndex := slices.IndexFunc(*biomes, func(biome model.Biome) bool {
@@ -111,8 +117,10 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Set the new planet's biome and biome ID
 			newPlanet.BiomeID = (*biomes)[planetBiomeIndex].ID
 
+			// Set the new planet's background URL
 			newPlanet.BackgroundURL = getBiomeBackgrounds(planet.Biome.Name)
 
+			// Set the new planet's image URL
 			if img, err := getPlanetImageByBiome(planet.Biome.Name); err == nil {
 				newPlanet.ImageURL = img
 			}
@@ -159,7 +167,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create the new planet
 			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "name"}},
-				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url", "background_url"}),
+				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url", "background_url", "waypoints"}),
 			}).Create(&newPlanet).Error
 
 			if err != nil {

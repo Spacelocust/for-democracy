@@ -17,18 +17,17 @@ type Effect struct {
 var errorEffect = err.NewError("[effect]")
 
 // Get all effects from the HellHub API and store them in the database
-func storeEffects(db *gorm.DB, effects *[]model.Effect, respch chan<- error, wg *sync.WaitGroup) {
-
+func storeEffects(db *gorm.DB, effects *[]model.Effect, errpch chan<- error, wg *sync.WaitGroup) {
 	parsedEffects, err := fetch[Effect]("/effects")
 
 	if err != nil {
-		respch <- errorEffect.Error(err, "error getting effects")
+		errpch <- errorEffect.Error(err, "error getting effects")
 		wg.Done()
 		return
 	}
 
 	if len(parsedEffects) < 1 {
-		respch <- errorEffect.Error(nil, "no effects found")
+		errpch <- errorEffect.Error(nil, "no effects found")
 		wg.Done()
 		return
 	}
@@ -48,11 +47,11 @@ func storeEffects(db *gorm.DB, effects *[]model.Effect, respch chan<- error, wg 
 	}).Create(&effects).Error
 
 	if err != nil {
-		respch <- errorEffect.Error(err, "error creating effects")
+		errpch <- errorEffect.Error(err, "error creating effects")
 		wg.Done()
 		return
 	}
 
-	respch <- nil
+	errpch <- nil
 	wg.Done()
 }
