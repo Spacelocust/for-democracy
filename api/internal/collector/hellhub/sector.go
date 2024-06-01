@@ -17,17 +17,17 @@ type Sector struct {
 var errorSector = err.NewError("[sector]")
 
 // Get all sectors from the HellHub API and store them in the database
-func storeSectors(db *gorm.DB, sectors *[]model.Sector, respch chan<- error, wg *sync.WaitGroup) {
+func storeSectors(db *gorm.DB, sectors *[]model.Sector, errpch chan<- error, wg *sync.WaitGroup) {
 	parsedSectors, err := fetch[Sector]("/sectors?limit=100")
 
 	if err != nil {
-		respch <- errorSector.Error(err, "error getting sectors")
+		errpch <- errorSector.Error(err, "error getting sectors")
 		wg.Done()
 		return
 	}
 
 	if len(parsedSectors) < 1 {
-		respch <- errorSector.Error(nil, "no sectors found")
+		errpch <- errorSector.Error(nil, "no sectors found")
 		wg.Done()
 		return
 	}
@@ -47,11 +47,11 @@ func storeSectors(db *gorm.DB, sectors *[]model.Sector, respch chan<- error, wg 
 	}).Create(&sectors).Error
 
 	if err != nil {
-		respch <- errorSector.Error(err, "error creating sectors")
+		errpch <- errorSector.Error(err, "error creating sectors")
 		wg.Done()
 		return
 	}
 
-	respch <- nil
+	errpch <- nil
 	wg.Done()
 }

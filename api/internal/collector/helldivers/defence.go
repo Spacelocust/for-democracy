@@ -28,7 +28,7 @@ type DefencesWar struct {
 	PlanetEvents []PlanetEvent  `json:"planetEvents"`
 }
 
-type WarInfo struct {
+type WarInfoTime struct {
 	EndDate   int64 `json:"endDate"`
 	StartDate int64 `json:"startDate"`
 }
@@ -72,9 +72,9 @@ func formatDefences(defencesWar *DefencesWar) *[]Defence {
 }
 
 func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
-	warInfo, err := fetchWar[WarInfo]("/WarSeason/801/WarInfo")
+	warInfoTime, err := fetchWar[WarInfoTime]("/WarSeason/801/WarInfo")
 	if err != nil {
-		merrch <- errorDefence.Error(err, "error getting warInfo")
+		merrch <- errorDefence.Error(err, "error getting warInfoTime")
 		wg.Done()
 		return
 	}
@@ -90,13 +90,13 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 	newDefences := make([]model.Defence, 0)
 
 	// Get the game time
-	gameTime := time.Unix(warInfo.StartDate+defencesWar.Time, 0)
+	gameTime := time.Unix(warInfoTime.StartDate+defencesWar.Time, 0)
 
 	// Get the deviation between the game time and the current time
 	gameTimeDeviation := time.Now().UTC().Sub(gameTime)
 
 	// Get the relative game start time
-	relativeGameStart := time.Unix(0, 0).Add(gameTimeDeviation).Add(time.Duration(warInfo.StartDate) * time.Second)
+	relativeGameStart := time.Unix(0, 0).Add(gameTimeDeviation).Add(time.Duration(warInfoTime.StartDate) * time.Second)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 

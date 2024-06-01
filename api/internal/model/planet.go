@@ -5,6 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type Waypoint struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
 type Planet struct {
 	gorm.Model
 	Name          string       `gorm:"not null;unique"`
@@ -19,6 +24,7 @@ type Planet struct {
 	InitialOwner  enum.Faction `gorm:"not null;type:faction"`
 	Owner         enum.Faction `gorm:"not null;type:faction"`
 	Statistic     Statistic
+	Waypoints     []Waypoint `gorm:"not null;serializer:json;default:'[]'"`
 	Liberation    *Liberation
 	Defence       *Defence
 	Effects       []Effect `gorm:"many2many:planet_effects;"`

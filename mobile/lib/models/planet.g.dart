@@ -35,6 +35,9 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
     initialOwner: $enumDecode(_$FactionEnumMap, json['InitialOwner']),
     imageUrl: json['ImageURL'] as String,
     backgroundUrl: json['BackgroundURL'] as String,
+    waypoints: (json['Waypoints'] as List<dynamic>)
+        .map((e) => Waypoint.fromJson(e as Map<String, dynamic>))
+        .toList(),
     statistic: Statistic.fromJson(json['Statistic'] as Map<String, dynamic>),
     liberation: json['Liberation'] == null
         ? null
@@ -62,6 +65,7 @@ Map<String, dynamic> _$PlanetToJson(Planet instance) => <String, dynamic>{
       'InitialOwner': _$FactionEnumMap[instance.initialOwner]!,
       'ImageURL': instance.imageUrl,
       'BackgroundURL': instance.backgroundUrl,
+      'Waypoints': instance.waypoints,
       'Statistic': instance.statistic,
       'Liberation': instance.liberation,
       'Defence': instance.defence,

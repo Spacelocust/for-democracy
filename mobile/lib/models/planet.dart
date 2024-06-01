@@ -5,6 +5,7 @@ import 'package:mobile/models/effect.dart';
 import 'package:mobile/models/liberation.dart';
 import 'package:mobile/models/sector.dart';
 import 'package:mobile/models/statistic.dart';
+import 'package:mobile/models/waypoint.dart';
 
 part 'planet.g.dart';
 
@@ -46,6 +47,9 @@ class Planet {
   @JsonKey(name: 'BackgroundURL')
   final String backgroundUrl;
 
+  @JsonKey(name: 'Waypoints')
+  final List<Waypoint> waypoints;
+
   @JsonKey(required: true, name: 'Statistic')
   final Statistic statistic;
 
@@ -74,6 +78,7 @@ class Planet {
     required this.initialOwner,
     required this.imageUrl,
     required this.backgroundUrl,
+    required this.waypoints,
     required this.statistic,
     this.liberation,
     this.defence,
