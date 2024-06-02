@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/services/events_service.dart';
+import 'package:mobile/widgets/layout/error_message.dart';
 
 class EventsScreen extends StatefulWidget {
   static const String routePath = '/events';
+
   static const String routeName = 'events';
 
   const EventsScreen({super.key});
@@ -44,21 +46,11 @@ class _EventsScreenState extends State<EventsScreen> {
             );
           }
 
+          // Error state
           if (snapshot.hasError || !snapshot.hasData) {
-            // Error state
-            return Center(
-              child: Column(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.eventsScreenError,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  TextButton(
-                    onPressed: () => fetchEvents(),
-                    child: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                ],
-              ),
+            return ErrorMessage(
+              onPressed: fetchEvents,
+              errorMessage: AppLocalizations.of(context)!.eventsScreenError,
             );
           }
 

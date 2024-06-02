@@ -44,6 +44,7 @@ class MainNavigationDrawer extends StatelessWidget {
         ),
       ),
     ];
+    final User? user = context.watch<AuthState>().user;
 
     return NavigationDrawer(
       onDestinationSelected: (int index) {
@@ -51,11 +52,10 @@ class MainNavigationDrawer extends StatelessWidget {
       },
       selectedIndex: destinations.indexWhere(
         (DrawerDestination drawerDestination) =>
-            drawerDestination.path == routerState.matchedLocation,
+            routerState.matchedLocation.startsWith(drawerDestination.path),
       ),
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+        DrawerItem(
           child: Text(
             AppLocalizations.of(context)!.mainDrawerTitle,
             style: Theme.of(context).textTheme.titleSmall,
@@ -68,9 +68,10 @@ class MainNavigationDrawer extends StatelessWidget {
         const DrawerItem(
           child: Divider(),
         ),
-        const DrawerItem(
-          child: UserProfile(),
-        ),
+        if (user != null)
+          DrawerItem(
+            child: UserProfile(user: user),
+          ),
         const DrawerItem(
           child: AuthButton(),
         ),
@@ -86,34 +87,33 @@ class DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.fromLTRB(28, 16, 28, 10), child: child);
+      padding: const EdgeInsets.fromLTRB(28, 16, 28, 10),
+      child: child,
+    );
   }
 }
 
 /// Display the user's profile information.
 class UserProfile extends StatelessWidget {
-  const UserProfile({super.key});
+  final User user;
+
+  const UserProfile({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
-    final User? user = context.watch<AuthState>().user;
-    if (user != null) {
-      return Row(
-        children: <Widget>[
-          SquareAvatar(
-            size: 45,
-            avatar: Image.network(user.avatarUrl),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            user.username,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ],
-      );
-    } else {
-      return Container();
-    }
+    return Row(
+      children: <Widget>[
+        SquareAvatar(
+          size: 45,
+          avatar: Image.network(user.avatarUrl),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          user.username,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ],
+    );
   }
 }
 
@@ -156,6 +156,7 @@ class AuthButton extends StatelessWidget {
         ),
       );
     }
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: openSteamModal,

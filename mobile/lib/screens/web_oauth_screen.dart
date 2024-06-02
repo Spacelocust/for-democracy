@@ -13,6 +13,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 class WebOAuthScreen extends StatefulWidget {
+  static const String steamOauthUrl = '/oauth/steam';
+
+  static const String steamCallbackUrl = '/oauth/steam/callback';
+
   const WebOAuthScreen({super.key});
 
   @override
@@ -25,8 +29,6 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
   final cookieManager = WebviewCookieManager();
 
   final String baseUrl = dotenv.get(APIService.baseUrlEnv);
-  final String steamOauthUrl = '/oauth/steam';
-  final String steamCallbackUrl = '/oauth/steam/callback';
 
   @override
   void initState() {
@@ -60,7 +62,7 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
           },
         ),
       )
-      ..loadRequest(Uri.parse('$baseUrl$steamOauthUrl'));
+      ..loadRequest(Uri.parse('$baseUrl${WebOAuthScreen.steamOauthUrl}'));
 
     // Enable debugging and disable media playback requires user gesture for Android
     if (controller.platform is AndroidWebViewController) {
@@ -76,7 +78,7 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
   void finishAuthentication(String url) async {
     // Check if the URL contains the callback URL for Steam
     // (this is the URL that the OAuth server will redirect to after authentication)
-    if (url.contains(steamCallbackUrl)) {
+    if (url.contains(WebOAuthScreen.steamCallbackUrl)) {
       try {
         // Retrieve the token from the cookie of the WebView
         final token = await getCookie(url, "token");

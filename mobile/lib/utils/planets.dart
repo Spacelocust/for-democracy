@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:mobile/models/planet.dart';
 
 List<Planet> planetsFromJson(String? json) {
