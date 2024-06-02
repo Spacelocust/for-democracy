@@ -121,8 +121,8 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			newPlanet.BackgroundURL = getBiomeBackgrounds(planet.Biome.Name)
 
 			// Set the new planet's image URL
-			if img, err := getPlanetImageByBiome(planet.Biome.Name); err == nil {
-				newPlanet.ImageURL = img
+			if planet.Biome.Name == "Tundra" {
+				newPlanet.ImageURL = strings.Replace(planet.ImageURL, "tundra", "canyon", 1)
 			}
 
 			// Find the owner and initial owner factions
@@ -271,19 +271,6 @@ var coorealationBiomeBackground = map[string]string{
 
 var coorelationPlanetBackground = map[string]string{
 	"Meridia": "meridia",
-}
-
-var coorelationBiomePlanetImage = map[string]string{
-	"Tundra": "https://helldivers.wiki.gg/images/thumb/0/0d/Martale_Planet_Icon.png/241px-Martale_Planet_Icon.png",
-}
-
-// Get the planet image URL by the biome name
-func getPlanetImageByBiome(name string) (string, error) {
-	if img, ok := coorelationBiomePlanetImage[name]; ok {
-		return img, nil
-	}
-
-	return "", fmt.Errorf("planet image not found for %s", name)
 }
 
 // Get the background image URL from the biome name
