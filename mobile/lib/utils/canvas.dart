@@ -31,7 +31,20 @@ void drawDashedLine({
   required Paint paint,
 }) {
   // The pattern must have an even number of elements
-  assert(pattern.length.isEven);
+  assert(
+    pattern.length.isEven,
+    'Function drawDashedLine : the pattern must have an even number of elements.',
+  );
+  // The pattern must not be empty
+  assert(
+    pattern.isNotEmpty,
+    'Function drawDashedLine : the pattern must not be empty.',
+  );
+  // The pattern must contain only positive values (above 0)
+  assert(
+    pattern.every((width) => width > 0),
+    'Function drawDashedLine : the pattern must contain only positive values.',
+  );
 
   final distance = (p2 - p1).distance;
   final normalizedPattern = pattern.map((width) => width / distance).toList();
