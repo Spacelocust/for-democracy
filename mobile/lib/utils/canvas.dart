@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+/// Get a [TransformationController] that centers and zooms the content of a given size.
 TransformationController getTransformationControllerForSize(
   Size size, {
   double zoomFactor = 1.0,
@@ -21,6 +22,7 @@ TransformationController getTransformationControllerForSize(
   return transformationController;
 }
 
+/// Draw a dashed line between two points.
 void drawDashedLine({
   required Canvas canvas,
   required Offset p1,
@@ -28,7 +30,9 @@ void drawDashedLine({
   required Iterable<double> pattern,
   required Paint paint,
 }) {
+  // The pattern must have an even number of elements
   assert(pattern.length.isEven);
+
   final distance = (p2 - p1).distance;
   final normalizedPattern = pattern.map((width) => width / distance).toList();
   final points = <Offset>[];
@@ -38,9 +42,12 @@ void drawDashedLine({
 
   while (t < 1) {
     points.add(Offset.lerp(p1, p2, t)!);
-    t += normalizedPattern[i++]; // dashWidth
+
+    t += normalizedPattern[i++]; // dash
+
     points.add(Offset.lerp(p1, p2, t.clamp(0, 1))!);
-    t += normalizedPattern[i++]; // dashSpace
+
+    t += normalizedPattern[i++]; // gap
     i %= normalizedPattern.length;
   }
 
