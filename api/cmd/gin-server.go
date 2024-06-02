@@ -19,6 +19,10 @@ var ginCmd = &cli.Command{
 			panic(fmt.Sprintf("cannot start server: %s", err))
 		}
 
+		server.RegisterOnShutdown(func() {
+			fmt.Println("Server is shutting down")
+		})
+
 		return nil
 	},
 }
