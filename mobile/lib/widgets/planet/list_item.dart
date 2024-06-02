@@ -8,13 +8,25 @@ import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 
 class PlanetListItem extends ListItem {
-  const PlanetListItem({super.key, required this.planet});
+  const PlanetListItem({
+    super.key,
+    required this.planet,
+  });
 
   final Planet planet;
 
-  bool get hasLiberation => planet.liberation != null;
-
-  bool get hasDefence => planet.defence != null;
+  Decoration get decoration {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(100),
+      boxShadow: [
+        BoxShadow(
+          color: planet.color.withOpacity(0.6),
+          blurRadius: 6,
+          spreadRadius: 4,
+        ),
+      ],
+    );
+  }
 
   Widget getTitle(BuildContext context) {
     Text title = Text(
@@ -22,18 +34,18 @@ class PlanetListItem extends ListItem {
       style: Theme.of(context).textTheme.titleMedium,
     );
 
-    if (!hasLiberation && !hasDefence) {
+    if (!planet.hasLiberationOrDefence) {
       return title;
     }
 
     List<Widget> children = [];
 
-    if (hasLiberation) {
+    if (planet.hasLiberation) {
       children.add(Text(
         AppLocalizations.of(context)!.planetLiberationInProgress,
         style: Theme.of(context).textTheme.bodySmall,
       ));
-    } else if (hasDefence) {
+    } else if (planet.hasDefence) {
       children.add(Text(
         AppLocalizations.of(context)!.planetDefenceInProgress,
         style: Theme.of(context).textTheme.bodySmall,
@@ -52,9 +64,9 @@ class PlanetListItem extends ListItem {
   Text? getTrailing(BuildContext context) {
     int? players;
 
-    if (hasDefence) {
+    if (planet.hasDefence) {
       players = planet.defence!.players;
-    } else if (hasLiberation) {
+    } else if (planet.hasLiberation) {
       players = planet.liberation!.players;
     }
 
@@ -71,10 +83,10 @@ class PlanetListItem extends ListItem {
   Text getSubtitle(BuildContext context) {
     String subtitle = AppLocalizations.of(context)!.planetUnderControl;
 
-    if (hasDefence) {
+    if (planet.hasDefence) {
       subtitle =
           "${AppLocalizations.of(context)!.planetUnderAttack(planet.defence!.enemyFaction.translatedName(context))} ${AppLocalizations.of(context)!.planetLongPressSeeEvent}";
-    } else if (hasLiberation) {
+    } else if (planet.hasLiberation) {
       subtitle =
           "${AppLocalizations.of(context)!.planetBeingLiberated(planet.owner.translatedName(context))} ${AppLocalizations.of(context)!.planetLongPressSeeEvent}";
     } else if (planet.owner != Faction.humans) {
@@ -88,16 +100,21 @@ class PlanetListItem extends ListItem {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CachedNetworkImage(
-        imageUrl: planet.imageUrl,
-        imageBuilder: (context, imageProvider) => CircleAvatar(
-          backgroundImage: imageProvider,
-        ),
-        placeholder: (context, url) => const CircleAvatar(
-          child: CircularProgressIndicator(),
-        ),
-        errorWidget: (context, url, error) => const CircleAvatar(
-          child: Icon(Icons.error),
+      leading: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: decoration,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: CachedNetworkImage(
+            width: 55,
+            height: 55,
+            imageUrl: planet.imageUrl,
+            placeholder: (context, url) => const SizedBox(
+              width: 55,
+              height: 55,
+            ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
         ),
       ),
       title: getTitle(context),

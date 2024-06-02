@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/defence.dart';
@@ -103,6 +104,8 @@ class Planet {
   bool get hasDefence => defence != null;
 
   bool get hasLiberationOrDefence => hasLiberation || hasDefence;
+
+  Color get color => owner.color;
 
   double scaleXTo(double to) => (positionX + 1) * to;
 

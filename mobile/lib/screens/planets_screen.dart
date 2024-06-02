@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/widgets/base/list_item.dart';
+import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
 import 'package:mobile/widgets/sector/list_item.dart';
@@ -73,19 +74,10 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
                 // Error state
                 if (snapshot.hasError || !snapshot.hasData) {
-                  return Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.planetsScreenError,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                        TextButton(
-                          onPressed: () => fetchPlanets(),
-                          child: Text(AppLocalizations.of(context)!.retry),
-                        ),
-                      ],
-                    ),
+                  return ErrorMessage(
+                    onPressed: fetchPlanets,
+                    errorMessage:
+                        AppLocalizations.of(context)!.planetsScreenError,
                   );
                 }
 

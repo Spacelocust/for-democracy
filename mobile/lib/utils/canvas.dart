@@ -1,18 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
-const String svgBasePath = 'assets/svgs/';
-
-Future<PictureInfo> loadSvg(String svgName) async {
-  final rawSvg = await rootBundle.loadString("$svgBasePath$svgName");
-
-  return vg.loadPicture(
-    SvgStringLoader(rawSvg),
-    null,
-  );
-}
+import 'dart:ui' as ui;
 
 TransformationController getTransformationControllerForSize(
   Size size, {
@@ -32,4 +19,30 @@ TransformationController getTransformationControllerForSize(
     ..setEntry(1, 3, -yTranslate);
 
   return transformationController;
+}
+
+void drawDashedLine({
+  required Canvas canvas,
+  required Offset p1,
+  required Offset p2,
+  required Iterable<double> pattern,
+  required Paint paint,
+}) {
+  assert(pattern.length.isEven);
+  final distance = (p2 - p1).distance;
+  final normalizedPattern = pattern.map((width) => width / distance).toList();
+  final points = <Offset>[];
+
+  double t = 0;
+  int i = 0;
+
+  while (t < 1) {
+    points.add(Offset.lerp(p1, p2, t)!);
+    t += normalizedPattern[i++]; // dashWidth
+    points.add(Offset.lerp(p1, p2, t.clamp(0, 1))!);
+    t += normalizedPattern[i++]; // dashSpace
+    i %= normalizedPattern.length;
+  }
+
+  canvas.drawPoints(ui.PointMode.lines, points, paint);
 }

@@ -3,11 +3,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/utils/galaxy_map_painter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/utils/canvas.dart';
+import 'package:mobile/utils/images.dart';
+import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:shimmer/shimmer.dart';
 
 class GalaxyMap extends StatefulWidget {
@@ -29,18 +33,22 @@ class GalaxyMap extends StatefulWidget {
   /// The size of the planets on the galaxy map.
   final double planetSize;
 
+  /// The radius factor to use for the glow effect around planets (when they are being liberated or defended).
+  final double planetGlowRadiusFactor;
+
   /// The list of planets to display on the galaxy map.
   final List<Planet> planets;
 
   const GalaxyMap({
     super.key,
-    required this.planets,
     this.imageUrl = 'galaxy_map.svg',
     this.minZoom = 0.1,
     this.maxZoom = 5,
     this.zoomFactor = 1.5,
     this.marginFactor = 0.1,
     this.planetSize = 5,
+    this.planetGlowRadiusFactor = 3,
+    required this.planets,
   });
 
   @override
@@ -77,23 +85,10 @@ class _GalaxyMapState extends State<GalaxyMap> {
         }
 
         // Error state
-        // TODO: make this a component ?
         if (snapshot.hasError || !snapshot.hasData) {
-          return Center(
-            child: Column(
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.galaxyMapError,
-                  style: const TextStyle(color: Colors.red),
-                ),
-                TextButton(
-                  onPressed: () {
-                    fetchCanvasBackgroundImage();
-                  },
-                  child: Text(AppLocalizations.of(context)!.retry),
-                ),
-              ],
-            ),
+          return ErrorMessage(
+            onPressed: fetchCanvasBackgroundImage,
+            errorMessage: AppLocalizations.of(context)!.galaxyMapError,
           );
         }
 
@@ -118,42 +113,59 @@ class _GalaxyMapState extends State<GalaxyMap> {
             children: <Widget>[
               CustomPaint(
                 size: canvasSize,
-                isComplex: true,
+                isComplex: false,
                 painter: GalaxyMapPainter(
                   pictureInfo: pictureInfo,
+                ),
+                foregroundPainter: GalaxyMapPlanetsWaypointsPainter(
+                  planets: widget.planets,
                 ),
               ),
             ].followedBy(
               widget.planets.map(
                 (planet) {
-                  Widget cachedImage = CachedNetworkImage(
-                    imageUrl: planet.imageUrl,
-                    fit: BoxFit.cover,
-                    height: widget.planetSize,
-                    width: widget.planetSize,
-                    placeholder: (context, url) => SizedBox(
-                      width: widget.planetSize,
+                  Widget cachedImage = Container(
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      boxShadow: [
+                        BoxShadow(
+                          color: planet.color.withOpacity(0.6),
+                          blurRadius: 1,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: planet.imageUrl,
+                      fit: BoxFit.cover,
                       height: widget.planetSize,
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade200,
-                        highlightColor: Colors.yellow,
-                        child: Container(
-                          color: Colors.white,
+                      width: widget.planetSize,
+                      placeholder: (context, url) => SizedBox(
+                        width: widget.planetSize,
+                        height: widget.planetSize,
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey.shade200,
+                          highlightColor: ThemeColors.primary,
+                          child: Container(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => const Icon(
-                      Icons.error,
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.error,
+                      ),
                     ),
                   );
 
                   if (planet.hasLiberationOrDefence) {
-                    Color color =
-                        planet.hasLiberation ? Colors.green : Colors.red;
+                    final Color glowColor = planet.hasLiberation
+                        ? Faction.humans.color
+                        : planet.defence!.enemyFaction.color;
 
                     cachedImage = AvatarGlow(
-                      glowColor: color,
-                      glowRadiusFactor: 3,
+                      glowColor: glowColor,
+                      glowRadiusFactor: widget.planetGlowRadiusFactor,
                       child: cachedImage,
                     );
                   }

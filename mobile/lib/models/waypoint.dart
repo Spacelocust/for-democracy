@@ -15,6 +15,10 @@ class Waypoint {
     required this.y,
   });
 
+  double scaleXTo(double to) => (x + 1) * to;
+
+  double scaleYTo(double to) => (y + 1) * to;
+
   factory Waypoint.fromJson(Map<String, dynamic> json) =>
       _$WaypointFromJson(json);
 

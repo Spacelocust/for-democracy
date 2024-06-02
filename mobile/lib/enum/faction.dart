@@ -4,21 +4,39 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum Faction {
   @JsonValue('humans')
-  humans('Humans'),
+  humans(
+    'Humans',
+    Color(0xff6bb7ea),
+  ),
 
   @JsonValue('terminids')
-  terminids('Terminids'),
+  terminids(
+    'Terminids',
+    Color(0xffffc000),
+  ),
 
   @JsonValue('illuminates')
-  automatons('Illuminates'),
+  automatons(
+    'Illuminates',
+    Color(0xff8300ff),
+  ),
 
   @JsonValue('automatons')
-  illuminates('Automatons');
+  illuminates(
+    'Automatons',
+    Color(0xfffe6d6a),
+  ),
+  ;
 
-  const Faction(this.name);
+  const Faction(
+    this.name,
+    this.color,
+  );
 
   /// The untranslated name of the faction. Use [translatedName] to get the translated name.
   final String name;
+
+  final Color color;
 
   String translatedName(BuildContext context) {
     switch (this) {

@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -72,27 +74,62 @@ class _PlanetScreenState extends State<PlanetScreen> {
                 // Error state
                 return SingleChildScrollView(
                   controller: scrollController,
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.planetScreenError,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                        TextButton(
-                          onPressed: () => fetchPlanet(),
-                          child: Text(AppLocalizations.of(context)!.retry),
-                        ),
-                      ],
-                    ),
+                  child: ErrorMessage(
+                    errorMessage:
+                        AppLocalizations.of(context)!.planetScreenError,
+                    onPressed: fetchPlanet,
                   ),
                 );
               }
 
               // Success state
-              return _PlanetScreenView(
-                planet: snapshot.data!,
-                scrollController: scrollController,
+              Planet planet = snapshot.data!;
+              List<Widget> planetViewChildren = [
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: planet.hasLiberationOrDefence ? 60 : 0,
+                  ),
+                  child: _PlanetScreenView(
+                    planet: planet,
+                    scrollController: scrollController,
+                  ),
+                ),
+              ];
+
+              if (planet.hasLiberationOrDefence) {
+                planetViewChildren = [
+                  ...planetViewChildren,
+                  Positioned(
+                    bottom: 5,
+                    right: 5,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // TODO: Proper links
+                        OutlinedButton.icon(
+                          onPressed: () => context.go(
+                            context.namedLocation(GroupsScreen.routeName),
+                          ),
+                          label: Text(AppLocalizations.of(context)!.findGroup),
+                          icon: const Icon(Icons.search),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: () => context.go(
+                            context.namedLocation(GroupsScreen.routeName),
+                          ),
+                          label:
+                              Text(AppLocalizations.of(context)!.createGroup),
+                          icon: const Icon(Icons.add),
+                        ),
+                      ],
+                    ),
+                  ),
+                ];
+              }
+
+              return Stack(
+                children: planetViewChildren,
               );
             },
           ),
@@ -114,6 +151,7 @@ class _PlanetScreenView extends StatelessWidget {
     required this.scrollController,
   });
 
+  // TODO: Add more information and complete this view
   @override
   Widget build(BuildContext context) {
     List<Widget> columns = [
@@ -150,47 +188,11 @@ class _PlanetScreenView extends StatelessWidget {
       _PlanetViewStatistic(statistic: planet.statistic),
     ];
 
-    List<Widget> view = [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: columns,
-      ),
-    ];
-
-    if (planet.hasLiberationOrDefence) {
-      view = [
-        ...view,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            // TODO: Proper links
-            OutlinedButton.icon(
-              onPressed: () => context.go(
-                context.namedLocation(GroupsScreen.routeName),
-              ),
-              label: Text(AppLocalizations.of(context)!.findGroup),
-              icon: const Icon(Icons.search),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              onPressed: () => context.go(
-                context.namedLocation(GroupsScreen.routeName),
-              ),
-              label: Text(AppLocalizations.of(context)!.createGroup),
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
-      ];
-    }
-
     return SingleChildScrollView(
       controller: scrollController,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: view,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: columns,
       ),
     );
   }
@@ -325,60 +327,50 @@ class _PlanetViewStatistic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Wrap(
+      spacing: 10,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticMissionsWon,
-              value: statistic.missionsWon,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticMissionTime,
-              value: statistic.missionTime,
-              isHours: true,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticBugKills,
-              value: statistic.bugKills,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticAutomatonKills,
-              value: statistic.automatonKills,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticIlluminateKills,
-              value: statistic.illuminateKills,
-            ),
-          ],
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticMissionsWon,
+          value: statistic.missionsWon,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticBulletsFired,
-              value: statistic.bulletsFired,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticBulletsHit,
-              value: statistic.bulletsHit,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticTimePlayed,
-              value: statistic.timePlayed,
-              isHours: true,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticDeaths,
-              value: statistic.deaths,
-            ),
-            _PlanetStatisticItem(
-              label: AppLocalizations.of(context)!.statisticRevives,
-              value: statistic.revives,
-            ),
-          ],
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticMissionTime,
+          value: statistic.missionTime,
+          isHours: true,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticBugKills,
+          value: statistic.bugKills,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticAutomatonKills,
+          value: statistic.automatonKills,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticIlluminateKills,
+          value: statistic.illuminateKills,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticBulletsFired,
+          value: statistic.bulletsFired,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticBulletsHit,
+          value: statistic.bulletsHit,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticTimePlayed,
+          value: statistic.timePlayed,
+          isHours: true,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticDeaths,
+          value: statistic.deaths,
+        ),
+        _PlanetStatisticItem(
+          label: AppLocalizations.of(context)!.statisticRevives,
+          value: statistic.revives,
         ),
       ],
     );
@@ -408,7 +400,6 @@ class _PlanetStatisticItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: make this wrap behave like it should
     return Wrap(
       spacing: 4,
       children: [

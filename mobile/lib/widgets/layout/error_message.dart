@@ -4,7 +4,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ErrorMessage extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const ErrorMessage({super.key, required this.onPressed});
+  final String errorMessage;
+
+  const ErrorMessage({
+    super.key,
+    required this.onPressed,
+    required this.errorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +18,7 @@ class ErrorMessage extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            AppLocalizations.of(context)!.planetScreenError,
+            errorMessage,
             style: const TextStyle(color: Colors.red),
           ),
           TextButton(
