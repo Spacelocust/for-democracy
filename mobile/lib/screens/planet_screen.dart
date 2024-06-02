@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
@@ -206,9 +207,46 @@ class _PlanetViewTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> titleRow = [
-      Text(
-        planet.name,
-        style: Theme.of(context).textTheme.headlineSmall,
+      Row(
+        children: [
+          Image(
+            image: AssetImage(planet.owner.logo),
+            width: 40,
+            height: 40,
+          ),
+          const SizedBox(width: 8),
+          const Divider(
+            color: Colors.white,
+            height: 32,
+            thickness: 2,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                planet.name.toUpperCase(),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Arame",
+                  fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2.2,
+                  decorationColor: planet.owner.color,
+                ),
+              ),
+              Text(
+                "${planet.owner.translatedName(context)} controlled"
+                    .toUpperCase(),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Arame",
+                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                  color: planet.owner.color,
+                ),
+              )
+            ],
+          )
+        ],
       ),
     ];
 
@@ -220,7 +258,12 @@ class _PlanetViewTitle extends StatelessWidget {
             Text(
               AppLocalizations.of(context)!.playerCount(planet.players!),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 10),
+            const Image(
+              image: AssetImage("assets/images/helldivers-player.png"),
+              width: 20,
+              height: 20,
+            ),
             IconButton(
               onPressed: () {
                 showDialog(

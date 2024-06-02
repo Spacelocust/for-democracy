@@ -16,13 +16,13 @@ enum Faction {
   ),
 
   @JsonValue('illuminates')
-  automatons(
+  illuminates(
     'Illuminates',
     Color(0xff8300ff),
   ),
 
   @JsonValue('automatons')
-  illuminates(
+  automatons(
     'Automatons',
     Color(0xfffe6d6a),
   ),
@@ -37,6 +37,8 @@ enum Faction {
   final String name;
 
   final Color color;
+
+  String get logo => 'assets/images/${name.toLowerCase()}.png';
 
   String translatedName(BuildContext context) {
     switch (this) {

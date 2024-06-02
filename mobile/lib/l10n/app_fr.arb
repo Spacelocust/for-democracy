@@ -10,7 +10,7 @@
     "map": "Carte",
     "list": "Liste",
     "goHome": "Retour à l'accueil",
-    "playerCount": "{count, plural, zero{aucun joueur} one{{count} joueur} other{{count} joueurs}}",
+    "playerCount": "{count, plural, zero{aucun joueur} one{{count}} other{{count}}}",
     "@playerCount": {
         "placeholders": {
             "count": {

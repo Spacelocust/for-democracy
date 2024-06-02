@@ -52,6 +52,6 @@ Map<String, dynamic> _$DefenceToJson(Defence instance) => <String, dynamic>{
 const _$FactionEnumMap = {
   Faction.humans: 'humans',
   Faction.terminids: 'terminids',
-  Faction.automatons: 'illuminates',
-  Faction.illuminates: 'automatons',
+  Faction.illuminates: 'illuminates',
+  Faction.automatons: 'automatons',
 };

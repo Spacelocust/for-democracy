@@ -10,7 +10,7 @@
     "map": "Map",
     "list": "List",
     "goHome": "Go to home",
-    "playerCount": "{count, plural, zero{no player} one{{count} player} other{{count} players}}",
+    "playerCount": "{count, plural, zero{no player} one{{count}} other{{count}}}",
     "@playerCount": {
         "placeholders": {
             "count": {
