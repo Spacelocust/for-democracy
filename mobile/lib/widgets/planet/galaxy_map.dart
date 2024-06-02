@@ -173,14 +173,18 @@ class _GalaxyMapState extends State<GalaxyMap> {
                   return Positioned(
                     left: planet.scaleXTo(toX) - planetHalfSize,
                     bottom: planet.scaleYTo(toY) - planetHalfSize,
-                    child: GestureDetector(
-                      onTap: () {
-                        context.go(context.namedLocation(
-                          PlanetScreen.routeName,
-                          pathParameters: {'planetId': planet.id.toString()},
-                        ));
-                      },
-                      child: cachedImage,
+                    child: Semantics(
+                      button: true,
+                      label: planet.name,
+                      child: GestureDetector(
+                        onTap: () {
+                          context.go(context.namedLocation(
+                            PlanetScreen.routeName,
+                            pathParameters: {'planetId': planet.id.toString()},
+                          ));
+                        },
+                        child: cachedImage,
+                      ),
                     ),
                   );
                 },
