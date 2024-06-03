@@ -1,17 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PlanetScreen extends StatefulWidget {
   static const String routePath = ":planetId";
