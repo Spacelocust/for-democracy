@@ -28,6 +28,8 @@ class Liberation {
     required this.helldiversID,
   });
 
+  double getHealthPercentage(int maxHealth) => 1 - (health / maxHealth);
+
   factory Liberation.fromJson(Map<String, dynamic> json) =>
       _$LiberationFromJson(json);
 

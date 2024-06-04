@@ -262,7 +262,7 @@ func getFaction(id int) (enum.Faction, error) {
 
 var coorealationBiomeBackground = map[string]string{
 	"Toxic":           "acidic",
-	"Unkown":          "superearth",
+	"Unknown":         "superearth",
 	"Tundra":          "taiga",
 	"Icemoss Special": "cyberstan",
 	"Crimsonmoor":     "crimson",

@@ -29,8 +29,9 @@ type Liberation struct {
 
 var errorLiberation = err.NewError("[liberation]")
 
-func formatLiberations(attacksWar *AttacksWar) *[]Liberation {
-	Liberations := make([]Liberation, 0)
+func formatLiberations(attacksWar *AttacksWar) (liberations []Liberation, owners map[int]int) {
+	liberations = make([]Liberation, 0)
+	owners = make(map[int]int)
 	state := make(map[string]string)
 
 	for _, planet := range attacksWar.PlanetAttacks {
@@ -42,8 +43,11 @@ func formatLiberations(attacksWar *AttacksWar) *[]Liberation {
 				return p.Index == planet.Target
 			})
 
+			// Store the actual owner of the planet
+			owners[indexPlanet] = attacksWar.PlanetStatus[indexPlanet].Owner
+
 			if indexPlanet != -1 {
-				Liberations = append(Liberations, Liberation{
+				liberations = append(liberations, Liberation{
 					Target:  planet.Target,
 					Health:  attacksWar.PlanetStatus[indexPlanet].Health,
 					Players: attacksWar.PlanetStatus[indexPlanet].Players,
@@ -52,7 +56,7 @@ func formatLiberations(attacksWar *AttacksWar) *[]Liberation {
 		}
 	}
 
-	return &Liberations
+	return liberations, owners
 }
 
 func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
@@ -63,17 +67,28 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 		return
 	}
 
-	liberations := formatLiberations(&attacksWar)
+	liberations, owners := formatLiberations(&attacksWar)
 	newLiberations := make([]model.Liberation, 0)
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
 
-		if len(*liberations) == 0 {
+		if len(owners) > 0 {
+			// Update the owner of the planets (the hellhub API doesn't update the data to often, so we can't rely on it to get the owner of the planets)
+			for planetID, owner := range owners {
+				if faction, err := getFaction(owner); err == nil {
+					if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", planetID).Update("owner", faction).Error; err != nil {
+						return errorLiberation.Error(err, "error updating planet owner")
+					}
+				}
+			}
+		}
+
+		if len(liberations) == 0 {
 			if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Liberation{}).Error; err != nil {
 				return errorDefence.Error(err, "error deleting defences")
 			}
 		} else {
-			for _, liberation := range *liberations {
+			for _, liberation := range liberations {
 				planet := model.Planet{}
 
 				if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", liberation.Target).First(&planet).Error; err != nil {

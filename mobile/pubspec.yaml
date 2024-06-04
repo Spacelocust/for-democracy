@@ -83,6 +83,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/images/effects/
     - .env
     - assets/svgs/galaxy_map.svg
 

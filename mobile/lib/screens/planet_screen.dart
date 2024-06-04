@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/models/defence.dart';
+import 'package:mobile/models/liberation.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -184,6 +187,10 @@ class _PlanetScreenView extends StatelessWidget {
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
       const SizedBox(height: columnSpacing),
+      if (planet.defence != null)
+        _ProgressDefence(defence: planet.defence!, planet: planet),
+      if (planet.liberation != null)
+        _ProgressLiberation(liberation: planet.liberation!, planet: planet),
       _PlanetViewStatistic(statistic: planet.statistic),
     ];
 
@@ -311,18 +318,114 @@ class _PlanetViewChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: planet.effects
-          .map(
-            (effect) => Chip(
-              avatar: Image(
-                image: AssetImage(
-                    "assets/images/effects/${effect.name.toLowerCase().replaceAll(' ', '_')}.png"),
+      children: planet.effects.fold(
+        [],
+        (previousValue, effect) {
+          if (effect.name != "None") {
+            return previousValue
+              ..add(Chip(
+                avatar: Image(
+                  image: AssetImage(
+                      "assets/images/effects/${effect.name.toLowerCase().replaceAll(' ', '_')}.png"),
+                ),
+                label: Text(effect.name),
+                padding: const EdgeInsets.all(4),
+              ));
+          }
+          return [];
+        },
+      ),
+    );
+  }
+}
+
+class _ProgressDefence extends StatelessWidget {
+  final Planet planet;
+  final Defence defence;
+
+  const _ProgressDefence({required this.planet, required this.defence});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        border: Border.all(
+          color: defence.enemyFaction.color,
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Container(
+              color: Colors.black,
+              width: double.infinity,
+              child: const StripedProgressIndicator(
+                value: 1,
+                stripeWidth: 20,
+                stripeSpacing: 15,
+                stripeColor: Color(0xff219ffb),
+                backgroundColor: Color(0xff07daff),
+                angle: -45.0,
               ),
-              label: Text(effect.name),
-              padding: const EdgeInsets.all(4),
             ),
-          )
-          .toList(),
+            const SizedBox(height: 5),
+            Container(
+              color: Colors.black,
+              width: double.infinity,
+              child: const StripedProgressIndicator(
+                value: 0.57,
+                stripeWidth: 20,
+                stripeSpacing: 15,
+                stripeColor: Color(0xffffc000),
+                backgroundColor: Color(0xffc18700),
+                angle: 45.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressLiberation extends StatelessWidget {
+  final Planet planet;
+  final Liberation liberation;
+
+  const _ProgressLiberation({required this.planet, required this.liberation});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        border: Border.all(
+          color: planet.owner.color,
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Container(
+              color: planet.owner.color,
+              width: double.infinity,
+              child: StripedProgressIndicator(
+                value: liberation.getHealthPercentage(planet.maxHealth!),
+                stripeWidth: 20,
+                stripeSpacing: 15,
+                stripeColor: const Color(0xff219ffb),
+                backgroundColor: const Color(0xff07daff),
+                angle: -45.0,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -15,6 +15,7 @@ type PlanetStatus struct {
 	Index   int `json:"index"`
 	Health  int `json:"health"`
 	Players int `json:"players"`
+	Owner   int `json:"owner"`
 }
 
 func fetchWar[T any](url string) (T, error) {
