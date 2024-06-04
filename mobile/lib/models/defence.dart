@@ -9,9 +9,6 @@ class Defence {
   @JsonKey(required: true, name: 'ID')
   final int id;
 
-  @JsonKey(required: true, name: 'Health')
-  final int health;
-
   @JsonKey(name: 'Players')
   final int players;
 
@@ -24,11 +21,11 @@ class Defence {
   @JsonKey(required: true, name: 'EnemyFaction')
   final Faction enemyFaction;
 
-  @JsonKey(required: true, name: 'EnemyHealth')
-  final int enemyHealth;
+  @JsonKey(required: true, name: 'Health')
+  final int health;
 
-  @JsonKey(required: true, name: 'EnemyMaxHealth')
-  final int enemyMaxHealth;
+  @JsonKey(required: true, name: 'MaxHealth')
+  final int maxHealth;
 
   @JsonKey(name: 'Planet')
   final Planet? planet;
@@ -38,13 +35,12 @@ class Defence {
 
   Defence({
     required this.id,
-    required this.health,
     required this.players,
     required this.startAt,
     required this.endAt,
     required this.enemyFaction,
-    required this.enemyHealth,
-    required this.enemyMaxHealth,
+    required this.health,
+    required this.maxHealth,
     this.planet,
     required this.helldiversID,
   });

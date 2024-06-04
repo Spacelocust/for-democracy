@@ -403,12 +403,6 @@
                 "enemyFaction": {
                     "$ref": "#/definitions/enum.Faction"
                 },
-                "enemyHealth": {
-                    "type": "integer"
-                },
-                "enemyMaxHealth": {
-                    "type": "integer"
-                },
                 "health": {
                     "type": "integer"
                 },
@@ -416,6 +410,9 @@
                     "type": "integer"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "maxHealth": {
                     "type": "integer"
                 },
                 "planet": {
@@ -499,6 +496,9 @@
         "model.Planet": {
             "type": "object",
             "properties": {
+                "backgroundURL": {
+                    "type": "string"
+                },
                 "biome": {
                     "$ref": "#/definitions/model.Biome"
                 },
@@ -567,6 +567,12 @@
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "waypoints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Waypoint"
+                    }
                 }
             }
         },
@@ -661,6 +667,17 @@
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Waypoint": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
                 }
             }
         },

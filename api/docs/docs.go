@@ -410,12 +410,6 @@ const docTemplate = `{
                 "enemyFaction": {
                     "$ref": "#/definitions/enum.Faction"
                 },
-                "enemyHealth": {
-                    "type": "integer"
-                },
-                "enemyMaxHealth": {
-                    "type": "integer"
-                },
                 "health": {
                     "type": "integer"
                 },
@@ -423,6 +417,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "maxHealth": {
                     "type": "integer"
                 },
                 "planet": {
@@ -506,6 +503,9 @@ const docTemplate = `{
         "model.Planet": {
             "type": "object",
             "properties": {
+                "backgroundURL": {
+                    "type": "string"
+                },
                 "biome": {
                     "$ref": "#/definitions/model.Biome"
                 },
@@ -574,6 +574,12 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "waypoints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Waypoint"
+                    }
                 }
             }
         },
@@ -668,6 +674,17 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Waypoint": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
                 }
             }
         },

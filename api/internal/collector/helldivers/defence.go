@@ -15,12 +15,12 @@ import (
 )
 
 type PlanetEvent struct {
-	Target         int `json:"planetIndex"`
-	EnemyFaction   int `json:"race"`
-	EnemyHealth    int `json:"health"`
-	EnemyMaxHealth int `json:"maxHealth"`
-	StartAt        int `json:"startTime"`
-	EndAt          int `json:"expireTime"`
+	Target       int `json:"planetIndex"`
+	EnemyFaction int `json:"race"`
+	Health       int `json:"health"`
+	MaxHealth    int `json:"maxHealth"`
+	StartAt      int `json:"startTime"`
+	EndAt        int `json:"expireTime"`
 }
 type DefencesWar struct {
 	Time         int64          `json:"time"`
@@ -34,14 +34,13 @@ type WarInfoTime struct {
 }
 
 type Defence struct {
-	Target         int
-	Health         int
-	Players        int
-	EnemyFaction   int
-	EnemyHealth    int
-	EnemyMaxHealth int
-	StartAt        int64
-	EndAt          int64
+	Target       int
+	Players      int
+	EnemyFaction int
+	Health       int
+	MaxHealth    int
+	StartAt      int64
+	EndAt        int64
 }
 
 var errorDefence = err.NewError("[defence]")
@@ -56,14 +55,13 @@ func formatDefences(defencesWar *DefencesWar) *[]Defence {
 
 		if indexPlanet != -1 {
 			defences = append(defences, Defence{
-				Target:         planet.Target,
-				Health:         defencesWar.PlanetStatus[indexPlanet].Health,
-				Players:        defencesWar.PlanetStatus[indexPlanet].Players,
-				EnemyFaction:   planet.EnemyFaction,
-				EnemyHealth:    planet.EnemyHealth,
-				EnemyMaxHealth: planet.EnemyMaxHealth,
-				StartAt:        int64(planet.StartAt),
-				EndAt:          int64(planet.EndAt),
+				Target:       planet.Target,
+				Players:      defencesWar.PlanetStatus[indexPlanet].Players,
+				EnemyFaction: planet.EnemyFaction,
+				Health:       planet.Health,
+				MaxHealth:    planet.MaxHealth,
+				StartAt:      int64(planet.StartAt),
+				EndAt:        int64(planet.EndAt),
 			})
 		}
 	}
@@ -129,15 +127,14 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 				}
 
 				newDefences = append(newDefences, model.Defence{
-					Health:         defence.Health,
-					HelldiversID:   defence.Target,
-					Players:        defence.Players,
-					StartAt:        startDate,
-					EndAt:          endDate,
-					EnemyFaction:   faction,
-					EnemyHealth:    defence.EnemyHealth,
-					EnemyMaxHealth: defence.EnemyMaxHealth,
-					PlanetID:       planet.ID,
+					HelldiversID: defence.Target,
+					Players:      defence.Players,
+					StartAt:      startDate,
+					EndAt:        endDate,
+					EnemyFaction: faction,
+					Health:       defence.Health,
+					MaxHealth:    defence.MaxHealth,
+					PlanetID:     planet.ID,
 				})
 			}
 
@@ -158,7 +155,7 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			// Create or update defences
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "enemy_health", "enemy_max_health", "start_at", "end_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "health", "max_health", "start_at", "end_at"}),
 			}).Create(&newDefences).Error
 
 			if err != nil {

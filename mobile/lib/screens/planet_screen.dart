@@ -159,6 +159,7 @@ class _PlanetScreenView extends StatelessWidget {
     if (planet.effects.isNotEmpty) {
       columns = [
         ...columns,
+        const SizedBox(height: columnSpacing),
         _PlanetViewChips(planet: planet),
         const SizedBox(height: columnSpacing),
       ];
@@ -204,47 +205,7 @@ class _PlanetViewTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> titleRow = [
-      Row(
-        children: [
-          Image(
-            image: AssetImage(planet.owner.logo),
-            width: 40,
-            height: 40,
-          ),
-          const SizedBox(width: 8),
-          const Divider(
-            color: Colors.white,
-            height: 32,
-            thickness: 2,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                planet.name.toUpperCase(),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Arame",
-                  fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-                  decoration: TextDecoration.underline,
-                  decorationThickness: 2.2,
-                  decorationColor: planet.owner.color,
-                ),
-              ),
-              Text(
-                "${planet.owner.translatedName(context)} controlled"
-                    .toUpperCase(),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Arame",
-                  fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                  color: planet.owner.color,
-                ),
-              )
-            ],
-          )
-        ],
-      ),
+      _TitlePlanet(planet: planet),
     ];
 
     if (planet.players != null) {
@@ -290,6 +251,57 @@ class _PlanetViewTitle extends StatelessWidget {
   }
 }
 
+class _TitlePlanet extends StatelessWidget {
+  final Planet planet;
+
+  const _TitlePlanet({required this.planet});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Image(
+          image: AssetImage(planet.owner.logo),
+          width: 40,
+          height: 40,
+        ),
+        const SizedBox(width: 8),
+        const Divider(
+          color: Colors.white,
+          height: 32,
+          thickness: 2,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              planet.name.toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Arame",
+                fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+                decoration: TextDecoration.underline,
+                decorationThickness: 2.2,
+                decorationColor: planet.owner.color,
+              ),
+            ),
+            Text(
+              "${planet.owner.translatedName(context)} controlled"
+                  .toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Arame",
+                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                color: planet.owner.color,
+              ),
+            )
+          ],
+        )
+      ],
+    );
+  }
+}
+
 class _PlanetViewChips extends StatelessWidget {
   final Planet planet;
 
@@ -302,8 +314,12 @@ class _PlanetViewChips extends StatelessWidget {
       children: planet.effects
           .map(
             (effect) => Chip(
+              avatar: Image(
+                image: AssetImage(
+                    "assets/images/effects/${effect.name.toLowerCase().replaceAll(' ', '_')}.png"),
+              ),
               label: Text(effect.name),
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(4),
             ),
           )
           .toList(),
