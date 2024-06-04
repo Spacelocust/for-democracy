@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +27,7 @@ class PlanetScreen extends StatefulWidget {
   State<PlanetScreen> createState() => _PlanetScreenState();
 }
 
+/// Planet screen
 class _PlanetScreenState extends State<PlanetScreen> {
   Future<Planet>? _planetFuture;
 
@@ -155,10 +157,32 @@ class _PlanetScreenView extends StatelessWidget {
   // TODO: Add more information and complete this view
   @override
   Widget build(BuildContext context) {
-    List<Widget> columns = [
+    List<Widget> columns = [];
+
+    /// Display event header if the planet has liberation or defence
+    if (planet.hasLiberationOrDefence) {
+      columns = [
+        ...columns,
+        const SizedBox(height: columnSpacing),
+        _EventHeader(
+          text: planet.hasLiberation
+              ? AppLocalizations.of(context)!.liberation
+              : AppLocalizations.of(context)!.defence,
+          image: AssetImage(
+            "assets/images/${planet.hasLiberation ? "liberation" : "defence"}.png",
+          ),
+        ),
+        const SizedBox(height: columnSpacing),
+      ];
+    }
+
+    /// Title of the planet view
+    columns = [
+      ...columns,
       _PlanetViewTitle(planet: planet),
     ];
 
+    /// Display chips if the planet has effects
     if (planet.effects.isNotEmpty) {
       columns = [
         ...columns,
@@ -170,6 +194,8 @@ class _PlanetScreenView extends StatelessWidget {
 
     columns = [
       ...columns,
+
+      /// Background image of the planet
       CachedNetworkImage(
         imageUrl: planet.backgroundUrl,
         fit: BoxFit.cover,
@@ -187,10 +213,16 @@ class _PlanetScreenView extends StatelessWidget {
         errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
       const SizedBox(height: columnSpacing),
+
+      /// Planet progress bar for defence
       if (planet.defence != null)
         _ProgressDefence(defence: planet.defence!, planet: planet),
+
+      /// Planet progress bar for liberation
       if (planet.liberation != null)
         _ProgressLiberation(liberation: planet.liberation!, planet: planet),
+
+      /// Planet statistics
       _PlanetViewStatistic(statistic: planet.statistic),
     ];
 
@@ -204,6 +236,7 @@ class _PlanetScreenView extends StatelessWidget {
   }
 }
 
+/// Title of the planet view
 class _PlanetViewTitle extends StatelessWidget {
   final Planet planet;
 
@@ -222,6 +255,7 @@ class _PlanetViewTitle extends StatelessWidget {
           children: [
             Text(
               AppLocalizations.of(context)!.playerCount(planet.players!),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(width: 10),
             const Image(
@@ -229,23 +263,6 @@ class _PlanetViewTitle extends StatelessWidget {
               width: 20,
               height: 20,
             ),
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _PlanetEventDialog(
-                    title: planet.hasLiberation
-                        ? AppLocalizations.of(context)!.liberation
-                        : AppLocalizations.of(context)!.defence,
-                    eventId: planet.id,
-                    // TODO: Proper values
-                    progress: 0.57,
-                    daysLeft: 3,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.info),
-            )
           ],
         )
       ];
@@ -258,6 +275,56 @@ class _PlanetViewTitle extends StatelessWidget {
   }
 }
 
+class _EventHeader extends StatelessWidget {
+  final String text;
+  final AssetImage image;
+
+  const _EventHeader({required this.text, required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(4, 5, 4, 5),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.white,
+        ),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment(-0.7, 0),
+          stops: [0.0, 0.5, 0.5, 1],
+          colors: [
+            Color(0xff2e2e2e),
+            Color(0xff2e2e2e),
+            Color(0xff282828),
+            Color(0xff282828),
+          ],
+          transform: GradientRotation(0.5),
+          tileMode: TileMode.repeated,
+        ),
+      ),
+      child: Row(
+        children: [
+          Image(
+            image: image,
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: const TextStyle(
+              fontFamily: "Arame",
+              fontSize: 20,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Title of the planet
 class _TitlePlanet extends StatelessWidget {
   final Planet planet;
 
@@ -309,6 +376,7 @@ class _TitlePlanet extends StatelessWidget {
   }
 }
 
+/// Chips of the planet view (effects)
 class _PlanetViewChips extends StatelessWidget {
   final Planet planet;
 
@@ -323,14 +391,19 @@ class _PlanetViewChips extends StatelessWidget {
         (previousValue, effect) {
           if (effect.name != "None") {
             return previousValue
-              ..add(Chip(
-                avatar: Image(
-                  image: AssetImage(
-                      "assets/images/effects/${effect.name.toLowerCase().replaceAll(' ', '_')}.png"),
+              ..add(
+                Tooltip(
+                  message: effect.description,
+                  child: Chip(
+                    avatar: Image(
+                      image: AssetImage(
+                          "assets/images/effects/${effect.name.toLowerCase().replaceAll(' ', '_')}.png"),
+                    ),
+                    label: Text(effect.name),
+                    padding: const EdgeInsets.all(4),
+                  ),
                 ),
-                label: Text(effect.name),
-                padding: const EdgeInsets.all(4),
-              ));
+              );
           }
           return [];
         },
@@ -339,6 +412,7 @@ class _PlanetViewChips extends StatelessWidget {
   }
 }
 
+/// Progress bar for defence
 class _ProgressDefence extends StatelessWidget {
   final Planet planet;
   final Defence defence;
@@ -391,6 +465,7 @@ class _ProgressDefence extends StatelessWidget {
   }
 }
 
+/// Progress bar for liberation
 class _ProgressLiberation extends StatelessWidget {
   final Planet planet;
   final Liberation liberation;
