@@ -31,7 +31,7 @@ class GalaxyMap extends StatefulWidget {
   /// The margins to add around the galaxy map (as a percentage of the canvas size).
   final double marginFactor;
 
-  /// The size of the planets on the galaxy map for the given [initialZoomFactor]. Will scale depending on the zoom level.
+  /// The size of the planets on the galaxy map based on [initialZoomFactor]. Will scale depending on the zoom level.
   final double planetBaseSize;
 
   /// The radius factor to use for the glow effect around planets (when they are being liberated or defended).

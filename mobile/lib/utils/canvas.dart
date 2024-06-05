@@ -6,20 +6,11 @@ TransformationController getTransformationControllerForSize(
   Size size, {
   double zoomFactor = 1.0,
   double margin = 0.0,
-  Function(double)? onZoomChanged,
 }) {
   double xTranslate = margin + ((size.width / 2 - margin * 2) / 2);
   double yTranslate = margin + ((size.height / 4 - margin * 2) / 2);
 
   var transformationController = TransformationController();
-
-  if (onZoomChanged != null) {
-    transformationController.addListener(() {
-      double currentZoom = transformationController.value.getMaxScaleOnAxis();
-
-      onZoomChanged(currentZoom);
-    });
-  }
 
   transformationController.value
     ..setEntry(0, 0, zoomFactor)
