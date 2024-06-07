@@ -11,6 +11,9 @@ class Liberation {
   @JsonKey(required: true, name: 'Health')
   final int health;
 
+  @JsonKey(required: true, name: 'StartAt')
+  final int previousHealth;
+
   @JsonKey(name: 'Players')
   final int players;
 
@@ -24,11 +27,10 @@ class Liberation {
     required this.id,
     required this.health,
     required this.players,
+    required this.previousHealth,
     this.planet,
     required this.helldiversID,
   });
-
-  double getHealthPercentage(int maxHealth) => 1 - (health / maxHealth);
 
   factory Liberation.fromJson(Map<String, dynamic> json) =>
       _$LiberationFromJson(json);

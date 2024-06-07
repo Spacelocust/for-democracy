@@ -474,23 +474,23 @@ class _ProgressLiberation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border.all(
-          color: planet.owner.color,
-          width: 2,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            Container(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            border: Border.all(
               color: planet.owner.color,
-              width: double.infinity,
+              width: 2,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Container(
+              color: planet.owner.color,
               child: StripedProgressIndicator(
-                value: liberation.getHealthPercentage(planet.maxHealth!),
+                value: planet.getHealthPercentage(),
                 stripeWidth: 20,
                 stripeSpacing: 15,
                 stripeColor: const Color(0xff219ffb),
@@ -498,9 +498,45 @@ class _ProgressLiberation extends StatelessWidget {
                 angle: -45.0,
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(
+          height: 5,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            border: Border.all(
+              color: Colors.white,
+              width: 2,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "${(planet.getHealthPercentage() * 100).toStringAsFixed(3)}% Liberated",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Arame",
+                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                  ),
+                ),
+                Text(
+                  "${planet.getPlayersImpactPercentagePerHour().toStringAsFixed(3)}% Players Impact",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Arame",
+                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

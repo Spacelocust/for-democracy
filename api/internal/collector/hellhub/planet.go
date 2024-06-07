@@ -19,40 +19,23 @@ type Environment struct {
 	biomes             *[]model.Biome
 	effects            *[]model.Effect
 	sectors            *[]model.Sector
+	statistics         *map[int]model.Statistic
 	waypointsPerPlanet *map[int][]model.Waypoint
 }
 
-type Statistic struct {
-	MissionsWon        int `json:"missionsWon"`
-	MissionTime        int `json:"missionTime"`
-	BugKills           int `json:"bugKills"`
-	AutomatonKills     int `json:"automatonKills"`
-	IlluminateKills    int `json:"illuminateKills"`
-	BulletsFired       int `json:"bulletsFired"`
-	BulletsHit         int `json:"bulletsHit"`
-	TimePlayed         int `json:"timePlayed"`
-	Deaths             int `json:"deaths"`
-	Revives            int `json:"revives"`
-	FriendlyKills      int `json:"friendlyKills"`
-	MissionSuccessRate int `json:"missionSuccessRate"`
-	Accuracy           int `json:"accuracy"`
-}
-
 type Planet struct {
-	HelldiversID int       `json:"index"`
-	Name         string    `json:"name"`
-	MaxHealth    int       `json:"maxHealth"`
-	Disabled     bool      `json:"disabled"`
-	Regeneration int       `json:"regeneration"`
-	PositionX    float64   `json:"positionX"`
-	PositionY    float64   `json:"positionY"`
-	ImageURL     string    `json:"imageURL"`
-	Owner        int       `json:"ownerId"`
-	InitialOwner int       `json:"initialOwnerId"`
-	Statistic    Statistic `json:"statistic"`
-	Biome        Biome     `json:"biome"`
-	Effects      []Effect  `json:"effects"`
-	Sector       Sector    `json:"sector"`
+	HelldiversID int      `json:"index"`
+	Name         string   `json:"name"`
+	MaxHealth    int      `json:"maxHealth"`
+	Disabled     bool     `json:"disabled"`
+	PositionX    float64  `json:"positionX"`
+	PositionY    float64  `json:"positionY"`
+	ImageURL     string   `json:"imageURL"`
+	Owner        int      `json:"ownerId"`
+	InitialOwner int      `json:"initialOwnerId"`
+	Biome        Biome    `json:"biome"`
+	Effects      []Effect `json:"effects"`
+	Sector       Sector   `json:"sector"`
 }
 
 var errorPlanet = err.NewError("[planet]")
@@ -62,7 +45,6 @@ func (p *Planet) NewPlanet() *model.Planet {
 		Name:         p.Name,
 		MaxHealth:    p.MaxHealth,
 		Disabled:     p.Disabled,
-		Regeneration: p.Regeneration,
 		PositionX:    p.PositionX,
 		PositionY:    p.PositionY,
 		HelldiversID: p.HelldiversID,
@@ -70,35 +52,19 @@ func (p *Planet) NewPlanet() *model.Planet {
 	}
 }
 
-func (p *Planet) NewStatistic() *model.Statistic {
-	return &model.Statistic{
-		HelldiversID:       p.HelldiversID,
-		MissionsWon:        p.Statistic.MissionsWon,
-		MissionTime:        p.Statistic.MissionTime,
-		BugKills:           p.Statistic.BugKills,
-		AutomatonKills:     p.Statistic.AutomatonKills,
-		IlluminateKills:    p.Statistic.IlluminateKills,
-		BulletsFired:       p.Statistic.BulletsFired,
-		BulletsHit:         p.Statistic.BulletsHit,
-		TimePlayed:         p.Statistic.TimePlayed,
-		Deaths:             p.Statistic.Deaths,
-		Revives:            p.Statistic.Revives,
-		FriendlyKills:      p.Statistic.FriendlyKills,
-		MissionSuccessRate: p.Statistic.MissionSuccessRate,
-		Accuracy:           p.Statistic.Accuracy,
-	}
-}
-
 // Store the planets in the database
 func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) error {
-	biomes, effects, sectors, waypointsPerPlanet := environnement.biomes, environnement.effects, environnement.sectors, environnement.waypointsPerPlanet
+	biomes := environnement.biomes
+	effects := environnement.effects
+	sectors := environnement.sectors
+	statistics := environnement.statistics
+	waypointsPerPlanet := environnement.waypointsPerPlanet
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		for _, planet := range planets {
 
 			// Create a new model.Planet and model.Statistic
 			newPlanet := planet.NewPlanet()
-			newStatistic := planet.NewStatistic()
 
 			// Find the waypoints for the current planet
 			if waypoint, ok := (*waypointsPerPlanet)[planet.HelldiversID]; ok {
@@ -167,7 +133,7 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			// Create the new planet
 			err = tx.Omit(clause.Associations).Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "name"}},
-				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "regeneration", "position_x", "position_y", "helldivers_id", "image_url", "background_url", "waypoints"}),
+				DoUpdates: clause.AssignmentColumns([]string{"max_health", "disabled", "owner", "initial_owner", "position_x", "position_y", "helldivers_id", "image_url", "background_url", "waypoints"}),
 			}).Create(&newPlanet).Error
 
 			if err != nil {
@@ -175,12 +141,17 @@ func persistPlanets(db *gorm.DB, planets []Planet, environnement Environment) er
 			}
 
 			// Add the foreign key to the statistic
+			newStatistic := model.Statistic{}
+			if statistic, ok := (*statistics)[planet.HelldiversID]; ok {
+				newStatistic = statistic
+			}
+
 			newStatistic.PlanetID = newPlanet.ID
 
 			// Create the new statistic
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"mission_time", "bug_kills", "automaton_kills", "illuminate_kills", "bullets_fired", "bullets_hit", "time_played", "deaths", "revives", "friendly_kills", "mission_success_rate", "accuracy"}),
+				DoUpdates: clause.AssignmentColumns([]string{"missions_won", "missions_lost", "mission_time", "bug_kills", "automaton_kills", "illuminate_kills", "bullets_fired", "bullets_hit", "time_played", "deaths", "revives", "friendly_kills", "mission_success_rate", "accuracy"}),
 			}).Create(&newStatistic).Error
 
 			if err != nil {
@@ -212,7 +183,7 @@ func storePlanets(db *gorm.DB, environment Environment, totalPage int) error {
 	for i := range totalPage {
 		go func(i int) {
 			start := i * 100
-			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=statistic&include[]=effects&include[]=biome&include[]=sector", start))
+			planet, err := fetch[Planet](fmt.Sprintf("/planets?start=%d&limit=100&include[]=effects&include[]=biome&include[]=sector", start))
 			if err != nil {
 				errch <- err
 				pwg.Done()

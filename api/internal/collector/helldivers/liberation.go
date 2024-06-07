@@ -22,9 +22,10 @@ type AttacksWar struct {
 }
 
 type Liberation struct {
-	Target  int
-	Health  int
-	Players int
+	Target       int
+	Health       int
+	Regeneration float64
+	Players      int
 }
 
 var errorLiberation = err.NewError("[liberation]")
@@ -120,7 +121,7 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			// Create or update liberations
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "players"}),
+				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "regeneration", "updated_at"}),
 			}).Create(&newLiberations).Error
 
 			if err != nil {

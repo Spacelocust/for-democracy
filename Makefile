@@ -106,3 +106,12 @@ swagger: ## Generate swagger documentation
 ##@ CLI
 collector: ## Collect the data from the API and store it in the database
 	$(EXECAPI) go run main.go collector
+
+events: ## Collect the events from the API and store it in the database
+	$(EXECAPI) go run main.go collector-events
+
+example:
+	$(EXECAPI) go run main.go example
+
+cron:
+	$(EXECAPI) go run main.go cron

@@ -1,13 +1,11 @@
 package helldivers
 
 import (
-	"fmt"
 	"slices"
 	"sync"
 	"time"
 
 	err "github.com/Spacelocust/for-democracy/error"
-	"github.com/Spacelocust/for-democracy/internal/enum"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/utils"
 	"gorm.io/gorm"
@@ -155,7 +153,7 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			// Create or update defences
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "health", "max_health", "start_at", "end_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "health", "max_health", "start_at", "end_at", "updated_at"}),
 			}).Create(&newDefences).Error
 
 			if err != nil {
@@ -172,19 +170,4 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 
 	merrch <- nil
 	wg.Done()
-}
-
-func getFaction(id int) (enum.Faction, error) {
-	switch id {
-	case 1:
-		return enum.Humans, nil
-	case 2:
-		return enum.Terminids, nil
-	case 3:
-		return enum.Automatons, nil
-	case 4:
-		return enum.Illuminates, nil
-	default:
-		return "", fmt.Errorf("invalid faction ID: %d", id)
-	}
 }

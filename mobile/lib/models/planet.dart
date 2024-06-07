@@ -111,6 +111,18 @@ class Planet {
 
   double scaleYTo(double to) => (positionY + 1) * to;
 
+  double toDouble(DateTime myTime) => myTime.hour + myTime.minute / 60.0;
+
+  double getPlayersImpactPercentagePerHour() {
+    return statistic.missionSuccessRate /
+        DateTime.now()
+            .toUtc()
+            .difference(DateTime(2024, 6, 5, 22, 0, 0, 0, 0))
+            .inHours;
+  }
+
+  double getHealthPercentage() => 1 - (liberation!.health / maxHealth!);
+
   factory Planet.fromJson(Map<String, dynamic> json) => _$PlanetFromJson(json);
 
   Map<String, dynamic> toJson() => _$PlanetToJson(this);

@@ -39,7 +39,7 @@ func fetch[T any](url string) ([]T, error) {
 }
 
 // Number of goroutines to use for fetching data
-const goroutines = 5
+const goroutines = 6
 
 func GetData(db *gorm.DB) error {
 	// Channel to send errors from the goroutines
@@ -50,6 +50,7 @@ func GetData(db *gorm.DB) error {
 		biomes:             &[]model.Biome{},
 		effects:            &[]model.Effect{},
 		sectors:            &[]model.Sector{},
+		statistics:         &map[int]model.Statistic{},
 		waypointsPerPlanet: &map[int][]model.Waypoint{},
 	}
 
@@ -61,7 +62,7 @@ func GetData(db *gorm.DB) error {
 	go storeEffects(db, environment.effects, errpch, wg)
 	go storeSectors(db, environment.sectors, errpch, wg)
 
-	// Fetch waypoints for each planet
+	go helldivers.FetchStatistics(environment.statistics, errpch, wg)
 	go helldivers.FetchWaypointsPerPlanet(environment.waypointsPerPlanet, errpch, wg)
 
 	wg.Wait()
