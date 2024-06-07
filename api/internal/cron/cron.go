@@ -24,7 +24,7 @@ func StartCron() {
 	// add a job to the scheduler
 	j, err := s.NewJob(
 		gocron.DurationJob(
-			30*time.Second,
+			1*time.Minute,
 		),
 		gocron.NewTask(
 			func() {

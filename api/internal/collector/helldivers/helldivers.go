@@ -1,6 +1,7 @@
 package helldivers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/Spacelocust/for-democracy/internal/enum"
-	"github.com/bytedance/sonic"
 	"gorm.io/gorm"
 )
 
@@ -34,8 +34,7 @@ func fetchWar[T any](url string) (T, error) {
 	if err != nil {
 		return war, fmt.Errorf("failed to read response body: %w", err)
 	}
-
-	if err := sonic.Unmarshal(body, &war); err != nil {
+	if err := json.Unmarshal(body, &war); err != nil {
 		return war, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 

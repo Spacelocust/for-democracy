@@ -1,11 +1,13 @@
 package helldivers
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 	"sync"
 
 	err "github.com/Spacelocust/for-democracy/error"
+	"github.com/Spacelocust/for-democracy/internal/math"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/utils"
 	"gorm.io/gorm"
@@ -49,9 +51,10 @@ func formatLiberations(attacksWar *AttacksWar) (liberations []Liberation, owners
 
 			if indexPlanet != -1 {
 				liberations = append(liberations, Liberation{
-					Target:  planet.Target,
-					Health:  attacksWar.PlanetStatus[indexPlanet].Health,
-					Players: attacksWar.PlanetStatus[indexPlanet].Players,
+					Target:       planet.Target,
+					Health:       attacksWar.PlanetStatus[indexPlanet].Health,
+					Players:      attacksWar.PlanetStatus[indexPlanet].Players,
+					Regeneration: attacksWar.PlanetStatus[indexPlanet].Regeneration,
 				})
 			}
 		}
@@ -100,6 +103,7 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 					Health:       liberation.Health,
 					HelldiversID: liberation.Target,
 					Players:      liberation.Players,
+					Regeneration: liberation.Regeneration,
 					PlanetID:     planet.ID,
 				})
 			}
@@ -123,6 +127,30 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
 				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "regeneration", "updated_at"}),
 			}).Create(&newLiberations).Error
+
+			liberationHealthHistories := []int{}
+
+			for _, liberation := range newLiberations {
+				planet := model.Planet{}
+				if err := tx.Model(&model.Planet{}).Where("helldivers_id = ?", liberation.HelldiversID).First(&planet).Error; err != nil {
+					return errorLiberation.Error(err, "error getting planet")
+				}
+
+				fmt.Println("Planet: ", planet.Name)
+
+				tx.Model(model.LiberationHealthHistory{}).Where("liberation_id = ?", liberation.ID).Order("created_at asc").Limit(20).Pluck("health", &liberationHealthHistories)
+
+				lib := []float64{}
+				for _, l := range liberationHealthHistories {
+					lib = append(lib, float64((1000000-l)*100)/1000000)
+				}
+
+				if liberation.ID == 3 {
+					fmt.Println("current health: ", liberationHealthHistories[len(liberationHealthHistories)-1])
+					fmt.Println("previous health: ", liberationHealthHistories[len(liberationHealthHistories)-2])
+					math.Impact(lib, ((liberation.Regeneration*100)/1000000)*3600)
+				}
+			}
 
 			if err != nil {
 				return errorLiberation.Error(err, "error creating liberations")
