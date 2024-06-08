@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/defence.dart';
 import 'package:mobile/models/liberation.dart';
 import 'package:mobile/models/planet.dart';
@@ -248,25 +248,45 @@ class _PlanetViewTitle extends StatelessWidget {
       _TitlePlanet(planet: planet),
     ];
 
-    if (planet.players != null) {
-      titleRow = [
-        ...titleRow,
-        Row(
-          children: [
-            Text(
-              AppLocalizations.of(context)!.playerCount(planet.players!),
-              style: Theme.of(context).textTheme.titleMedium,
+    titleRow = [
+      ...titleRow,
+      Row(
+        children: [
+          if (planet.players != null)
+            Row(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.playerCount(planet.players!),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 10),
+                const Image(
+                  image: AssetImage("assets/images/helldivers-player.png"),
+                  width: 20,
+                  height: 20,
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            const Image(
-              image: AssetImage("assets/images/helldivers-player.png"),
-              width: 20,
-              height: 20,
-            ),
-          ],
-        )
-      ];
-    }
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => _PlanetEventDialog(
+                  title: planet.hasLiberation
+                      ? AppLocalizations.of(context)!.liberation
+                      : AppLocalizations.of(context)!.defence,
+                  eventId: planet.id,
+                  // TODO: Proper values
+                  progress: 0.57,
+                  daysLeft: 3,
+                ),
+              );
+            },
+            icon: const Icon(Icons.info),
+          )
+        ],
+      ),
+    ];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -490,7 +510,7 @@ class _ProgressLiberation extends StatelessWidget {
             child: Container(
               color: planet.owner.color,
               child: StripedProgressIndicator(
-                value: planet.getHealthPercentage(),
+                value: planet.getHealthPercentage(planet.maxHealth!),
                 stripeWidth: 20,
                 stripeSpacing: 15,
                 stripeColor: const Color(0xff219ffb),
@@ -514,29 +534,203 @@ class _ProgressLiberation extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(5),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  "${(planet.getHealthPercentage() * 100).toStringAsFixed(3)}% Liberated",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Arame",
-                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                  ),
-                ),
-                Text(
-                  "${planet.getPlayersImpactPercentagePerHour().toStringAsFixed(3)}% Players Impact",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Arame",
-                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text:
+                            "${(planet.getHealthPercentage(planet.maxHealth!) * 100).toStringAsFixed(3)}%",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: "Arame",
+                          letterSpacing: 1.5,
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: " ",
+                      ),
+                      TextSpan(
+                        text: "liberated",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: "Arame",
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        children: [
+                          const Image(
+                            image: AssetImage("assets/images/humans.png"),
+                            width: 25,
+                            height: 25,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            "${liberation.impactPerHour + liberation.regenerationPerHour}%",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Faction.humans.color,
+                              fontFamily: "Arame",
+                              letterSpacing: 1.5,
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .fontSize,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Image(
+                            image: AssetImage("assets/images/automatons.png"),
+                            width: 25,
+                            height: 25,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            "${liberation.regenerationPerHour}%",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Faction.automatons.color,
+                              fontFamily: "Arame",
+                              letterSpacing: 1.5,
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .fontSize,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: _ImpactPerHour(impactPerHour: liberation.impactPerHour),
+              ),
+            ),
+          ],
+        )
       ],
+    );
+  }
+}
+
+class _ImpactPerHour extends StatelessWidget {
+  final double impactPerHour;
+
+  const _ImpactPerHour({required this.impactPerHour});
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> status = [];
+
+    Color color = Colors.green;
+    IconData icon = Icons.trending_up;
+
+    if (impactPerHour < 0) {
+      color = Colors.red;
+      icon = Icons.trending_down;
+    }
+
+    status = [
+      Text(
+        "$impactPerHour%",
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontFamily: "Arame",
+          letterSpacing: 1.5,
+          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+        ),
+      ),
+      Text(
+        "/h",
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5,
+          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+        ),
+      ),
+    ];
+
+    if (impactPerHour == 0) {
+      color = Colors.grey;
+      icon = Icons.trending_flat;
+
+      status = [
+        Text(
+          "Holding",
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontFamily: "Arame",
+            fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+          ),
+        ),
+      ];
+    }
+
+    return Tooltip(
+      message: "Liberation change per hour",
+      child: Row(
+        children: [
+          ...status,
+          Icon(
+            icon,
+            color: color,
+          ),
+        ],
+      ),
     );
   }
 }

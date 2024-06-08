@@ -10,7 +10,8 @@ type Liberation struct {
 	gorm.Model
 	Health                    int     `gorm:"not null"`
 	Players                   int     `gorm:"not null"`
-	Regeneration              float64 `gorm:"not null"`
+	RegenerationPerHour       float64 `gorm:"not null"`
+	ImpactPerHour             float64 `gorm:"not null"`
 	HelldiversID              int     `gorm:"not null;unique"`
 	LiberationHealthHistories []LiberationHealthHistory
 	Planet                    *Planet
@@ -24,12 +25,5 @@ func (l *Liberation) BeforeDelete(tx *gorm.DB) (err error) {
 
 func (l *Liberation) AfterSave(tx *gorm.DB) (err error) {
 	// Delete LiberationHealthHistory records older than 20 minutes to avoid storing too much data
-	if err := tx.Unscoped().Where("created_at < ?", time.Now().Add(-20*time.Minute)).Delete(&LiberationHealthHistory{}).Error; err != nil {
-		return err
-	}
-
-	return tx.Create(&LiberationHealthHistory{
-		Health:       l.Health,
-		LiberationID: l.ID,
-	}).Error
+	return tx.Unscoped().Where("created_at < ?", time.Now().Add(-21*time.Minute)).Delete(&LiberationHealthHistory{}).Error
 }

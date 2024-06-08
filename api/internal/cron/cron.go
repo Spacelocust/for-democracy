@@ -21,6 +21,8 @@ func StartCron() {
 		return
 	}
 
+	db := database.New()
+
 	// add a job to the scheduler
 	j, err := s.NewJob(
 		gocron.DurationJob(
@@ -30,7 +32,7 @@ func StartCron() {
 			func() {
 				fmt.Println("Collecting events from the HellHub API")
 
-				NewCollector := collector.NewCollector(database.New())
+				NewCollector := collector.NewCollector(db)
 
 				if health := NewCollector.Db.Health(); len(health) < 1 {
 					log.Fatal("Database is not healthy")
@@ -41,10 +43,15 @@ func StartCron() {
 			},
 		),
 	)
+
 	if err != nil {
-		fmt.Println(err)
+		if err := db.Close(); err != nil {
+			log.Fatal(err)
+		}
+		log.Fatal(err)
 		return
 	}
+
 	// each job has a unique id
 	fmt.Println(j.ID())
 

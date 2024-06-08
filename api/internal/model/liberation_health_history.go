@@ -11,3 +11,8 @@ type LiberationHealthHistory struct {
 	Liberation   *Liberation
 	LiberationID uint
 }
+
+// GetHealthToPercentage returns the health of the liberation as a percentage
+func (l *LiberationHealthHistory) GetHealthToPercentage() float64 {
+	return float64((1000000-l.Health)*100) / 1000000
+}
