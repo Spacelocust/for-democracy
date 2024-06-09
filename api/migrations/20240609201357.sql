@@ -1,7 +1,7 @@
 -- Modify "defences" table
 ALTER TABLE "defences" DROP COLUMN "enemy_health", DROP COLUMN "enemy_max_health", ADD COLUMN "max_health" bigint NOT NULL;
 -- Modify "liberations" table
-ALTER TABLE "liberations" ADD COLUMN "regeneration_per_hour" numeric NOT NULL, ADD COLUMN "impact_per_hour" numeric NOT NULL;
+ALTER TABLE "liberations" ADD COLUMN "regeneration_per_hour" numeric NOT NULL, ADD COLUMN "impact_per_hour" numeric NOT NULL DEFAULT 0;
 -- Modify "planets" table
 ALTER TABLE "planets" DROP COLUMN "regeneration";
 -- Modify "statistics" table

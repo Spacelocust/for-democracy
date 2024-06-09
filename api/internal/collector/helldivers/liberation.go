@@ -22,6 +22,7 @@ type PlanetAttack struct {
 type AttacksWar struct {
 	PlanetStatus  []PlanetStatus `json:"planetStatus"`
 	PlanetAttacks []PlanetAttack `json:"planetAttacks"`
+	PlanetEvents  []PlanetEvent  `json:"planetEvents"`
 }
 
 type Liberation struct {
@@ -50,13 +51,16 @@ func formatLiberations(attacksWar *AttacksWar) (liberations []Liberation, owners
 				return p.Index == planet.Target
 			})
 
+			// Check if the attack is a defence (the api doesn't differentiate between attacks and defences, so we need to check if the planet is in the planet events array to know if it's a defence)
+			isDefence := slices.IndexFunc(attacksWar.PlanetEvents, func(p PlanetEvent) bool {
+				return p.Target == planet.Target
+			})
+
 			// Store the actual owner of the planet by the planet ID
 			owners[indexPlanet] = attacksWar.PlanetStatus[indexPlanet].Owner
 
-			fmt.Println(maths.RoundFloat(((attacksWar.PlanetStatus[indexPlanet].Regeneration*100)/1000000)*3600, 2))
-
 			// If the planet is in the planet status array, store the liberation
-			if indexPlanet != -1 {
+			if indexPlanet != -1 && isDefence == -1 {
 				liberations = append(liberations, Liberation{
 					Target:  planet.Target,
 					Health:  attacksWar.PlanetStatus[indexPlanet].Health,
@@ -167,10 +171,13 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 				// Calculate the time difference between the two health history records in minutes to calculate the impact per hour
 				timeDiff := math.Round(newHealthHistory.CreatedAt.Sub(previousHealthHistory.CreatedAt).Minutes())
 
-				if result.RowsAffected != 0 {
+				if result.RowsAffected > 0 && timeDiff > 0 {
 					// Calculate the impact of the liberation health change on the planetary control (*3 due to the 20min interval)
+					fmt.Println("health", (newHealthHistory.GetHealthToPercentage()-previousHealthHistory.GetHealthToPercentage())*(60/timeDiff))
 					newLiberation.ImpactPerHour = maths.RoundFloat((newHealthHistory.GetHealthToPercentage()-previousHealthHistory.GetHealthToPercentage())*(60/timeDiff), 3)
 				}
+
+				fmt.Println("impact", newLiberation.ImpactPerHour)
 
 				// Update the liberation impact per hour
 				tx.Save(&newLiberation)

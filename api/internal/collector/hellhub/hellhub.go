@@ -1,12 +1,13 @@
 package hellhub
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"sync"
+
+	"github.com/goccy/go-json"
 
 	"github.com/Spacelocust/for-democracy/internal/collector/helldivers"
 	"github.com/Spacelocust/for-democracy/internal/model"

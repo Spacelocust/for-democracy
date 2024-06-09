@@ -1,12 +1,13 @@
 package helldivers
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"sync"
+
+	"github.com/goccy/go-json"
 
 	"github.com/Spacelocust/for-democracy/internal/enum"
 	"gorm.io/gorm"

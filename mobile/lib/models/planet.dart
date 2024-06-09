@@ -109,7 +109,7 @@ class Planet {
 
   double toDouble(DateTime myTime) => myTime.hour + myTime.minute / 60.0;
 
-  double getHealthPercentage(int i) => 1 - (liberation!.health / maxHealth!);
+  double getLiberationPercentage() => 1 - (liberation!.health / maxHealth!);
 
   factory Planet.fromJson(Map<String, dynamic> json) => _$PlanetFromJson(json);
 

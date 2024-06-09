@@ -11,7 +11,7 @@ type Liberation struct {
 	Health                    int     `gorm:"not null"`
 	Players                   int     `gorm:"not null"`
 	RegenerationPerHour       float64 `gorm:"not null"`
-	ImpactPerHour             float64 `gorm:"not null"`
+	ImpactPerHour             float64 `gorm:"not null;default:0.0"`
 	HelldiversID              int     `gorm:"not null;unique"`
 	LiberationHealthHistories []LiberationHealthHistory
 	Planet                    *Planet

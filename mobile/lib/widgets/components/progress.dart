@@ -10,6 +10,7 @@ class StripedProgressIndicator extends StatefulWidget {
   final double stripeSpacing;
   final Color backgroundColor;
   final int speed;
+  final bool reverse;
 
   const StripedProgressIndicator({
     super.key,
@@ -20,6 +21,7 @@ class StripedProgressIndicator extends StatefulWidget {
     this.stripeSpacing = 4.0,
     this.speed = 1000,
     this.backgroundColor = Colors.grey,
+    this.reverse = false,
   });
 
   @override
@@ -65,6 +67,7 @@ class _StripedProgressIndicatorState extends State<StripedProgressIndicator>
                     angle: widget.angle,
                     stripeSpacing: widget.stripeSpacing,
                     backgroundColor: widget.backgroundColor,
+                    reverse: widget.reverse,
                   ),
                   child: const SizedBox(
                     height: 20.0,
@@ -102,6 +105,7 @@ class _StripedProgressPainter extends CustomPainter {
   final double angle;
   final double stripeSpacing;
   final Color backgroundColor;
+  final bool reverse;
 
   _StripedProgressPainter({
     required this.value,
@@ -111,6 +115,7 @@ class _StripedProgressPainter extends CustomPainter {
     required this.angle,
     required this.stripeSpacing,
     required this.backgroundColor,
+    required this.reverse,
   });
 
   @override
@@ -132,7 +137,12 @@ class _StripedProgressPainter extends CustomPainter {
     canvas.drawRect(Offset.zero & size, backgroundPaint);
 
     // Convert angle to radians
+
     double angleRad = angle * math.pi / 180;
+
+    if (reverse) {
+      angleRad = -angle * math.pi / 180;
+    }
 
     // Calculate the stripe height based on the angle and stripe width
     double stripeHeight = stripeWidth / math.tan(angleRad);
@@ -142,10 +152,16 @@ class _StripedProgressPainter extends CustomPainter {
         math.sqrt(stripeWidth * stripeWidth + stripeHeight * stripeHeight) +
             stripeSpacing;
 
+    double shift = animationValue * stripeLength;
+
+    if (reverse) {
+      shift = -shift;
+    }
+
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, progressWidth, size.height));
 
-    for (double x = -stripeLength + (animationValue * stripeLength);
+    for (double x = -stripeLength + shift;
         x < progressWidth + stripeLength;
         x += stripeLength) {
       // Create a path for each stripe

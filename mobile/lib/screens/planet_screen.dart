@@ -4,12 +4,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/enum/faction.dart';
-import 'package:mobile/models/defence.dart';
-import 'package:mobile/models/liberation.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/components/countdown.dart';
 import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:shimmer/shimmer.dart';
@@ -46,7 +46,7 @@ class _PlanetScreenState extends State<PlanetScreen> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.7,
       maxChildSize: 0.8,
       expand: false,
       builder: (context, scrollController) {
@@ -165,11 +165,30 @@ class _PlanetScreenView extends StatelessWidget {
         ...columns,
         const SizedBox(height: columnSpacing),
         _EventHeader(
-          text: planet.hasLiberation
-              ? AppLocalizations.of(context)!.liberation
-              : AppLocalizations.of(context)!.defence,
           image: AssetImage(
             "assets/images/${planet.hasLiberation ? "liberation" : "defence"}.png",
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                planet.hasLiberation
+                    ? AppLocalizations.of(context)!.liberation
+                    : AppLocalizations.of(context)!.defence,
+                style: const TextStyle(
+                  fontFamily: "Arame",
+                  fontSize: 20,
+                ),
+              ),
+              if (planet.hasDefence)
+                Countdown(
+                  dateStart: planet.defence!.endAt,
+                  style: TextStyle(
+                    fontFamily: "Arame",
+                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: columnSpacing),
@@ -196,40 +215,44 @@ class _PlanetScreenView extends StatelessWidget {
       ...columns,
 
       /// Background image of the planet
-      CachedNetworkImage(
-        imageUrl: planet.backgroundUrl,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => SizedBox(
-          width: double.infinity,
-          height: 120,
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey.shade200,
-            highlightColor: Colors.yellow,
-            child: Container(
-              color: Colors.white,
+      _BoxDecoration(
+        borderColor: Colors.grey,
+        child: _BoxDecoration(
+          child: CachedNetworkImage(
+            imageUrl: planet.backgroundUrl,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => SizedBox(
+              width: double.infinity,
+              height: 110,
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey.shade200,
+                highlightColor: Colors.yellow,
+                child: Container(
+                  color: Colors.white,
+                ),
+              ),
             ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
-      const SizedBox(height: columnSpacing),
+      const SizedBox(height: 5),
 
       /// Planet progress bar for defence
-      if (planet.defence != null)
-        _ProgressDefence(defence: planet.defence!, planet: planet),
+      if (planet.hasDefence) _ProgressDefence(planet: planet),
 
       /// Planet progress bar for liberation
-      if (planet.liberation != null)
-        _ProgressLiberation(liberation: planet.liberation!, planet: planet),
+      if (planet.hasLiberation) _ProgressLiberation(planet: planet),
 
       /// Planet statistics
-      _PlanetViewStatistic(statistic: planet.statistic),
+      // _PlanetViewStatistic(statistic: planet.statistic),
     ];
 
     return SingleChildScrollView(
       controller: scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: columns,
       ),
     );
@@ -276,7 +299,6 @@ class _PlanetViewTitle extends StatelessWidget {
                       ? AppLocalizations.of(context)!.liberation
                       : AppLocalizations.of(context)!.defence,
                   eventId: planet.id,
-                  // TODO: Proper values
                   progress: 0.57,
                   daysLeft: 3,
                 ),
@@ -296,10 +318,10 @@ class _PlanetViewTitle extends StatelessWidget {
 }
 
 class _EventHeader extends StatelessWidget {
-  final String text;
+  final Widget child;
   final AssetImage image;
 
-  const _EventHeader({required this.text, required this.image});
+  const _EventHeader({required this.child, required this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -331,13 +353,7 @@ class _EventHeader extends StatelessWidget {
             height: 20,
           ),
           const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontFamily: "Arame",
-              fontSize: 20,
-            ),
-          ),
+          Expanded(child: child),
         ],
       ),
     );
@@ -352,10 +368,20 @@ class _TitlePlanet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color color = planet.owner.color;
+    String logo = planet.owner.logo;
+    String controlTitle = planet.owner.translatedName(context);
+
+    if (planet.hasDefence) {
+      color = planet.defence!.enemyFaction.color;
+      logo = planet.defence!.enemyFaction.logo;
+      controlTitle = planet.defence!.enemyFaction.translatedName(context);
+    }
+
     return Row(
       children: [
         Image(
-          image: AssetImage(planet.owner.logo),
+          image: AssetImage(logo),
           width: 40,
           height: 40,
         ),
@@ -376,17 +402,16 @@ class _TitlePlanet extends StatelessWidget {
                 fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
                 decoration: TextDecoration.underline,
                 decorationThickness: 2.2,
-                decorationColor: planet.owner.color,
+                decorationColor: color,
               ),
             ),
             Text(
-              "${planet.owner.translatedName(context)} controlled"
-                  .toUpperCase(),
+              "$controlTitle control".toUpperCase(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: "Arame",
                 fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                color: planet.owner.color,
+                color: color,
               ),
             )
           ],
@@ -435,51 +460,122 @@ class _PlanetViewChips extends StatelessWidget {
 /// Progress bar for defence
 class _ProgressDefence extends StatelessWidget {
   final Planet planet;
-  final Defence defence;
 
-  const _ProgressDefence({required this.planet, required this.defence});
+  const _ProgressDefence({required this.planet});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border.all(
-          color: defence.enemyFaction.color,
-          width: 2,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: Column(
-          children: [
-            Container(
+    return _BoxDecoration(
+      borderColor: Colors.grey,
+      child: Column(
+        children: [
+          _BoxDecoration(
+            borderColor: planet.defence!.enemyFaction.color,
+            child: Container(
               color: Colors.black,
-              width: double.infinity,
-              child: const StripedProgressIndicator(
-                value: 1,
-                stripeWidth: 20,
-                stripeSpacing: 15,
-                stripeColor: Color(0xff219ffb),
-                backgroundColor: Color(0xff07daff),
-                angle: -45.0,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Column(
+                        children: [
+                          _ProgressBar(
+                            value: planet.defence!.getHealthPercentage(),
+                            faction: planet.owner,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          _ProgressBar(
+                            value: planet.defence!.getEnemyHealthPercentage(),
+                            faction: planet.defence!.enemyFaction,
+                            angle: 45.0,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 5),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.grey, width: 3),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        _FactionImpactPercentage(
+                          value: planet.defence!.getRequiredImpactPerHour(),
+                          faction: planet.owner,
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        _FactionImpactPercentage(
+                          value: planet.defence!.getEnemyImpactPerHour(),
+                          faction: planet.defence!.enemyFaction,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 5),
-            Container(
-              color: Colors.black,
-              width: double.infinity,
-              child: const StripedProgressIndicator(
-                value: 0.57,
-                stripeWidth: 20,
-                stripeSpacing: 15,
-                stripeColor: Color(0xffffc000),
-                backgroundColor: Color(0xffc18700),
-                angle: 45.0,
-              ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          _BoxDecoration(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    _TextArame(
+                      text:
+                          "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
+                      size: "medium",
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const _TextArame(
+                      text: "defenced",
+                      size: "medium",
+                      letterSpacing: 0,
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          _BoxDecoration(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _FactionImpactPercentage(
+                      value: planet.defence!.getRequiredImpactPerHour(),
+                      faction: planet.owner,
+                    ),
+                    _TextArame(
+                      color: planet.owner.color,
+                      text: " required",
+                      size: "medium",
+                      letterSpacing: 0,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -488,186 +584,142 @@ class _ProgressDefence extends StatelessWidget {
 /// Progress bar for liberation
 class _ProgressLiberation extends StatelessWidget {
   final Planet planet;
-  final Liberation liberation;
 
-  const _ProgressLiberation({required this.planet, required this.liberation});
+  const _ProgressLiberation({required this.planet});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(
-              color: planet.owner.color,
-              width: 2,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Container(
-              color: planet.owner.color,
-              child: StripedProgressIndicator(
-                value: planet.getHealthPercentage(planet.maxHealth!),
-                stripeWidth: 20,
-                stripeSpacing: 15,
-                stripeColor: const Color(0xff219ffb),
-                backgroundColor: const Color(0xff07daff),
-                angle: -45.0,
+        _BoxDecoration(
+          borderColor: Colors.grey,
+          child: Column(
+            children: [
+              _BoxDecoration(
+                borderColor: planet.owner.color,
+                child: Container(
+                  color: planet.owner.color,
+                  child: _ProgressBar(
+                    value: planet.getLiberationPercentage(),
+                    faction: Faction.humans,
+                    backgroundColor: planet.owner.color,
+                    reverse: planet.liberation!.impactPerHour < 0,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(
+                height: 5,
+              ),
+              _BoxDecoration(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        _TextArame(
+                          text:
+                              "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
+                          size: "medium",
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        const _TextArame(
+                          text: "liberated",
+                          size: "medium",
+                          letterSpacing: 0,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(
           height: 5,
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(
-              color: Colors.white,
-              width: 2,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text:
-                            "${(planet.getHealthPercentage(planet.maxHealth!) * 100).toStringAsFixed(3)}%",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: "Arame",
-                          letterSpacing: 1.5,
-                          fontSize:
-                              Theme.of(context).textTheme.titleMedium!.fontSize,
-                        ),
-                      ),
-                      const TextSpan(
-                        text: " ",
-                      ),
-                      TextSpan(
-                        text: "liberated",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: "Arame",
-                          fontSize:
-                              Theme.of(context).textTheme.titleMedium!.fontSize,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
+        _BoxDecoration(
+          borderColor: Colors.grey,
+          child: Row(
+            children: [
+              Expanded(
+                child: _BoxDecoration(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Row(
-                        children: [
-                          const Image(
-                            image: AssetImage("assets/images/humans.png"),
-                            width: 25,
-                            height: 25,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            "${liberation.impactPerHour + liberation.regenerationPerHour}%",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Faction.humans.color,
-                              fontFamily: "Arame",
-                              letterSpacing: 1.5,
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .fontSize,
-                            ),
-                          ),
-                        ],
+                      _FactionImpactPercentage(
+                        value: planet.liberation!.impactPerHour +
+                            planet.liberation!.regenerationPerHour,
+                        faction: Faction.humans,
                       ),
-                      Row(
-                        children: [
-                          const Image(
-                            image: AssetImage("assets/images/automatons.png"),
-                            width: 25,
-                            height: 25,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            "${liberation.regenerationPerHour}%",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Faction.automatons.color,
-                              fontFamily: "Arame",
-                              letterSpacing: 1.5,
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .fontSize,
-                            ),
-                          ),
-                        ],
+                      _FactionImpactPercentage(
+                        value: planet.liberation!.regenerationPerHour,
+                        faction: planet.owner,
+                        precision: 1,
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 5,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+              const SizedBox(
+                width: 5,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: _ImpactPerHour(impactPerHour: liberation.impactPerHour),
-              ),
-            ),
-          ],
+              _BoxDecoration(
+                  child:
+                      _ImpactPerHour(value: planet.liberation!.impactPerHour))
+            ],
+          ),
         )
       ],
     );
   }
 }
 
-class _ImpactPerHour extends StatelessWidget {
-  final double impactPerHour;
+class _FactionImpactPercentage extends StatelessWidget {
+  final double value;
 
-  const _ImpactPerHour({required this.impactPerHour});
+  final Faction faction;
+
+  final int precision;
+
+  const _FactionImpactPercentage(
+      {required this.value, required this.faction, this.precision = 3});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Image(
+          image: AssetImage(faction.logo),
+          width: 25,
+          height: 25,
+        ),
+        const SizedBox(width: 5),
+        _TextArame(
+          text: "${value.toStringAsFixed(precision)}%",
+          color: faction.color,
+          size: "medium",
+        ),
+        Text(
+          "/h",
+          style: TextStyle(
+            color: faction.color,
+            fontWeight: FontWeight.bold,
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImpactPerHour extends StatelessWidget {
+  final double value;
+
+  const _ImpactPerHour({required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -676,14 +728,14 @@ class _ImpactPerHour extends StatelessWidget {
     Color color = Colors.green;
     IconData icon = Icons.trending_up;
 
-    if (impactPerHour < 0) {
+    if (value < 0) {
       color = Colors.red;
       icon = Icons.trending_down;
     }
 
     status = [
       Text(
-        "$impactPerHour%",
+        "$value%",
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.bold,
@@ -703,7 +755,7 @@ class _ImpactPerHour extends StatelessWidget {
       ),
     ];
 
-    if (impactPerHour == 0) {
+    if (value == 0) {
       color = Colors.grey;
       icon = Icons.trending_flat;
 
@@ -875,6 +927,117 @@ class _PlanetStatisticItem extends StatelessWidget {
           valueText(context),
         ),
       ],
+    );
+  }
+}
+
+class _BoxDecoration extends StatelessWidget {
+  final Widget child;
+
+  final Color borderColor;
+
+  const _BoxDecoration({required this.child, this.borderColor = Colors.white});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        border: Border.all(
+          color: borderColor,
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  final double value;
+
+  final double angle;
+
+  final bool reverse;
+
+  final Faction faction;
+
+  final Color backgroundColor;
+
+  const _ProgressBar({
+    required this.value,
+    required this.faction,
+    this.angle = -45.0,
+    this.backgroundColor = Colors.black,
+    this.reverse = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = faction.color;
+    Color secondaryColor = faction.secondaryColor;
+
+    /// Step down the color for the secondary color
+    if (faction == Faction.humans) {
+      color = faction.secondaryColor;
+      secondaryColor = const Color(0xff07daff);
+    }
+    return Container(
+      color: backgroundColor,
+      width: double.infinity,
+      child: StripedProgressIndicator(
+        value: value,
+        stripeWidth: 20,
+        stripeSpacing: 15,
+        stripeColor: reverse ? ThemeColors.darken(color, 20) : color,
+        backgroundColor:
+            reverse ? ThemeColors.darken(secondaryColor, 20) : secondaryColor,
+        angle: angle,
+        reverse: reverse,
+      ),
+    );
+  }
+}
+
+class _TextArame extends StatelessWidget {
+  final String text;
+
+  final Color color;
+
+  final String size;
+
+  final double letterSpacing;
+
+  const _TextArame(
+      {required this.text,
+      this.color = Colors.white,
+      this.size = "large",
+      this.letterSpacing = 1.5});
+
+  @override
+  Widget build(BuildContext context) {
+    double? fontSize = Theme.of(context).textTheme.titleLarge!.fontSize ?? 20;
+
+    if (size == "medium") {
+      fontSize = Theme.of(context).textTheme.titleMedium!.fontSize ?? 16;
+    }
+
+    if (size == "small") {
+      fontSize = Theme.of(context).textTheme.titleSmall!.fontSize ?? 14;
+    }
+
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontFamily: "Arame",
+        color: color,
+        letterSpacing: letterSpacing,
+        fontSize: fontSize,
+      ),
     );
   }
 }

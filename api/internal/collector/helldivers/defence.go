@@ -153,7 +153,7 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			// Create or update defences
 			err = tx.Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "helldivers_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"health", "players", "health", "max_health", "start_at", "end_at", "updated_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"players", "health", "enemy_faction", "max_health", "start_at", "end_at", "updated_at"}),
 			}).Create(&newDefences).Error
 
 			if err != nil {
