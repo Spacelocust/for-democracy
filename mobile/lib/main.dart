@@ -10,10 +10,12 @@ import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/states/galaxy_map_zoom.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
 import 'package:mobile/widgets/page/bottom_sheet_page.dart';
+import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -72,6 +74,7 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   User? user;
+
   try {
     user = await OAuthService.getMe();
   } catch (e) {
@@ -79,8 +82,17 @@ Future main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthState(user: user),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthState(user: user),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GalaxyMapZoom(
+            zoomFactor: GalaxyMap.initialZoomFactor,
+          ),
+        ),
+      ],
       child: const ForDemocracyApp(),
     ),
   );
@@ -96,7 +108,7 @@ class ForDemocracyApp extends StatelessWidget {
       routerConfig: _router,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        colorScheme: ColorScheme.dark(
+        colorScheme: const ColorScheme.dark(
           primary: ThemeColors.primary,
           secondary: ThemeColors.primary,
           background: ThemeColors.surface,
