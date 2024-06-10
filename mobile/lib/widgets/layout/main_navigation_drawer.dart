@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/models/drawer_destination.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';

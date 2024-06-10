@@ -58,8 +58,8 @@ class GalaxyMapPlanetsWaypointsPainter extends CustomPainter {
       // Note : because the origin (top-left) is 0.0, we need to subtract the y value from the height of the canvas or the lines will be drawn upside down
       double planetY = size.height - planet.scaleYTo(toY);
       Paint paint = Paint()
-        ..color = planet.color.withOpacity(0.8)
-        ..strokeWidth = 1;
+        ..color = planet.color.withOpacity(0.75)
+        ..strokeWidth = 1.6;
 
       for (var waypoint in planet.waypoints) {
         double waypointX = waypoint.scaleXTo(toX);
@@ -69,7 +69,7 @@ class GalaxyMapPlanetsWaypointsPainter extends CustomPainter {
           canvas: canvas,
           p1: Offset(planetX, planetY),
           p2: Offset(waypointX, waypointY),
-          pattern: [2, 2],
+          pattern: [1.6, 1],
           paint: paint,
         );
       }

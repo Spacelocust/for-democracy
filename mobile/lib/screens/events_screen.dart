@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/services/events_service.dart';
+import 'package:mobile/widgets/components/list_item.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -38,11 +42,8 @@ class _EventsScreenState extends State<EventsScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
-            return Center(
-              child: CircularProgressIndicator(
-                semanticsLabel:
-                    AppLocalizations.of(context)!.planetsScreenLoading,
-              ),
+            return Spinner(
+              semanticsLabel: AppLocalizations.of(context)!.eventsScreenLoading,
             );
           }
 
@@ -58,7 +59,7 @@ class _EventsScreenState extends State<EventsScreen> {
           final events = snapshot.data!;
 
           return ListView.builder(
-            itemCount: 2,
+            itemCount: 1,
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.only(
@@ -69,25 +70,48 @@ class _EventsScreenState extends State<EventsScreen> {
                   // Defences
                   ListTile(
                     title: Text(
-                      'Ongoing defenses',
-                      style: Theme.of(context).textTheme.headlineLarge,
+                      AppLocalizations.of(context)!.eventsOngoingDefences,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   ...events.defences.map(
-                    (defence) => ListTile(
-                      title: Text(defence.planet?.name ?? ''),
+                    (defence) => GestureDetector(
+                      onTap: () {
+                        context.go(context.namedLocation(
+                          PlanetScreen.routeName,
+                          pathParameters: {
+                            'planetId': defence.planet!.id.toString()
+                          },
+                        ));
+                      },
+                      child: ListItem(
+                        title: defence.planet!.name,
+                      ),
                     ),
+                  ),
+                  const SizedBox(
+                    height: 16,
                   ),
                   // Liberations
                   ListTile(
                     title: Text(
-                      'Ongoing liberations',
-                      style: Theme.of(context).textTheme.headlineLarge,
+                      AppLocalizations.of(context)!.eventsOngoingLiberations,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   ...events.liberations.map(
-                    (liberation) => ListTile(
-                      title: Text(liberation.planet?.name ?? ''),
+                    (liberation) => GestureDetector(
+                      onTap: () {
+                        context.go(context.namedLocation(
+                          PlanetScreen.routeName,
+                          pathParameters: {
+                            'planetId': liberation.planet!.id.toString()
+                          },
+                        ));
+                      },
+                      child: ListItem(
+                        title: liberation.planet!.name,
+                      ),
                     ),
                   ),
                 ]),

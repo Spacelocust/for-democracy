@@ -9,12 +9,18 @@ class SectorListItem extends ListItem {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        sector.name,
-        style: Theme.of(context).textTheme.headlineLarge,
-      ),
-      subtitle: const SizedBox.shrink(),
+    return Column(
+      children: [
+        const SizedBox(
+          height: 16,
+        ),
+        ListTile(
+          title: Text(
+            sector.name,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+        ),
+      ],
     );
   }
 }

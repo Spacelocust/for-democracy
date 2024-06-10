@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
+import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 
 class PlanetListItem extends ListItem {
@@ -21,7 +22,7 @@ class PlanetListItem extends ListItem {
       boxShadow: [
         BoxShadow(
           color: planet.color.withOpacity(0.6),
-          blurRadius: 6,
+          blurRadius: 8,
           spreadRadius: 4,
         ),
       ],
@@ -41,15 +42,20 @@ class PlanetListItem extends ListItem {
     List<Widget> children = [];
 
     if (planet.hasLiberation) {
-      children.add(Text(
-        AppLocalizations.of(context)!.planetLiberationInProgress,
-        style: Theme.of(context).textTheme.bodySmall,
-      ));
+      children.add(
+        Text(
+          AppLocalizations.of(context)!.planetLiberationInProgress,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: ThemeColors.primary,
+              ),
+        ),
+      );
     } else if (planet.hasDefence) {
-      children.add(Text(
-        AppLocalizations.of(context)!.planetDefenceInProgress,
-        style: Theme.of(context).textTheme.bodySmall,
-      ));
+      children.add(
+        Text(
+          AppLocalizations.of(context)!.planetDefenceInProgress,
+        ),
+      );
     }
 
     children.add(title);
@@ -73,7 +79,6 @@ class PlanetListItem extends ListItem {
     if (players != null) {
       return Text(
         AppLocalizations.of(context)!.playerCount(players),
-        style: Theme.of(context).textTheme.bodySmall,
       );
     }
 
@@ -95,36 +100,46 @@ class PlanetListItem extends ListItem {
           .planetOccupied(planet.owner.translatedName(context));
     }
 
-    return Text(subtitle);
+    return Text(
+      subtitle,
+      style: Theme.of(context).textTheme.bodySmall,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        clipBehavior: Clip.hardEdge,
-        decoration: decoration,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: CachedNetworkImage(
-            width: 55,
-            height: 55,
-            imageUrl: planet.imageUrl,
-            placeholder: (context, url) => const SizedBox(
-              width: 55,
-              height: 55,
-            ),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+    return Column(
+      children: [
+        const SizedBox(
+          height: 8,
         ),
-      ),
-      title: getTitle(context),
-      trailing: getTrailing(context),
-      subtitle: getSubtitle(context),
-      onTap: () => context.go(context.namedLocation(
-        PlanetScreen.routeName,
-        pathParameters: {'planetId': planet.id.toString()},
-      )),
+        ListTile(
+          leading: Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: decoration,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                width: 55,
+                height: 55,
+                imageUrl: planet.imageUrl,
+                placeholder: (context, url) => const SizedBox(
+                  width: 55,
+                  height: 55,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+          ),
+          title: getTitle(context),
+          trailing: getTrailing(context),
+          subtitle: getSubtitle(context),
+          onTap: () => context.go(context.namedLocation(
+            PlanetScreen.routeName,
+            pathParameters: {'planetId': planet.id.toString()},
+          )),
+        ),
+      ],
     );
   }
 }
