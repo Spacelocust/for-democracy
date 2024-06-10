@@ -295,16 +295,14 @@ class _PlanetViewTitle extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (context) => _PlanetEventDialog(
-                  title: planet.hasLiberation
-                      ? AppLocalizations.of(context)!.liberation
-                      : AppLocalizations.of(context)!.defence,
-                  eventId: planet.id,
-                  progress: 0.57,
-                  daysLeft: 3,
+                  planet: planet,
                 ),
               );
             },
-            icon: const Icon(Icons.info),
+            icon: const Icon(
+              Icons.insert_chart_outlined,
+              size: 30,
+            ),
           )
         ],
       ),
@@ -370,12 +368,17 @@ class _TitlePlanet extends StatelessWidget {
   Widget build(BuildContext context) {
     Color color = planet.owner.color;
     String logo = planet.owner.logo;
-    String controlTitle = planet.owner.translatedName(context);
+    String subTitle = AppLocalizations.of(context)!
+        .planetUnderControl(planet.owner.translatedName(context))
+        .toUpperCase();
 
     if (planet.hasDefence) {
       color = planet.defence!.enemyFaction.color;
       logo = planet.defence!.enemyFaction.logo;
-      controlTitle = planet.defence!.enemyFaction.translatedName(context);
+      subTitle = AppLocalizations.of(context)!
+          .planetUnderAttack(
+              planet.defence!.enemyFaction.translatedName(context))
+          .toUpperCase();
     }
 
     return Row(
@@ -406,7 +409,7 @@ class _TitlePlanet extends StatelessWidget {
               ),
             ),
             Text(
-              "$controlTitle control".toUpperCase(),
+              subTitle,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: "Arame",
@@ -505,16 +508,27 @@ class _ProgressDefence extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _FactionImpactPercentage(
-                          value: planet.defence!.impactPerHour,
-                          faction: planet.owner,
+                        Tooltip(
+                          message: AppLocalizations.of(context)!
+                              .planetFactionProgressPerHour(
+                                  planet.owner.name.toLowerCase()),
+                          child: _FactionImpactPercentage(
+                            value: planet.defence!.impactPerHour,
+                            faction: planet.owner,
+                          ),
                         ),
                         const SizedBox(
                           height: 5,
                         ),
-                        _FactionImpactPercentage(
-                          value: planet.defence!.getEnemyImpactPerHour(),
-                          faction: planet.defence!.enemyFaction,
+                        Tooltip(
+                          message: AppLocalizations.of(context)!
+                              .planetFactionProgressPerHour(planet
+                                  .defence!.enemyFaction.name
+                                  .toLowerCase()),
+                          child: _FactionImpactPercentage(
+                            value: planet.defence!.getEnemyImpactPerHour(),
+                            faction: planet.defence!.enemyFaction,
+                          ),
                         ),
                       ],
                     ),
@@ -530,22 +544,52 @@ class _ProgressDefence extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    _TextArame(
-                      text:
-                          "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
-                      size: "medium",
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const _TextArame(
-                      text: "defenced",
-                      size: "medium",
-                      letterSpacing: 0,
-                    ),
-                  ],
+                Tooltip(
+                  message:
+                      AppLocalizations.of(context)!.planetDefenceInProgress,
+                  child: Row(
+                    children: [
+                      _TextArame(
+                        text:
+                            "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
+                        size: "medium",
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      _TextArame(
+                        text: AppLocalizations.of(context)!.defended,
+                        size: "medium",
+                        letterSpacing: 0,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  size: 25,
+                  planet.defence!.getHealthPercentage() >
+                          planet.defence!.getEnemyHealthPercentage()
+                      ? Icons.keyboard_double_arrow_up
+                      : Icons.keyboard_double_arrow_down,
+                  color: planet.defence!.getHealthPercentage() >
+                          planet.defence!.getEnemyHealthPercentage()
+                      ? Colors.green
+                      : Colors.red,
+                ),
+                _TextArame(
+                  text: planet.defence!.getHealthPercentage() >
+                          planet.defence!.getEnemyHealthPercentage()
+                      ? AppLocalizations.of(context)!.winning
+                      : AppLocalizations.of(context)!.losing,
+                  size: "medium",
+                  color: planet.defence!.getHealthPercentage() >
+                          planet.defence!.getEnemyHealthPercentage()
+                      ? Colors.green
+                      : Colors.red,
+                  letterSpacing: 0,
                 ),
               ],
             ),
@@ -557,20 +601,27 @@ class _ProgressDefence extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _FactionImpactPercentage(
-                      value: planet.defence!.getRequiredImpactPerHour(),
-                      faction: planet.owner,
-                    ),
-                    _TextArame(
-                      color: planet.owner.color,
-                      text: " required",
-                      size: "medium",
-                      letterSpacing: 0,
-                    ),
-                  ],
+                Tooltip(
+                  message: AppLocalizations.of(context)!
+                      .planetHumansProgressRequiredPerHour,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _FactionImpactPercentage(
+                        value: planet.defence!.getRequiredImpactPerHour(),
+                        faction: planet.owner,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      _TextArame(
+                        color: planet.owner.color,
+                        text: AppLocalizations.of(context)!.required,
+                        size: "medium",
+                        letterSpacing: 0,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -615,23 +666,27 @@ class _ProgressLiberation extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      children: [
-                        _TextArame(
-                          text:
-                              "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
-                          size: "medium",
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        const _TextArame(
-                          text: "liberated",
-                          size: "medium",
-                          letterSpacing: 0,
-                        ),
-                      ],
-                    ),
+                    Tooltip(
+                      message: AppLocalizations.of(context)!
+                          .planetLiberationInProgress,
+                      child: Row(
+                        children: [
+                          _TextArame(
+                            text:
+                                "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
+                            size: "medium",
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          _TextArame(
+                            text: AppLocalizations.of(context)!.liberated,
+                            size: "medium",
+                            letterSpacing: 0,
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -650,15 +705,25 @@ class _ProgressLiberation extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _FactionImpactPercentage(
-                        value: planet.liberation!.impactPerHour +
-                            planet.liberation!.regenerationPerHour,
-                        faction: Faction.humans,
+                      Tooltip(
+                        message: AppLocalizations.of(context)!
+                            .planetFactionProgressPerHour(
+                                Faction.humans.name.toLowerCase()),
+                        child: _FactionImpactPercentage(
+                          value: planet.liberation!.impactPerHour +
+                              planet.liberation!.regenerationPerHour,
+                          faction: Faction.humans,
+                        ),
                       ),
-                      _FactionImpactPercentage(
-                        value: planet.liberation!.regenerationPerHour,
-                        faction: planet.owner,
-                        precision: 1,
+                      Tooltip(
+                        message: AppLocalizations.of(context)!
+                            .planetFactionProgressPerHour(
+                                planet.owner.name.toLowerCase()),
+                        child: _FactionImpactPercentage(
+                          value: planet.liberation!.regenerationPerHour,
+                          faction: planet.owner,
+                          precision: 1,
+                        ),
                       ),
                     ],
                   ),
@@ -761,7 +826,7 @@ class _ImpactPerHour extends StatelessWidget {
 
       status = [
         Text(
-          "Holding",
+          AppLocalizations.of(context)!.holding,
           style: TextStyle(
             color: color,
             fontWeight: FontWeight.bold,
@@ -773,7 +838,7 @@ class _ImpactPerHour extends StatelessWidget {
     }
 
     return Tooltip(
-      message: "Liberation change per hour",
+      message: AppLocalizations.of(context)!.planetLiberationPerHour,
       child: Row(
         children: [
           ...status,
@@ -788,29 +853,21 @@ class _ImpactPerHour extends StatelessWidget {
 }
 
 class _PlanetEventDialog extends StatelessWidget {
-  final String title;
-
-  final int eventId;
-
-  final double progress;
-
-  final int daysLeft;
+  final Planet planet;
 
   const _PlanetEventDialog({
-    required this.title,
-    required this.eventId,
-    required this.progress,
-    required this.daysLeft,
+    required this.planet,
   });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
-      content: Text(AppLocalizations.of(context)!.planetEventProgress(
-        progress,
-        daysLeft,
-      )),
+      title: _TextArame(
+        text: AppLocalizations.of(context)!.planetStatistics,
+      ),
+      content: _PlanetViewStatistic(
+        statistic: planet.statistic,
+      ),
       actions: <Widget>[
         TextButton(
           style: TextButton.styleFrom(

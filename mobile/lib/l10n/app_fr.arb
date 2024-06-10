@@ -23,7 +23,14 @@
     "createGroup": "Créer un groupe",
     "viewEvent": "Voir l'événement",
     "liberation": "Libération",
+    "liberated": "Libérée",
     "defence": "Défense",
+    "defended": "Défendue",
+    "losing": "Perdre",
+    "winning": "Gagner",
+    "holding": "Tenir",
+    "attack": "Attaque",
+    "required": "Requis",
     "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
     "@hours": {
         "placeholders": {
@@ -68,8 +75,28 @@
     "@PLANET": {},
     "planetLiberationInProgress": "Libération en cours",
     "planetDefenceInProgress": "Défense en cours",
-    "planetUnderControl": "Planète sous contrôle.",
-    "planetUnderAttack": "La planète est attaquée par les {enemyFaction}.",
+    "planetLiberationPerHour": "Taux de libération par heure",
+    "planetFactionProgressPerHour": "Taux de progression des {faction} par heure",
+    "planetHumansProgressRequiredPerHour": "Taux de progression des humains requis par heure pour réussir la defence à temps",
+    "planetStatistics": "Statistiques",
+    "@planetFactionProgressPerHour": {
+        "placeholders": {
+            "faction": {
+                "type": "String",
+                "example": "Illuminates",
+                "description": "The name of the faction."
+            }
+        }
+    },
+    "planetUnderControl": "contrôle des {faction}",
+    "@planetUnderControl": {
+        "placeholders": {
+            "faction": {
+                "type": "String"
+            }
+        }
+    },
+    "planetUnderAttack": "Attaque des {enemyFaction}.",
     "@planetUnderAttack": {
         "placeholders": {
             "enemyFaction": {

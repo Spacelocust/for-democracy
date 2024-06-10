@@ -81,7 +81,8 @@ class PlanetListItem extends ListItem {
   }
 
   Text getSubtitle(BuildContext context) {
-    String subtitle = AppLocalizations.of(context)!.planetUnderControl;
+    String subtitle = AppLocalizations.of(context)!
+        .planetUnderControl(planet.owner.translatedName(context));
 
     if (planet.hasDefence) {
       subtitle =
