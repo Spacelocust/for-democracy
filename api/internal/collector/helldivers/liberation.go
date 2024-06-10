@@ -1,7 +1,6 @@
 package helldivers
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strconv"
@@ -173,11 +172,8 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 
 				if result.RowsAffected > 0 && timeDiff > 0 {
 					// Calculate the impact of the liberation health change on the planetary control (*3 due to the 20min interval)
-					fmt.Println("health", (newHealthHistory.GetHealthToPercentage()-previousHealthHistory.GetHealthToPercentage())*(60/timeDiff))
 					newLiberation.ImpactPerHour = maths.RoundFloat((newHealthHistory.GetHealthToPercentage()-previousHealthHistory.GetHealthToPercentage())*(60/timeDiff), 3)
 				}
-
-				fmt.Println("impact", newLiberation.ImpactPerHour)
 
 				// Update the liberation impact per hour
 				tx.Save(&newLiberation)

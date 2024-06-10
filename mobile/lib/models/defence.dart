@@ -27,6 +27,9 @@ class Defence {
   @JsonKey(required: true, name: 'MaxHealth')
   final int maxHealth;
 
+  @JsonKey(required: true, name: 'ImpactPerHour')
+  final double impactPerHour;
+
   @JsonKey(name: 'Planet')
   final Planet? planet;
 
@@ -41,6 +44,7 @@ class Defence {
     required this.enemyFaction,
     required this.health,
     required this.maxHealth,
+    required this.impactPerHour,
     this.planet,
     required this.helldiversID,
   });

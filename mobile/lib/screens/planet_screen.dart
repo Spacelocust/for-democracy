@@ -506,7 +506,7 @@ class _ProgressDefence extends StatelessWidget {
                     child: Column(
                       children: [
                         _FactionImpactPercentage(
-                          value: planet.defence!.getRequiredImpactPerHour(),
+                          value: planet.defence!.impactPerHour,
                           faction: planet.owner,
                         ),
                         const SizedBox(

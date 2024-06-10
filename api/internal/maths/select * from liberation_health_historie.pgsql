@@ -1,1 +1,0 @@
-select * from liberation_health_histories where liberation_id = 24 order by created_at asc;

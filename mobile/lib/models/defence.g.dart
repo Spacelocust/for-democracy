@@ -16,6 +16,7 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
       'EnemyFaction',
       'Health',
       'MaxHealth',
+      'ImpactPerHour',
       'HelldiversID'
     ],
   );
@@ -27,6 +28,7 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
     enemyFaction: $enumDecode(_$FactionEnumMap, json['EnemyFaction']),
     health: (json['Health'] as num).toInt(),
     maxHealth: (json['MaxHealth'] as num).toInt(),
+    impactPerHour: (json['ImpactPerHour'] as num).toDouble(),
     planet: json['Planet'] == null
         ? null
         : Planet.fromJson(json['Planet'] as Map<String, dynamic>),
@@ -42,6 +44,7 @@ Map<String, dynamic> _$DefenceToJson(Defence instance) => <String, dynamic>{
       'EnemyFaction': _$FactionEnumMap[instance.enemyFaction]!,
       'Health': instance.health,
       'MaxHealth': instance.maxHealth,
+      'ImpactPerHour': instance.impactPerHour,
       'Planet': instance.planet,
       'HelldiversID': instance.helldiversID,
     };
