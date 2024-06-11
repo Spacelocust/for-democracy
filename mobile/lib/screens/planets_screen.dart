@@ -1,18 +1,17 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
-import 'package:mobile/services/api_service.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
 import 'package:mobile/widgets/sector/list_item.dart';
+import 'package:provider/provider.dart';
 
 class PlanetsScreen extends StatefulWidget {
   static const String routePath = '/planets';
@@ -32,29 +31,33 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   Future<List<Planet>>? _planetsFuture;
 
+  late EventFlux _streamPlanets;
+
   @override
   void initState() {
     super.initState();
     fetchPlanets();
 
-    EventFlux.instance.connect(
-      EventFluxConnectionType.get,
-      '${dotenv.get(APIService.baseUrlEnv)}/planets-stream',
-      onSuccessCallback: (EventFluxResponse? response) {
-        response?.stream?.listen((data) {
-          log('Received data: $data', name: 'EventFlux');
-        });
+    startStream();
+  }
+
+  @override
+  void dispose() {
+    _streamPlanets.disconnect();
+    super.dispose();
+  }
+
+  void startStream() {
+    _streamPlanets = PlanetsService.getPlanetsStream(
+      onSuccess: (planets) {
+        context.read<PlanetsState>().setPlanets(planets);
       },
-      onError: (oops) {
-        log('Error: ${oops.message}', name: 'EventFlux');
+      onError: (error) {
+        log('Error: $error');
       },
-      autoReconnect: true,
-      reconnectConfig: ReconnectConfig(
-        mode: ReconnectMode.linear,
-        interval: const Duration(seconds: 90),
-        maxAttempts: 5,
-        onReconnect: () {},
-      ),
+      onClose: () {
+        context.read<PlanetsState>().setPlanets([]);
+      },
     );
   }
 
@@ -101,14 +104,16 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 // Error state
                 if (snapshot.hasError || !snapshot.hasData) {
                   return ErrorMessage(
-                    onPressed: fetchPlanets,
+                    onPressed: () {},
                     errorMessage:
                         AppLocalizations.of(context)!.planetsScreenError,
                   );
                 }
 
                 // Success state
-                final planets = snapshot.data!.toList()
+                final planets = context.read<PlanetsState>().planets.isEmpty
+                    ? snapshot.data!
+                    : context.read<PlanetsState>().planets
                   ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
                 int? lastSectorId;
 

@@ -9,7 +9,6 @@ import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/utils/theme_colors.dart';
-import 'package:mobile/widgets/components/countdown.dart';
 import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:shimmer/shimmer.dart';
@@ -180,14 +179,14 @@ class _PlanetScreenView extends StatelessWidget {
                   fontSize: 20,
                 ),
               ),
-              if (planet.hasDefence)
-                Countdown(
-                  dateStart: planet.defence!.endAt,
-                  style: TextStyle(
-                    fontFamily: "Arame",
-                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-                  ),
-                ),
+              // if (planet.hasDefence)
+              //   Countdown(
+              //     dateStart: planet.defence!.endAt,
+              //     style: TextStyle(
+              //       fontFamily: "Arame",
+              //       fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+              //     ),
+              //   ),
             ],
           ),
         ),

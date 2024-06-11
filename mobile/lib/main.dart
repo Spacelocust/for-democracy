@@ -11,6 +11,7 @@ import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/galaxy_map_zoom.dart';
+import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
@@ -35,7 +36,10 @@ final _router = GoRouter(
         GoRoute(
           name: PlanetsScreen.routeName,
           path: PlanetsScreen.routePath,
-          builder: (context, state) => const PlanetsScreen(),
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => PlanetsState(planets: []),
+            child: const PlanetsScreen(),
+          ),
           routes: [
             GoRoute(
               parentNavigatorKey: _rootNavigatorKey,
