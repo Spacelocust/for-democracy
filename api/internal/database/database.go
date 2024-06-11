@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -24,6 +25,9 @@ type Service interface {
 
 	// GetDB returns the database connection.
 	GetDB() *gorm.DB
+
+	// NewListenner returns a new pq.Listener.
+	NewListenner() *pq.Listener
 }
 
 type service struct {
@@ -37,10 +41,7 @@ var (
 	port       = "5432"
 	host       = os.Getenv("DB_HOST")
 	dbInstance *service
-)
-
-func New() Service {
-	dsn := fmt.Sprintf(
+	dsn        = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Paris",
 		host,
 		username,
@@ -48,7 +49,9 @@ func New() Service {
 		database,
 		port,
 	)
+)
 
+func New() Service {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -147,4 +150,15 @@ func (s *service) Close() error {
 // GetDB returns the database connection.
 func (s *service) GetDB() *gorm.DB {
 	return s.db
+}
+
+// NewListenner returns a new pq.Listener.
+func (s *service) NewListenner() *pq.Listener {
+	listener := pq.NewListener(dsn, 5*time.Second, 10*time.Minute, func(event pq.ListenerEventType, err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	return listener
 }

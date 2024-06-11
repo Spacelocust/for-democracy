@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strconv"
 	"sync"
+	"time"
 
 	err "github.com/Spacelocust/for-democracy/error"
 	"github.com/Spacelocust/for-democracy/internal/maths"
@@ -104,7 +105,7 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 
 		// If there are no liberations from the API, delete all liberations in the database (remove old liberations)
 		if len(liberations) == 0 {
-			if err := tx.Unscoped().Delete(&model.Liberation{}).Error; err != nil {
+			if err := tx.Unscoped().Where("updated_at < ?", time.Now()).Delete(&model.Liberation{}).Error; err != nil {
 				return errorDefence.Error(err, "error deleting liberations")
 			}
 		} else {

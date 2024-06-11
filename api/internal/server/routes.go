@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/Spacelocust/for-democracy/internal/server/sse"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -26,6 +27,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	s.RegisterOauthRoutes(r)
 	s.RegisterPlanetRoutes(r)
 	s.RegisterEventRoutes(r)
+
+	// Create a new server for streaming planets and register the route for it
+	sse.NewServer(&s.db).PlanetsStream(r)
 
 	return r
 }

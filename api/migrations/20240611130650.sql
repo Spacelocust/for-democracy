@@ -13,7 +13,7 @@ CREATE TABLE "defence_health_histories" (
   "health" bigint NOT NULL,
   "defence_id" bigint NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_defences_defence_health_histories" FOREIGN KEY ("defence_id") REFERENCES "defences" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_defences_defence_health_histories" FOREIGN KEY ("defence_id") REFERENCES "defences" ("id") ON UPDATE NO ACTION ON DELETE CASCADE
 );
 -- Create index "idx_defence_health_histories_deleted_at" to table: "defence_health_histories"
 CREATE INDEX "idx_defence_health_histories_deleted_at" ON "defence_health_histories" ("deleted_at");
@@ -28,7 +28,7 @@ CREATE TABLE "liberation_health_histories" (
   "health" bigint NOT NULL,
   "liberation_id" bigint NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_liberations_liberation_health_histories" FOREIGN KEY ("liberation_id") REFERENCES "liberations" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_liberations_liberation_health_histories" FOREIGN KEY ("liberation_id") REFERENCES "liberations" ("id") ON UPDATE NO ACTION ON DELETE CASCADE
 );
 -- Create index "idx_liberation_health_histories_deleted_at" to table: "liberation_health_histories"
 CREATE INDEX "idx_liberation_health_histories_deleted_at" ON "liberation_health_histories" ("deleted_at");

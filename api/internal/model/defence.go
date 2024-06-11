@@ -12,12 +12,12 @@ type Defence struct {
 	Players                int `gorm:"not null"`
 	StartAt                time.Time
 	EndAt                  time.Time
-	EnemyFaction           enum.Faction `gorm:"not null;type:faction"`
-	Health                 int          `gorm:"not null"`
-	MaxHealth              int          `gorm:"not null"`
-	ImpactPerHour          float64      `gorm:"not null;default:0"`
-	HelldiversID           int          `gorm:"not null;unique"`
-	DefenceHealthHistories []DefenceHealthHistory
+	EnemyFaction           enum.Faction           `gorm:"not null;type:faction"`
+	Health                 int                    `gorm:"not null"`
+	MaxHealth              int                    `gorm:"not null"`
+	ImpactPerHour          float64                `gorm:"not null;default:0"`
+	HelldiversID           int                    `gorm:"not null;unique"`
+	DefenceHealthHistories []DefenceHealthHistory `gorm:"constraint:OnDelete:CASCADE"`
 	Planet                 *Planet
 	PlanetID               uint
 }

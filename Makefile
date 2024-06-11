@@ -88,10 +88,15 @@ dcm: db-create-migration ## Alias for db-create-migration
 db-migrate-apply: ## Apply the migrations
 	$(EXECAPI) atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 
+dma: db-migrate-apply ## Alias for db-migrate-apply
+
+db-create-empty-migration: ## Create an empty migration
+	$(EXECAPI) atlas migrate new --dir "file://migrations"
+
+dcem: db-create-empty-migration ## Alias for db-create-empty-migration
+
 db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
-
-dma: db-migrate-apply ## Alias for db-migrate-apply
 
 db-drop: ## Drop the database
 	$(EXECPG) dropdb ${DB_NAME}

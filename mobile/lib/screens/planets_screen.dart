@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:mobile/services/api_service.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
@@ -30,6 +36,26 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   void initState() {
     super.initState();
     fetchPlanets();
+
+    EventFlux.instance.connect(
+      EventFluxConnectionType.get,
+      '${dotenv.get(APIService.baseUrlEnv)}/planets-stream',
+      onSuccessCallback: (EventFluxResponse? response) {
+        response?.stream?.listen((data) {
+          log('Received data: $data', name: 'EventFlux');
+        });
+      },
+      onError: (oops) {
+        log('Error: ${oops.message}', name: 'EventFlux');
+      },
+      autoReconnect: true,
+      reconnectConfig: ReconnectConfig(
+        mode: ReconnectMode.linear,
+        interval: const Duration(seconds: 90),
+        maxAttempts: 5,
+        onReconnect: () {},
+      ),
+    );
   }
 
   void fetchPlanets() {

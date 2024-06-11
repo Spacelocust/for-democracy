@@ -98,7 +98,7 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 	if err := db.Transaction(func(tx *gorm.DB) error {
 
 		if len(defences) == 0 {
-			if err := tx.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.Defence{}).Error; err != nil {
+			if err := tx.Unscoped().Where("updated_at < ?", time.Now()).Delete(&model.Defence{}).Error; err != nil {
 				return errorDefence.Error(err, "error deleting defences")
 			}
 		} else {
