@@ -10,6 +10,7 @@ import (
 	"github.com/go-co-op/gocron/v2"
 )
 
+// Before running the cron job, make sure to have launched the collector command
 // Cron job for developement purposes
 
 // StartCron starts the cron job

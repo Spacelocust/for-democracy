@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,9 +24,6 @@ type Service interface {
 
 	// GetDB returns the database connection.
 	GetDB() *gorm.DB
-
-	// NewListenner returns a new pq.Listener.
-	NewListenner() *pq.Listener
 }
 
 type service struct {
@@ -150,15 +146,4 @@ func (s *service) Close() error {
 // GetDB returns the database connection.
 func (s *service) GetDB() *gorm.DB {
 	return s.db
-}
-
-// NewListenner returns a new pq.Listener.
-func (s *service) NewListenner() *pq.Listener {
-	listener := pq.NewListener(dsn, 5*time.Second, 10*time.Minute, func(event pq.ListenerEventType, err error) {
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	return listener
 }
