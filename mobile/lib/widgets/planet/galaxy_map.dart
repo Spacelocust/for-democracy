@@ -13,6 +13,7 @@ import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 
 class GalaxyMap extends StatefulWidget {
   static const double initialZoomFactor = 1.5;
