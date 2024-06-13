@@ -115,8 +115,8 @@ collector: ## Collect the data from the API and store it in the database
 events: ## Collect the events from the API and store it in the database
 	$(EXECAPI) go run main.go collector-events
 
-example:
+example: ## Run the example commande
 	$(EXECAPI) go run main.go example
 
-cron:
+cron: ## Run the cron job to collect events
 	$(EXECAPI) go run main.go cron

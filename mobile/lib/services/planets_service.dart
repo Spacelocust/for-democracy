@@ -30,7 +30,7 @@ abstract class PlanetsService {
   static EventFlux getPlanetsStream({
     required Function(List<Planet>) onSuccess,
     required Function(EventFluxException) onError,
-    required Function() onClose,
+    Function()? onClose,
   }) {
     return newStream(
       url: url,

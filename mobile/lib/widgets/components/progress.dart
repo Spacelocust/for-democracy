@@ -4,12 +4,19 @@ import 'package:flutter/material.dart';
 
 class StripedProgressIndicator extends StatefulWidget {
   final double value;
+
   final double stripeWidth;
+
   final Color stripeColor;
+
   final double angle;
+
   final double stripeSpacing;
+
   final Color backgroundColor;
+
   final int speed;
+
   final bool reverse;
 
   const StripedProgressIndicator({

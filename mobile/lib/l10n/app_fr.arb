@@ -10,7 +10,7 @@
     "map": "Carte",
     "list": "Liste",
     "goHome": "Retour à l'accueil",
-    "playerCount": "{count, plural, zero{aucun joueur} one{{count}} other{{count}}}",
+    "playerCount": "{count, plural, zero{aucun joueur} one{joueur} other{joueurs}}",
     "@playerCount": {
         "placeholders": {
             "count": {
@@ -73,21 +73,12 @@
     "factionAutomatons": "Automates",
     "factionIlluminates": "Illuminés",
     "@PLANET": {},
+    "planetStatistics": "Statistiques",
     "planetLiberationInProgress": "Libération en cours",
     "planetDefenceInProgress": "Défense en cours",
     "planetLiberationPerHour": "Taux de libération par heure",
-    "planetFactionProgressPerHour": "Taux de progression des {faction} par heure",
-    "planetHumansProgressRequiredPerHour": "Taux de progression des humains requis par heure pour réussir la defence à temps",
-    "planetStatistics": "Statistiques",
-    "@planetFactionProgressPerHour": {
-        "placeholders": {
-            "faction": {
-                "type": "String",
-                "example": "Illuminates",
-                "description": "The name of the faction."
-            }
-        }
-    },
+    "planetProgressPerHour": "Taux de progression par heure",
+    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps",
     "planetUnderControl": "contrôle des {faction}",
     "@planetUnderControl": {
         "placeholders": {

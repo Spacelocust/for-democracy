@@ -1,12 +1,17 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Countdown extends StatefulWidget {
   final DateTime dateStart;
   final TextStyle style;
 
-  const Countdown(
-      {super.key, required this.dateStart, this.style = const TextStyle()});
+  const Countdown({
+    super.key,
+    required this.dateStart,
+    this.style = const TextStyle(),
+  });
 
   @override
   State<Countdown> createState() => _CountdownState();
@@ -48,7 +53,7 @@ class _CountdownState extends State<Countdown> {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${_remaining.inHours.toString().padLeft(2, '0')}:${(_remaining.inMinutes % 60).toString().padLeft(2, '0')}:${(_remaining.inSeconds % 60).toString().padLeft(2, '0')}',
+      DateFormat('HH:mm:ss').format(DateTime(0).add(_remaining)),
       style: widget.style,
     );
   }

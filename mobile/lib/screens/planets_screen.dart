@@ -30,6 +30,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   static const double xPadding = 8;
 
   Future<List<Planet>>? _planetsFuture;
+  FlutterError? _error;
 
   late EventFlux _streamPlanets;
 
@@ -48,15 +49,20 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   }
 
   void startStream() {
+    /// Reset error state
+    setState(() {
+      _error = null;
+    });
+
     _streamPlanets = PlanetsService.getPlanetsStream(
       onSuccess: (planets) {
         context.read<PlanetsState>().setPlanets(planets);
       },
       onError: (error) {
         log('Error: $error');
-      },
-      onClose: () {
-        context.read<PlanetsState>().setPlanets([]);
+        setState(() {
+          _error = FlutterError(error.toString());
+        });
       },
     );
   }
@@ -102,9 +108,12 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 }
 
                 // Error state
-                if (snapshot.hasError || !snapshot.hasData) {
+                if (snapshot.hasError || !snapshot.hasData || _error != null) {
                   return ErrorMessage(
-                    onPressed: () {},
+                    onPressed: () {
+                      fetchPlanets();
+                      startStream();
+                    },
                     errorMessage:
                         AppLocalizations.of(context)!.planetsScreenError,
                   );

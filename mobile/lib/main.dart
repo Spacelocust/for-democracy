@@ -36,7 +36,8 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
 
 /// The router configuration
 GoRouter router(
-    Map<String, Function(BuildContext context, GoRouterState state)> views) {
+  Map<String, Function(BuildContext context, GoRouterState state)> views,
+) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: PlanetsScreen.routePath,
@@ -63,11 +64,12 @@ GoRouter router(
                 path: PlanetScreen.routePath,
                 pageBuilder: (BuildContext context, GoRouterState state) {
                   return BottomSheetPage(
-                      isScrollControlled: true,
-                      child: views[PlanetScreen.routePath]!(
-                        context,
-                        state,
-                      ));
+                    isScrollControlled: true,
+                    child: views[PlanetScreen.routePath]!(
+                      context,
+                      state,
+                    ),
+                  );
                 },
               ),
             ],

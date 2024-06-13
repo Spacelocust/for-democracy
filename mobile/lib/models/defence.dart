@@ -53,6 +53,7 @@ class Defence {
 
   double getEnemyHealthPercentage() {
     int elapsedTime = DateTime.now().difference(startAt).inSeconds;
+
     return ((elapsedTime / 3600) * getEnemyImpactPerHour() / 100);
   }
 
@@ -63,15 +64,6 @@ class Defence {
     double healthLeft = ((health * 100) / maxHealth);
 
     return (healthLeft / (timeLeft / 3600));
-  }
-
-  String getFormattedTimeLeft() {
-    int timeLeft = endAt.difference(DateTime.now()).inSeconds;
-    int hours = (timeLeft / 3600).floor();
-    int minutes = ((timeLeft % 3600) / 60).floor();
-    int seconds = (timeLeft % 60);
-
-    return '$hours:$minutes:$seconds';
   }
 
   factory Defence.fromJson(Map<String, dynamic> json) =>
