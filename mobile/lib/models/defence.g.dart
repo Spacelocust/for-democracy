@@ -11,24 +11,24 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
     json,
     requiredKeys: const [
       'ID',
-      'Health',
       'StartAt',
       'EndAt',
       'EnemyFaction',
-      'EnemyHealth',
-      'EnemyMaxHealth',
+      'Health',
+      'MaxHealth',
+      'ImpactPerHour',
       'HelldiversID'
     ],
   );
   return Defence(
     id: (json['ID'] as num).toInt(),
-    health: (json['Health'] as num).toInt(),
     players: (json['Players'] as num).toInt(),
     startAt: DateTime.parse(json['StartAt'] as String),
     endAt: DateTime.parse(json['EndAt'] as String),
     enemyFaction: $enumDecode(_$FactionEnumMap, json['EnemyFaction']),
-    enemyHealth: (json['EnemyHealth'] as num).toInt(),
-    enemyMaxHealth: (json['EnemyMaxHealth'] as num).toInt(),
+    health: (json['Health'] as num).toInt(),
+    maxHealth: (json['MaxHealth'] as num).toInt(),
+    impactPerHour: (json['ImpactPerHour'] as num).toDouble(),
     planet: json['Planet'] == null
         ? null
         : Planet.fromJson(json['Planet'] as Map<String, dynamic>),
@@ -38,13 +38,13 @@ Defence _$DefenceFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$DefenceToJson(Defence instance) => <String, dynamic>{
       'ID': instance.id,
-      'Health': instance.health,
       'Players': instance.players,
       'StartAt': instance.startAt.toIso8601String(),
       'EndAt': instance.endAt.toIso8601String(),
       'EnemyFaction': _$FactionEnumMap[instance.enemyFaction]!,
-      'EnemyHealth': instance.enemyHealth,
-      'EnemyMaxHealth': instance.enemyMaxHealth,
+      'Health': instance.health,
+      'MaxHealth': instance.maxHealth,
+      'ImpactPerHour': instance.impactPerHour,
       'Planet': instance.planet,
       'HelldiversID': instance.helldiversID,
     };
@@ -52,6 +52,6 @@ Map<String, dynamic> _$DefenceToJson(Defence instance) => <String, dynamic>{
 const _$FactionEnumMap = {
   Faction.humans: 'humans',
   Faction.terminids: 'terminids',
-  Faction.automatons: 'illuminates',
-  Faction.illuminates: 'automatons',
+  Faction.illuminates: 'illuminates',
+  Faction.automatons: 'automatons',
 };

@@ -32,6 +32,18 @@ func (c *Collector) CollectData() {
 	fmt.Printf("Helldivers data collection took %v\n", helldiversEnd)
 }
 
+func (c *Collector) CollectEvents() {
+	db := c.Db.GetDB()
+
+	helldiversStart := time.Now()
+	if err := helldivers.GetData(db); err != nil {
+		fmt.Println(err)
+	}
+	helldiversEnd := time.Since(helldiversStart)
+
+	fmt.Printf("Helldivers event collection took %v\n", helldiversEnd)
+}
+
 func NewCollector(db database.Service) *Collector {
 	return &Collector{
 		Db: db,

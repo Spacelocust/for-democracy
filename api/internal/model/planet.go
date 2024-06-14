@@ -15,7 +15,6 @@ type Planet struct {
 	Name          string       `gorm:"not null;unique"`
 	MaxHealth     int          `gorm:"not null"`
 	Disabled      bool         `gorm:"not null;default:false"`
-	Regeneration  int          `gorm:"not null;default:0"`
 	PositionX     float64      `gorm:"not null"`
 	PositionY     float64      `gorm:"not null"`
 	HelldiversID  int          `gorm:"not null"`

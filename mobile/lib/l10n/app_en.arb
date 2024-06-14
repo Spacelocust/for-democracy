@@ -10,7 +10,7 @@
     "map": "Map",
     "list": "List",
     "goHome": "Go to home",
-    "playerCount": "{count, plural, zero{no player} one{{count} player} other{{count} players}}",
+    "playerCount": "{count, plural, zero{no player} one{player} other{players}}",
     "@playerCount": {
         "placeholders": {
             "count": {
@@ -25,7 +25,14 @@
     "createGroup": "Create group",
     "viewEvent": "View event",
     "liberation": "Liberation",
+    "liberated": "Liberated",
     "defence": "Defence",
+    "defended": "Defended",
+    "losing": "Losing",
+    "winning": "Winning",
+    "holding": "Holding",
+    "attack": "Attack",
+    "required": "Required",
     "hours": "{count, plural, zero{0 hour} one{1 hour} other{{count} hours}}",
     "@hours": {
         "placeholders": {
@@ -74,10 +81,23 @@
     "factionAutomatons": "Automatons",
     "factionIlluminates": "Illuminates",
     "@PLANET": {},
+    "planetStatistics": "Statistics",
     "planetLiberationInProgress": "Liberation in progress",
     "planetDefenceInProgress": "Defence in progress",
-    "planetUnderControl": "Planet under control.",
-    "planetUnderAttack": "The planet is under attack by the {enemyFaction}.",
+    "planetLiberationPerHour": "Percentage liberation per hour",
+    "planetProgressPerHour": "progress per hour",
+    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time",
+    "planetUnderControl": "{faction} control",
+    "@planetUnderControl": {
+        "placeholders": {
+            "faction": {
+                "type": "String",
+                "example": "Illuminates",
+                "description": "The name of the faction controlling the planet."
+            }
+        }
+    },
+    "planetUnderAttack": "{enemyFaction} attack",
     "@planetUnderAttack": {
         "placeholders": {
             "enemyFaction": {

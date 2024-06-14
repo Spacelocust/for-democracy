@@ -88,10 +88,15 @@ dcm: db-create-migration ## Alias for db-create-migration
 db-migrate-apply: ## Apply the migrations
 	$(EXECAPI) atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 
+dma: db-migrate-apply ## Alias for db-migrate-apply
+
+db-create-empty-migration: ## Create an empty migration
+	$(EXECAPI) atlas migrate new --dir "file://migrations"
+
+dcem: db-create-empty-migration ## Alias for db-create-empty-migration
+
 db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
-
-dma: db-migrate-apply ## Alias for db-migrate-apply
 
 db-drop: ## Drop the database
 	$(EXECPG) dropdb ${DB_NAME}
@@ -106,3 +111,12 @@ swagger: ## Generate swagger documentation
 ##@ CLI
 collector: ## Collect the data from the API and store it in the database
 	$(EXECAPI) go run main.go collector
+
+events: ## Collect the events from the API and store it in the database
+	$(EXECAPI) go run main.go collector-events
+
+example: ## Run the example commande
+	$(EXECAPI) go run main.go example
+
+cron: ## Run the cron job to collect events
+	$(EXECAPI) go run main.go cron

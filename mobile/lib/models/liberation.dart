@@ -11,6 +11,12 @@ class Liberation {
   @JsonKey(required: true, name: 'Health')
   final int health;
 
+  @JsonKey(required: true, name: 'RegenerationPerHour')
+  final double regenerationPerHour;
+
+  @JsonKey(required: true, name: 'ImpactPerHour')
+  final double impactPerHour;
+
   @JsonKey(name: 'Players')
   final int players;
 
@@ -24,6 +30,8 @@ class Liberation {
     required this.id,
     required this.health,
     required this.players,
+    required this.regenerationPerHour,
+    required this.impactPerHour,
     this.planet,
     required this.helldiversID,
   });

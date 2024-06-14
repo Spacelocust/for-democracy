@@ -13,7 +13,23 @@ class MainScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('For Democracy'),
+        title: const Row(
+          children: [
+            Image(
+              image: AssetImage("assets/images/helldivers-logo.png"),
+              width: 25,
+              height: 25,
+            ),
+            SizedBox(width: 10.0),
+            Text(
+              'For Democracy',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: "Arame",
+              ),
+            )
+          ],
+        ),
         leading: Builder(
           builder: (context) {
             return IconButton(

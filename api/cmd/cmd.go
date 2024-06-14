@@ -13,6 +13,8 @@ func RunCLI() {
 		Commands: []*cli.Command{
 			exampleCmd,
 			gatherCmd,
+			gatherEventsCmd,
+			cronCmd,
 			ginCmd,
 		},
 	}

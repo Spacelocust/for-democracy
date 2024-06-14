@@ -54,6 +54,7 @@ dependencies:
   shimmer: ^3.0.0
   flutter_svg: ^2.0.10+1
   avatar_glow: ^3.0.1
+  eventflux: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -82,10 +83,16 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/images/
+    - assets/images/effects/
     - .env
     - assets/svgs/galaxy_map.svg
 
   fonts:
+    - family: Arame
+      fonts:
+        - asset: fonts/Arame-Bold.ttf
+          weight: 700
     - family: Reddit Mono
       fonts:
         - asset: fonts/RedditMono-ExtraLight.ttf

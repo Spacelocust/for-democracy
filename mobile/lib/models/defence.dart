@@ -9,9 +9,6 @@ class Defence {
   @JsonKey(required: true, name: 'ID')
   final int id;
 
-  @JsonKey(required: true, name: 'Health')
-  final int health;
-
   @JsonKey(name: 'Players')
   final int players;
 
@@ -24,11 +21,14 @@ class Defence {
   @JsonKey(required: true, name: 'EnemyFaction')
   final Faction enemyFaction;
 
-  @JsonKey(required: true, name: 'EnemyHealth')
-  final int enemyHealth;
+  @JsonKey(required: true, name: 'Health')
+  final int health;
 
-  @JsonKey(required: true, name: 'EnemyMaxHealth')
-  final int enemyMaxHealth;
+  @JsonKey(required: true, name: 'MaxHealth')
+  final int maxHealth;
+
+  @JsonKey(required: true, name: 'ImpactPerHour')
+  final double impactPerHour;
 
   @JsonKey(name: 'Planet')
   final Planet? planet;
@@ -38,16 +38,33 @@ class Defence {
 
   Defence({
     required this.id,
-    required this.health,
     required this.players,
     required this.startAt,
     required this.endAt,
     required this.enemyFaction,
-    required this.enemyHealth,
-    required this.enemyMaxHealth,
+    required this.health,
+    required this.maxHealth,
+    required this.impactPerHour,
     this.planet,
     required this.helldiversID,
   });
+
+  double getEnemyImpactPerHour() => (((1 / 24) * maxHealth) / 3600);
+
+  double getEnemyHealthPercentage() {
+    int elapsedTime = DateTime.now().difference(startAt).inSeconds;
+
+    return ((elapsedTime / 3600) * getEnemyImpactPerHour() / 100);
+  }
+
+  double getHealthPercentage() => 1 - (health / maxHealth);
+
+  double getRequiredImpactPerHour() {
+    int timeLeft = endAt.difference(DateTime.now()).inSeconds;
+    double healthLeft = ((health * 100) / maxHealth);
+
+    return (healthLeft / (timeLeft / 3600));
+  }
 
   factory Defence.fromJson(Map<String, dynamic> json) =>
       _$DefenceFromJson(json);

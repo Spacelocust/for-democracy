@@ -1,12 +1,17 @@
+import 'dart:developer';
+
+import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
 import 'package:mobile/widgets/sector/list_item.dart';
+import 'package:provider/provider.dart';
 
 class PlanetsScreen extends StatefulWidget {
   static const String routePath = '/planets';
@@ -25,11 +30,41 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   static const double xPadding = 8;
 
   Future<List<Planet>>? _planetsFuture;
+  FlutterError? _error;
+
+  late EventFlux _streamPlanets;
 
   @override
   void initState() {
     super.initState();
     fetchPlanets();
+
+    startStream();
+  }
+
+  @override
+  void dispose() {
+    _streamPlanets.disconnect();
+    super.dispose();
+  }
+
+  void startStream() {
+    /// Reset error state
+    setState(() {
+      _error = null;
+    });
+
+    _streamPlanets = PlanetsService.getPlanetsStream(
+      onSuccess: (planets) {
+        context.read<PlanetsState>().setPlanets(planets);
+      },
+      onError: (error) {
+        log('Error: $error');
+        setState(() {
+          _error = FlutterError(error.toString());
+        });
+      },
+    );
   }
 
   void fetchPlanets() {
@@ -73,16 +108,21 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 }
 
                 // Error state
-                if (snapshot.hasError || !snapshot.hasData) {
+                if (snapshot.hasError || !snapshot.hasData || _error != null) {
                   return ErrorMessage(
-                    onPressed: fetchPlanets,
+                    onPressed: () {
+                      fetchPlanets();
+                      startStream();
+                    },
                     errorMessage:
                         AppLocalizations.of(context)!.planetsScreenError,
                   );
                 }
 
                 // Success state
-                final planets = snapshot.data!.toList()
+                final planets = context.read<PlanetsState>().planets.isEmpty
+                    ? snapshot.data!
+                    : context.read<PlanetsState>().planets
                   ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
                 int? lastSectorId;
 

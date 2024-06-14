@@ -11,6 +11,7 @@ import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/galaxy_map_zoom.dart';
+import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
@@ -20,54 +21,76 @@ import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-final _router = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: PlanetsScreen.routePath,
-  errorBuilder: (context, state) => ErrorScaffold(
-    body: ErrorScreen(error: state.error),
-  ),
-  routes: [
-    ShellRoute(
-      builder: (context, state, child) {
-        return MainScaffold(body: child);
-      },
-      routes: [
-        GoRoute(
-          name: PlanetsScreen.routeName,
-          path: PlanetsScreen.routePath,
-          builder: (context, state) => const PlanetsScreen(),
-          routes: [
-            GoRoute(
-              parentNavigatorKey: _rootNavigatorKey,
-              name: PlanetScreen.routeName,
-              path: PlanetScreen.routePath,
-              pageBuilder: (BuildContext context, GoRouterState state) {
-                return BottomSheetPage(
-                  isScrollControlled: true,
-                  child: PlanetScreen(
-                    planetId: int.parse(
-                      state.pathParameters['planetId']!,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+/// The views that will be used by the router
+final Map<String, Function(BuildContext context, GoRouterState state)> _views =
+    {
+  PlanetsScreen.routePath: (context, state) => const PlanetsScreen(),
+  PlanetScreen.routePath: (context, state) => PlanetScreen(
+        planetId: int.parse(
+          state.pathParameters['planetId']!,
         ),
-        GoRoute(
-          name: EventsScreen.routeName,
-          path: EventsScreen.routePath,
-          builder: (context, state) => const EventsScreen(),
-        ),
-        GoRoute(
-          name: GroupsScreen.routeName,
-          path: GroupsScreen.routePath,
-          builder: (context, state) => const GroupsScreen(),
-        ),
-      ],
+      ),
+  EventsScreen.routePath: (context, state) => const EventsScreen(),
+  GroupsScreen.routePath: (context, state) => const GroupsScreen(),
+};
+
+/// The router configuration
+GoRouter router(
+  Map<String, Function(BuildContext context, GoRouterState state)> views,
+) {
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: PlanetsScreen.routePath,
+    errorBuilder: (context, state) => ErrorScaffold(
+      body: ErrorScreen(error: state.error),
     ),
-  ],
-);
+    routes: [
+      ShellRoute(
+        builder: (context, state, child) {
+          return MainScaffold(body: child);
+        },
+        routes: [
+          GoRoute(
+            name: PlanetsScreen.routeName,
+            path: PlanetsScreen.routePath,
+            builder: (context, state) => ChangeNotifierProvider(
+              create: (_) => PlanetsState(planets: []),
+              child: views[PlanetsScreen.routePath]!(context, state),
+            ),
+            routes: [
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorKey,
+                name: PlanetScreen.routeName,
+                path: PlanetScreen.routePath,
+                pageBuilder: (BuildContext context, GoRouterState state) {
+                  return BottomSheetPage(
+                    isScrollControlled: true,
+                    child: views[PlanetScreen.routePath]!(
+                      context,
+                      state,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          GoRoute(
+            name: EventsScreen.routeName,
+            path: EventsScreen.routePath,
+            builder: (context, state) =>
+                views[EventsScreen.routePath]!(context, state),
+          ),
+          GoRoute(
+            name: GroupsScreen.routeName,
+            path: GroupsScreen.routePath,
+            builder: (context, state) =>
+                views[GroupsScreen.routePath]!(context, state),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
 Future main() async {
   await dotenv.load(fileName: '.env');
@@ -93,19 +116,23 @@ Future main() async {
           ),
         ),
       ],
-      child: const ForDemocracyApp(),
+      child: ForDemocracyApp(
+        goRouter: router(_views),
+      ),
     ),
   );
 }
 
 class ForDemocracyApp extends StatelessWidget {
-  const ForDemocracyApp({super.key});
+  final GoRouter? goRouter;
+
+  const ForDemocracyApp({super.key, this.goRouter});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: _router,
+      routerConfig: goRouter,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: const ColorScheme.dark(

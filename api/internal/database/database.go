@@ -37,10 +37,7 @@ var (
 	port       = "5432"
 	host       = os.Getenv("DB_HOST")
 	dbInstance *service
-)
-
-func New() Service {
-	dsn := fmt.Sprintf(
+	dsn        = fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Paris",
 		host,
 		username,
@@ -48,7 +45,9 @@ func New() Service {
 		database,
 		port,
 	)
+)
 
+func New() Service {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{

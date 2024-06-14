@@ -10,7 +10,7 @@
     "map": "Carte",
     "list": "Liste",
     "goHome": "Retour à l'accueil",
-    "playerCount": "{count, plural, zero{aucun joueur} one{{count} joueur} other{{count} joueurs}}",
+    "playerCount": "{count, plural, zero{aucun joueur} one{joueur} other{joueurs}}",
     "@playerCount": {
         "placeholders": {
             "count": {
@@ -23,7 +23,14 @@
     "createGroup": "Créer un groupe",
     "viewEvent": "Voir l'événement",
     "liberation": "Libération",
+    "liberated": "Libérée",
     "defence": "Défense",
+    "defended": "Défendue",
+    "losing": "Perdre",
+    "winning": "Gagner",
+    "holding": "Tenir",
+    "attack": "Attaque",
+    "required": "Requis",
     "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
     "@hours": {
         "placeholders": {
@@ -66,10 +73,21 @@
     "factionAutomatons": "Automates",
     "factionIlluminates": "Illuminés",
     "@PLANET": {},
+    "planetStatistics": "Statistiques",
     "planetLiberationInProgress": "Libération en cours",
     "planetDefenceInProgress": "Défense en cours",
-    "planetUnderControl": "Planète sous contrôle.",
-    "planetUnderAttack": "La planète est attaquée par les {enemyFaction}.",
+    "planetLiberationPerHour": "Taux de libération par heure",
+    "planetProgressPerHour": "Taux de progression par heure",
+    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps",
+    "planetUnderControl": "contrôle des {faction}",
+    "@planetUnderControl": {
+        "placeholders": {
+            "faction": {
+                "type": "String"
+            }
+        }
+    },
+    "planetUnderAttack": "Attaque des {enemyFaction}.",
     "@planetUnderAttack": {
         "placeholders": {
             "enemyFaction": {
