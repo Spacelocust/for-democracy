@@ -20,7 +20,7 @@ func fetch[T any](url string) ([]T, error) {
 		List []T `json:"data"`
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%s%s%s", os.Getenv("HELLHUB_API_URL"), "/api", url))
+	resp, err := http.Get(fmt.Sprintf("%s%s%s", os.Getenv("HELLHUB_URL"), "/api", url))
 	if err != nil {
 		return nil, fmt.Errorf("failed to make HTTP request: %w", err)
 	}

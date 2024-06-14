@@ -19,6 +19,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+
 	// Set up the Swagger documentation
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("API_DOMAIN"), os.Getenv("API_PORT"))
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
