@@ -88,6 +88,9 @@ dcm: db-create-migration ## Alias for db-create-migration
 db-migrate-apply: ## Apply the migrations
 	$(EXECAPI) atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 
+db-m-a:
+	docker run --rm -v $(PWD)/api/migrations:/migrations --network for-democracy_default arigaio/atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
+
 db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
 
@@ -106,3 +109,7 @@ swagger: ## Generate swagger documentation
 ##@ CLI
 collector: ## Collect the data from the API and store it in the database
 	$(EXECAPI) go run main.go collector
+
+##@ Ansible
+edit-vault: ## Edit the vault file
+	docker run --rm -it -v $(PWD):/app -w /app/ansible/group_vars/prod -e EDITOR=nano uhligit/ansible /bin/sh -c "apk add nano && ansible-vault edit vault.yml && chmod a+rw vault.yml"

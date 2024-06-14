@@ -1,0 +1,20 @@
+---
+- name: Create .env file Compose
+  ansible.builtin.copy:
+    dest: ./app/.env
+    force: true
+    mode: "0660"
+    content: |
+      DB_NAME={{ docker_postgresql_db_name }}
+      DB_USER={{ docker_postgresql_user }}
+      DB_PASSWORD={{ docker_postgresql_password }}
+      DB_URL={{ api_database_url }}
+      API_ENV={{ api_env }}
+      API_SECRET={{ api_secret }}
+      JWT_SECRET={{ api_jwt_secret }}
+      STEAM_KEY={{ api_steam_key }}
+      API_DOMAIN={{ api_domain }}
+      API_PORT={{ api_port }}
+      API_BASE_URL={{ api_base_url }}
+      HELLHUB_URL={{ api_hellhub_url }}
+      HELLIVERS_URL={{ api_helldivers_url }}
