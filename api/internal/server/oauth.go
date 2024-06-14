@@ -97,7 +97,7 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 		}
 	}
 
-	c.SetCookie("token", tokenString, 3600, "/", "", false, true)
+	utils.CreateCookieToken(tokenString, c)
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(pageLoading))
 }

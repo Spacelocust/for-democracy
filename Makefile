@@ -109,3 +109,7 @@ swagger: ## Generate swagger documentation
 ##@ CLI
 collector: ## Collect the data from the API and store it in the database
 	$(EXECAPI) go run main.go collector
+
+##@ Ansible
+edit-vault: ## Edit the vault file
+	docker run --rm -it -v $(PWD):/app -w /app/ansible/group_vars/prod -e EDITOR=nano uhligit/ansible /bin/sh -c "apk add nano && ansible-vault edit vault.yml && chmod a+rw vault.yml"

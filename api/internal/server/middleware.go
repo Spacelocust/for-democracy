@@ -25,7 +25,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 			db.Unscoped().Delete(&model.Token{}, "token = ?", tokenString)
 
 			// Delete the cookie
-			c.SetCookie("token", "", -1, "/", "", false, true)
+			utils.DeleteCookieToken(c)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token expired", "type": "oauth"})
 			return
 		}

@@ -1,14 +1,11 @@
-name: Publish API
+name: Publish Migrations
 
 on:
-  workflow_run:
-    workflows: [Linting API, Testing API]
-    types: [completed]
-    branches: ["main"]
-
   push:
     branches:
       - main
+    paths:
+      - "api/migrations/**"
 
   workflow_dispatch:
 
@@ -20,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-push-api:
-    name: Push Docker image API
+  build-and-push-migrations:
+    name: Push Docker image Migrations
 
     runs-on: ubuntu-latest
 
@@ -46,11 +43,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/prod/golang/Dockerfile
+          file: docker/prod/atlas/Dockerfile
 
           builder: ${{ steps.buildx.outputs.name }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: spacelocust/fd-api:latest
+          tags: spacelocust/fd-migrations:latest
 
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -14,10 +15,30 @@ var secretKey = []byte(os.Getenv("JWT_SECRET"))
 const ExpiredToken = "expired token"
 const InvalidToken = "invalid token"
 
+// CreateCookieToken creates a cookie with the token
+func CreateCookieToken(token string, c *gin.Context) {
+	secure := false
+	if os.Getenv("API_ENV") == "production" {
+		secure = true
+	}
+
+	c.SetCookie("token", token, 60*60*24*30, "/", os.Getenv("API_DOMAIN"), secure, true)
+}
+
+// DeleteCookieToken deletes the token cookie
+func DeleteCookieToken(c *gin.Context) {
+	secure := false
+	if os.Getenv("API_ENV") == "production" {
+		secure = true
+	}
+
+	c.SetCookie("token", "", -1, "/", os.Getenv("API_DOMAIN"), secure, true)
+}
+
 func CreateToken(user model.User) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": *user.SteamId,                              // Subject (user identifier) // Custom payload
-		"iss": os.Getenv("SITE_BASE_URL"),                 // Issuer
+		"iss": os.Getenv("API_BASE_URL"),                  // Issuer
 		"aud": user.Role,                                  // Audience (user role)
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(), // Expiration time
 		"iat": time.Now().Unix(),                          // Issued at
