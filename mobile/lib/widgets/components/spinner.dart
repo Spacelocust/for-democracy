@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Spinner extends StatelessWidget {
-  const Spinner({super.key, required this.semanticsLabel});
-
   final String semanticsLabel;
+
+  const Spinner({super.key, required this.semanticsLabel});
 
   @override
   Widget build(BuildContext context) {

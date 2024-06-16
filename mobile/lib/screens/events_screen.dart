@@ -75,7 +75,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     ),
                   ),
                   ...events.defences.map(
-                    (defence) => GestureDetector(
+                    (defence) => ListTile(
                       onTap: () {
                         context.go(context.namedLocation(
                           PlanetScreen.routeName,
@@ -84,9 +84,7 @@ class _EventsScreenState extends State<EventsScreen> {
                           },
                         ));
                       },
-                      child: ListItem(
-                        title: defence.planet!.name,
-                      ),
+                      title: Text(defence.planet!.name),
                     ),
                   ),
                   const SizedBox(
