@@ -1,6 +1,7 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
@@ -8,12 +9,13 @@ import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/states/galaxy_map_zoom.dart';
 import 'package:mobile/utils/canvas.dart';
+import 'package:mobile/utils/galaxy_map_painter.dart';
 import 'package:mobile/utils/images.dart';
 import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:mobile/widgets/components/spinner.dart';
 
 class GalaxyMap extends StatefulWidget {
   static const double initialZoomFactor = 1.5;
