@@ -1,17 +1,18 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/states/galaxy_map_zoom.dart';
-import 'package:mobile/utils/galaxy_map_painter.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/utils/canvas.dart';
+import 'package:mobile/utils/galaxy_map_painter.dart';
 import 'package:mobile/utils/images.dart';
 import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -47,7 +48,7 @@ class GalaxyMap extends StatefulWidget {
     this.maxZoom = 5,
     this.marginFactor = 0.1,
     this.planetBaseSize = 5,
-    this.planetGlowRadiusFactor = 3,
+    this.planetGlowRadiusFactor = 5,
     required this.planets,
   });
 
@@ -86,10 +87,8 @@ class _GalaxyMapState extends State<GalaxyMap> {
       builder: (context, snapshot) {
         // Loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(
-              semanticsLabel: AppLocalizations.of(context)!.galaxyMapLoading,
-            ),
+          return Spinner(
+            semanticsLabel: AppLocalizations.of(context)!.galaxyMapLoading,
           );
         }
 
@@ -186,8 +185,8 @@ class _GalaxyMapView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
                 boxShadow: [
                   BoxShadow(
-                    color: planet.color.withOpacity(0.6),
-                    blurRadius: 1,
+                    color: planet.color,
+                    blurRadius: 0.6,
                     spreadRadius: 1,
                   ),
                 ],

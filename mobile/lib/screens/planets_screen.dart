@@ -7,6 +7,7 @@ import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/widgets/base/list_item.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
@@ -99,11 +100,9 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
               builder: (context, snapshot) {
                 // Loading state
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      semanticsLabel:
-                          AppLocalizations.of(context)!.planetsScreenLoading,
-                    ),
+                  return Spinner(
+                    semanticsLabel:
+                        AppLocalizations.of(context)!.planetsScreenLoading,
                   );
                 }
 

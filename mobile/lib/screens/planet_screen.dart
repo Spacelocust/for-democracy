@@ -11,6 +11,7 @@ import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/countdown.dart';
 import 'package:mobile/widgets/components/progress.dart';
+import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -64,11 +65,9 @@ class _PlanetScreenState extends State<PlanetScreen> {
                 // Loading state
                 return SingleChildScrollView(
                   controller: scrollController,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      semanticsLabel:
-                          AppLocalizations.of(context)!.planetScreenLoading,
-                    ),
+                  child: Spinner(
+                    semanticsLabel:
+                        AppLocalizations.of(context)!.planetScreenLoading,
                   ),
                 );
               }
