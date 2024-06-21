@@ -127,6 +127,7 @@ func (s *Server) OAuthLogout(c *gin.Context) {
 // @Description  Route used to authenticate the user
 // @Tags         authentication
 // @Produce      json
+// @Param        provider   path      string  true  "Provider name"
 // @Success      200  {object}  goth.User
 // @Failure      401  {object}  gin.Error
 // @Failure      500  {object}  gin.Error

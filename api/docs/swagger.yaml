@@ -1,5 +1,27 @@
 basePath: /
 definitions:
+  enum.Difficulty:
+    enum:
+    - trivial
+    - easy
+    - medium
+    - challenging
+    - hard
+    - extreme
+    - suicide_mission
+    - impossible
+    - helldive
+    type: string
+    x-enum-varnames:
+    - Trivial
+    - Easy
+    - Medium
+    - Challenging
+    - Hard
+    - Extreme
+    - SuicideMission
+    - Impossible
+    - Helldive
   enum.Faction:
     enum:
     - humans
@@ -12,6 +34,100 @@ definitions:
     - Terminids
     - Automatons
     - Illuminates
+  enum.ObjectiveType:
+    enum:
+    - terminate_illegal_broadcast
+    - pump_fuel_to_icbm
+    - upload_escape_pod_data
+    - conduct_geological_survey
+    - launch_icbm
+    - retrieve_valuable_data
+    - emergency_evacuation
+    - spread_democracy
+    - eliminate_brood_commanders
+    - purge_hatcheries
+    - activate_e710_pumps
+    - blitz_search_and_destroy_terminids
+    - eliminate_chargers
+    - eradicate_terminid_swarm
+    - eliminate_bile_titans
+    - enable_e710_extraction
+    - eliminate_devastators
+    - sabotage_supply_bases
+    - destroy_transmission_network
+    - eradicate_automaton_forces
+    - blitz_search_and_destroy_automatons
+    - sabotage_air_base
+    - eliminate_automaton_factory_strider
+    - destroy_command_bunkers
+    type: string
+    x-enum-varnames:
+    - TerminateIllegalBroadcast
+    - PumpFuelToICBM
+    - UploadEscapePodData
+    - ConductGeologicalSurvey
+    - LaunchICBM
+    - RetrieveValuableData
+    - EmergencyEvacuation
+    - SpreadDemocracy
+    - EliminateBroodCommanders
+    - PurgeHatcheries
+    - ActivateE710Pumps
+    - BlitzSearchAndDestroyTerminids
+    - EliminateChargers
+    - EradicateTerminidSwarm
+    - EliminateBileTitans
+    - EnableE710Extraction
+    - EliminateDevastators
+    - SabotageSupplyBases
+    - DestroyTransmissionNetwork
+    - EradicateAutomatonForces
+    - BlitzSearchAndDestroyAutomatons
+    - SabotageAirBase
+    - EliminateAutomatonFactoryStrider
+    - DestroyCommandBunkers
+  enum.Role:
+    enum:
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - Admin
+    - User
+  enum.StratagemKeys:
+    enum:
+    - up
+    - right
+    - down
+    - left
+    type: string
+    x-enum-varnames:
+    - Up
+    - Right
+    - Down
+    - Left
+  enum.StratagemType:
+    enum:
+    - supply
+    - mission
+    - defensive
+    - offensive
+    type: string
+    x-enum-varnames:
+    - Supply
+    - Mission
+    - Defensive
+    - Offensive
+  enum.StratagemUseType:
+    enum:
+    - self
+    - team
+    - shared
+    type: string
+    x-enum-varnames:
+    - Self
+    - Team
+    - Shared
   gin.Error:
     properties:
       err: {}
@@ -100,6 +216,10 @@ definitions:
     properties:
       createdAt:
         type: string
+      defenceHealthHistories:
+        items:
+          $ref: '#/definitions/model.DefenceHealthHistory'
+        type: array
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       endAt:
@@ -112,6 +232,8 @@ definitions:
         type: integer
       id:
         type: integer
+      impactPerHour:
+        type: number
       maxHealth:
         type: integer
       planet:
@@ -122,6 +244,23 @@ definitions:
         type: integer
       startAt:
         type: string
+      updatedAt:
+        type: string
+    type: object
+  model.DefenceHealthHistory:
+    properties:
+      createdAt:
+        type: string
+      defence:
+        $ref: '#/definitions/model.Defence'
+      defenceID:
+        type: integer
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      health:
+        type: integer
+      id:
+        type: integer
       updatedAt:
         type: string
     type: object
@@ -144,6 +283,81 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.Group:
+    properties:
+      code:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      difficulty:
+        $ref: '#/definitions/enum.Difficulty'
+      id:
+        type: integer
+      missions:
+        items:
+          $ref: '#/definitions/model.Mission'
+        type: array
+      name:
+        type: string
+      planet:
+        $ref: '#/definitions/model.Planet'
+      planetID:
+        type: integer
+      public:
+        type: boolean
+      startAt:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.GroupUser:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      group:
+        $ref: '#/definitions/model.Group'
+      groupID:
+        type: integer
+      id:
+        type: integer
+      owner:
+        type: boolean
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      userID:
+        type: integer
+    type: object
+  model.GroupUserMission:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      groupUser:
+        $ref: '#/definitions/model.GroupUser'
+      groupUserID:
+        type: integer
+      id:
+        type: integer
+      mission:
+        $ref: '#/definitions/model.Mission'
+      missionID:
+        type: integer
+      stratagems:
+        items:
+          $ref: '#/definitions/model.Stratagem'
+        type: array
+      updatedAt:
+        type: string
+    type: object
   model.Liberation:
     properties:
       createdAt:
@@ -156,12 +370,64 @@ definitions:
         type: integer
       id:
         type: integer
+      impactPerHour:
+        type: number
+      liberationHealthHistories:
+        items:
+          $ref: '#/definitions/model.LiberationHealthHistory'
+        type: array
       planet:
         $ref: '#/definitions/model.Planet'
       planetID:
         type: integer
       players:
         type: integer
+      regenerationPerHour:
+        type: number
+      updatedAt:
+        type: string
+    type: object
+  model.LiberationHealthHistory:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      health:
+        type: integer
+      id:
+        type: integer
+      liberation:
+        $ref: '#/definitions/model.Liberation'
+      liberationID:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.Mission:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      group:
+        $ref: '#/definitions/model.Group'
+      groupID:
+        type: integer
+      groupUserMissions:
+        items:
+          $ref: '#/definitions/model.GroupUserMission'
+        type: array
+      id:
+        type: integer
+      instructions:
+        type: string
+      name:
+        type: string
+      objectiveTypes:
+        items:
+          $ref: '#/definitions/enum.ObjectiveType'
+        type: array
       updatedAt:
         type: string
     type: object
@@ -185,6 +451,10 @@ definitions:
         items:
           $ref: '#/definitions/model.Effect'
         type: array
+      group:
+        items:
+          $ref: '#/definitions/model.Group'
+        type: array
       helldiversID:
         type: integer
       id:
@@ -205,8 +475,6 @@ definitions:
         type: number
       positionY:
         type: number
-      regeneration:
-        type: integer
       sector:
         $ref: '#/definitions/model.Sector'
       sectorID:
@@ -242,7 +510,7 @@ definitions:
   model.Statistic:
     properties:
       accuracy:
-        type: integer
+        type: number
       automatonKills:
         type: integer
       bugKills:
@@ -266,8 +534,10 @@ definitions:
       illuminateKills:
         type: integer
       missionSuccessRate:
-        type: integer
+        type: number
       missionTime:
+        type: integer
+      missionsLost:
         type: integer
       missionsWon:
         type: integer
@@ -280,6 +550,87 @@ definitions:
       timePlayed:
         type: integer
       updatedAt:
+        type: string
+    type: object
+  model.Stratagem:
+    properties:
+      activation:
+        type: integer
+      codeName:
+        type: string
+      cooldown:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      groupUserMissions:
+        items:
+          $ref: '#/definitions/model.GroupUserMission'
+        type: array
+      id:
+        type: integer
+      imageURL:
+        type: string
+      keys:
+        items:
+          $ref: '#/definitions/enum.StratagemKeys'
+        type: array
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/enum.StratagemType'
+      updatedAt:
+        type: string
+      useCount:
+        type: integer
+      useType:
+        $ref: '#/definitions/enum.StratagemUseType'
+    type: object
+  model.Token:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      token:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      userId:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      avatarUrl:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      groupUsers:
+        items:
+          $ref: '#/definitions/model.GroupUser'
+        type: array
+      id:
+        type: integer
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/enum.Role'
+      steamId:
+        type: string
+      tokens:
+        items:
+          $ref: '#/definitions/model.Token'
+        type: array
+      updatedAt:
+        type: string
+      username:
         type: string
     type: object
   model.Waypoint:
@@ -308,6 +659,35 @@ definitions:
         type: string
       Username:
         type: string
+    type: object
+  validators.Group:
+    properties:
+      description:
+        type: string
+      difficulty:
+        $ref: '#/definitions/enum.Difficulty'
+      name:
+        type: string
+      planetId:
+        type: integer
+      public:
+        type: boolean
+      startAt:
+        default: "2006-01-02 15:04:05"
+        type: string
+    required:
+    - difficulty
+    - name
+    - planetId
+    - public
+    - startAt
+    type: object
+  validators.GroupCode:
+    properties:
+      code:
+        type: string
+    required:
+    - code
     type: object
 info:
   contact:
@@ -338,9 +718,129 @@ paths:
       summary: Get all events
       tags:
       - events
+  /groups:
+    get:
+      description: Get all public groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Group'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get all public groups
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      description: Create a new group
+      parameters:
+      - description: Group object that needs to be created
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.Group'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/validators.Group'
+      summary: Create a new group
+      tags:
+      - groups
+  /groups/{id}:
+    get:
+      description: Get a group by ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Group'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get a group by ID
+      tags:
+      - groups
+  /groups/{id}/join:
+    post:
+      consumes:
+      - application/json
+      description: Join a group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GroupUser'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Join a group
+      tags:
+      - groups
+  /groups/join:
+    post:
+      consumes:
+      - application/json
+      description: Join a group with code
+      parameters:
+      - description: Code to join
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.GroupCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GroupUser'
+      summary: Join a group with code
+      tags:
+      - groups
   /oauth/{provider}:
     get:
       description: Route used to authenticate the user
+      parameters:
+      - description: Provider name
+        in: path
+        name: provider
+        required: true
+        type: string
       produces:
       - application/json
       responses:

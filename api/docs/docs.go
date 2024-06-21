@@ -49,6 +49,180 @@ const docTemplate = `{
                 }
             }
         },
+        "/groups": {
+            "get": {
+                "description": "Get all public groups",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Get all public groups",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Group"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Create a new group",
+                "parameters": [
+                    {
+                        "description": "Group object that needs to be created",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Group"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/validators.Group"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/join": {
+            "post": {
+                "description": "Join a group with code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Join a group with code",
+                "parameters": [
+                    {
+                        "description": "Code to join",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.GroupCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}": {
+            "get": {
+                "description": "Get a group by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Get a group by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Group"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/join": {
+            "post": {
+                "description": "Join a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Join a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUser"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/logout/{provider}": {
             "get": {
                 "description": "Route used to log the user out",
@@ -129,6 +303,15 @@ const docTemplate = `{
                     "authentication"
                 ],
                 "summary": "Authenticate the user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -258,6 +441,31 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "enum.Difficulty": {
+            "type": "string",
+            "enum": [
+                "trivial",
+                "easy",
+                "medium",
+                "challenging",
+                "hard",
+                "extreme",
+                "suicide_mission",
+                "impossible",
+                "helldive"
+            ],
+            "x-enum-varnames": [
+                "Trivial",
+                "Easy",
+                "Medium",
+                "Challenging",
+                "Hard",
+                "Extreme",
+                "SuicideMission",
+                "Impossible",
+                "Helldive"
+            ]
+        },
         "enum.Faction": {
             "type": "string",
             "enum": [
@@ -271,6 +479,115 @@ const docTemplate = `{
                 "Terminids",
                 "Automatons",
                 "Illuminates"
+            ]
+        },
+        "enum.ObjectiveType": {
+            "type": "string",
+            "enum": [
+                "terminate_illegal_broadcast",
+                "pump_fuel_to_icbm",
+                "upload_escape_pod_data",
+                "conduct_geological_survey",
+                "launch_icbm",
+                "retrieve_valuable_data",
+                "emergency_evacuation",
+                "spread_democracy",
+                "eliminate_brood_commanders",
+                "purge_hatcheries",
+                "activate_e710_pumps",
+                "blitz_search_and_destroy_terminids",
+                "eliminate_chargers",
+                "eradicate_terminid_swarm",
+                "eliminate_bile_titans",
+                "enable_e710_extraction",
+                "eliminate_devastators",
+                "sabotage_supply_bases",
+                "destroy_transmission_network",
+                "eradicate_automaton_forces",
+                "blitz_search_and_destroy_automatons",
+                "sabotage_air_base",
+                "eliminate_automaton_factory_strider",
+                "destroy_command_bunkers"
+            ],
+            "x-enum-varnames": [
+                "TerminateIllegalBroadcast",
+                "PumpFuelToICBM",
+                "UploadEscapePodData",
+                "ConductGeologicalSurvey",
+                "LaunchICBM",
+                "RetrieveValuableData",
+                "EmergencyEvacuation",
+                "SpreadDemocracy",
+                "EliminateBroodCommanders",
+                "PurgeHatcheries",
+                "ActivateE710Pumps",
+                "BlitzSearchAndDestroyTerminids",
+                "EliminateChargers",
+                "EradicateTerminidSwarm",
+                "EliminateBileTitans",
+                "EnableE710Extraction",
+                "EliminateDevastators",
+                "SabotageSupplyBases",
+                "DestroyTransmissionNetwork",
+                "EradicateAutomatonForces",
+                "BlitzSearchAndDestroyAutomatons",
+                "SabotageAirBase",
+                "EliminateAutomatonFactoryStrider",
+                "DestroyCommandBunkers"
+            ]
+        },
+        "enum.Role": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "user"
+            ],
+            "x-enum-varnames": [
+                "Admin",
+                "User"
+            ]
+        },
+        "enum.StratagemKeys": {
+            "type": "string",
+            "enum": [
+                "up",
+                "right",
+                "down",
+                "left"
+            ],
+            "x-enum-varnames": [
+                "Up",
+                "Right",
+                "Down",
+                "Left"
+            ]
+        },
+        "enum.StratagemType": {
+            "type": "string",
+            "enum": [
+                "supply",
+                "mission",
+                "defensive",
+                "offensive"
+            ],
+            "x-enum-varnames": [
+                "Supply",
+                "Mission",
+                "Defensive",
+                "Offensive"
+            ]
+        },
+        "enum.StratagemUseType": {
+            "type": "string",
+            "enum": [
+                "self",
+                "team",
+                "shared"
+            ],
+            "x-enum-varnames": [
+                "Self",
+                "Team",
+                "Shared"
             ]
         },
         "gin.Error": {
@@ -401,6 +718,12 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "defenceHealthHistories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DefenceHealthHistory"
+                    }
+                },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
@@ -419,6 +742,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "impactPerHour": {
+                    "type": "number"
+                },
                 "maxHealth": {
                     "type": "integer"
                 },
@@ -433,6 +759,32 @@ const docTemplate = `{
                 },
                 "startAt": {
                     "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DefenceHealthHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "defence": {
+                    "$ref": "#/definitions/model.Defence"
+                },
+                "defenceID": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -468,6 +820,120 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Group": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "$ref": "#/definitions/enum.Difficulty"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "missions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Mission"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planet": {
+                    "$ref": "#/definitions/model.Planet"
+                },
+                "planetID": {
+                    "type": "integer"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "startAt": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GroupUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "group": {
+                    "$ref": "#/definitions/model.Group"
+                },
+                "groupID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "owner": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.GroupUserMission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUser": {
+                    "$ref": "#/definitions/model.GroupUser"
+                },
+                "groupUserID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "mission": {
+                    "$ref": "#/definitions/model.Mission"
+                },
+                "missionID": {
+                    "type": "integer"
+                },
+                "stratagems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Stratagem"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Liberation": {
             "type": "object",
             "properties": {
@@ -486,6 +952,15 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "impactPerHour": {
+                    "type": "number"
+                },
+                "liberationHealthHistories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LiberationHealthHistory"
+                    }
+                },
                 "planet": {
                     "$ref": "#/definitions/model.Planet"
                 },
@@ -494,6 +969,76 @@ const docTemplate = `{
                 },
                 "players": {
                     "type": "integer"
+                },
+                "regenerationPerHour": {
+                    "type": "number"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LiberationHealthHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "liberation": {
+                    "$ref": "#/definitions/model.Liberation"
+                },
+                "liberationID": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Mission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "group": {
+                    "$ref": "#/definitions/model.Group"
+                },
+                "groupID": {
+                    "type": "integer"
+                },
+                "groupUserMissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUserMission"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "objectiveTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.ObjectiveType"
+                    }
                 },
                 "updatedAt": {
                     "type": "string"
@@ -530,6 +1075,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Effect"
                     }
                 },
+                "group": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Group"
+                    }
+                },
                 "helldiversID": {
                     "type": "integer"
                 },
@@ -559,9 +1110,6 @@ const docTemplate = `{
                 },
                 "positionY": {
                     "type": "number"
-                },
-                "regeneration": {
-                    "type": "integer"
                 },
                 "sector": {
                     "$ref": "#/definitions/model.Sector"
@@ -616,7 +1164,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accuracy": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "automatonKills": {
                     "type": "integer"
@@ -652,9 +1200,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "missionSuccessRate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "missionTime": {
+                    "type": "integer"
+                },
+                "missionsLost": {
                     "type": "integer"
                 },
                 "missionsWon": {
@@ -673,6 +1224,129 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Stratagem": {
+            "type": "object",
+            "properties": {
+                "activation": {
+                    "type": "integer"
+                },
+                "codeName": {
+                    "type": "string"
+                },
+                "cooldown": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUserMissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUserMission"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.StratagemKeys"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/enum.StratagemType"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "useCount": {
+                    "type": "integer"
+                },
+                "useType": {
+                    "$ref": "#/definitions/enum.StratagemUseType"
+                }
+            }
+        },
+        "model.Token": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUsers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUser"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/enum.Role"
+                },
+                "steamId": {
+                    "type": "string"
+                },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Token"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -715,6 +1389,48 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "Username": {
+                    "type": "string"
+                }
+            }
+        },
+        "validators.Group": {
+            "type": "object",
+            "required": [
+                "difficulty",
+                "name",
+                "planetId",
+                "public",
+                "startAt"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "$ref": "#/definitions/enum.Difficulty"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planetId": {
+                    "type": "integer"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "startAt": {
+                    "type": "string",
+                    "default": "2006-01-02 15:04:05"
+                }
+            }
+        },
+        "validators.GroupCode": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
                     "type": "string"
                 }
             }

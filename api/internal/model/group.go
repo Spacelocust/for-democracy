@@ -16,4 +16,6 @@ type Group struct {
 	StartAt     time.Time       `gorm:"not null"`
 	Difficulty  enum.Difficulty `gorm:"not null;type:difficulty"`
 	Missions    []Mission
+	Planet      Planet
+	PlanetID    uint
 }

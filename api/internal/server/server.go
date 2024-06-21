@@ -9,23 +9,35 @@ import (
 	"time"
 
 	"github.com/Spacelocust/for-democracy/docs"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/Spacelocust/for-democracy/internal/database"
+	"github.com/Spacelocust/for-democracy/internal/enum"
 	_ "github.com/Spacelocust/for-democracy/internal/oauth"
+	"github.com/Spacelocust/for-democracy/internal/validators"
 )
 
 type Server struct {
 	port int
 
-	db database.Service
+	db        database.Service
+	validator validators.Service
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("API_PORT"))
 	NewServer := &Server{
-		port: port,
-		db:   database.New(),
+		port:      port,
+		db:        database.New(),
+		validator: validators.New(),
 	}
+
+	// Register custom validation rules
+	NewServer.validator.RegisterValidations(map[string]validator.Func{
+		"difficulty":   enum.ValidateDifficulty,
+		"datetime":     validators.DateTime,
+		"gte_datetime": validators.GteDateTime,
+	})
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("DOMAIN"), os.Getenv("API_PORT"))
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
