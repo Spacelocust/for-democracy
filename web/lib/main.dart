@@ -1,45 +1,67 @@
+import 'package:app/screens/error_screen.dart';
+import 'package:app/screens/login_screen.dart';
+import 'package:app/widgets/layout/error_scaffold.dart';
+import 'package:app/widgets/layout/main_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
-void main() {
-  runApp(const MyApp());
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+/// The views that will be used by the router
+final Map<String, Function(BuildContext context, GoRouterState state)> _views =
+    {
+  LoginScreen.routePath: (context, state) => const LoginScreen(),
+};
+
+/// The router configuration
+GoRouter router(
+  Map<String, Function(BuildContext context, GoRouterState state)> views,
+) {
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: LoginScreen.routePath,
+    errorBuilder: (context, state) => ErrorScaffold(
+      body: ErrorScreen(error: state.error),
+    ),
+    routes: [
+      ShellRoute(
+        builder: (context, state, child) {
+          return MainScaffold(body: child);
+        },
+        routes: [
+          GoRoute(
+            name: LoginScreen.routeName,
+            path: LoginScreen.routePath,
+            builder: (context, state) =>
+                views[LoginScreen.routePath]!(context, state),
+          ),
+        ],
+      ),
+    ],
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() {
+  runApp(
+    AdminApp(
+      goRouter: router(_views),
+    ),
+  );
+}
 
-  // This widget is the root of your application.
+class AdminApp extends StatelessWidget {
+  final GoRouter? goRouter;
+
+  const AdminApp({super.key, this.goRouter});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        body: Center(
-            child: Form(
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                ),
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Login'),
-              ),
-            ],
-          ),
-        )),
-      ),
+    return MaterialApp.router(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      routerConfig: goRouter,
+      supportedLocales: AppLocalizations.supportedLocales,
+      title: 'For Democracy admin',
     );
   }
 }
