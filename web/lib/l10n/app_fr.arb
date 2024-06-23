@@ -1,0 +1,6 @@
+{
+    "@@locale": "fr",
+    "@ERROR": {},
+    "pageNotFound": "Page non trouvée",
+    "unknownError": "Une erreur inconnue s'est produite."
+}
