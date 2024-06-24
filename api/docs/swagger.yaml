@@ -47,12 +47,15 @@ definitions:
     - eliminate_brood_commanders
     - purge_hatcheries
     - activate_e710_pumps
+    - nuke_nursery
+    - activate_terminid_control_system
     - blitz_search_and_destroy_terminids
     - eliminate_chargers
     - eradicate_terminid_swarm
     - eliminate_bile_titans
     - enable_e710_extraction
     - eliminate_devastators
+    - eliminate_automaton_hulks
     - sabotage_supply_bases
     - destroy_transmission_network
     - eradicate_automaton_forces
@@ -73,12 +76,15 @@ definitions:
     - EliminateBroodCommanders
     - PurgeHatcheries
     - ActivateE710Pumps
+    - NukeNursery
+    - ActivateTerminidControlSystem
     - BlitzSearchAndDestroyTerminids
     - EliminateChargers
     - EradicateTerminidSwarm
     - EliminateBileTitans
     - EnableE710Extraction
     - EliminateDevastators
+    - EliminateAutomatonHulks
     - SabotageSupplyBases
     - DestroyTransmissionNetwork
     - EradicateAutomatonForces
@@ -431,6 +437,21 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.Objective:
+    properties:
+      difficulties:
+        items:
+          $ref: '#/definitions/enum.Difficulty'
+        type: array
+      factions:
+        items:
+          $ref: '#/definitions/enum.Faction'
+        type: array
+      missionTime:
+        $ref: '#/definitions/time.Duration'
+      objectiveType:
+        $ref: '#/definitions/enum.ObjectiveType'
+    type: object
   model.Planet:
     properties:
       backgroundURL:
@@ -640,6 +661,11 @@ definitions:
       "y":
         type: number
     type: object
+  server.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
   server.Event:
     properties:
       defence:
@@ -660,6 +686,31 @@ definitions:
       Username:
         type: string
     type: object
+  server.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
   validators.Group:
     properties:
       description:
@@ -688,6 +739,22 @@ definitions:
         type: string
     required:
     - code
+    type: object
+  validators.Mission:
+    properties:
+      groupID:
+        type: integer
+      instructions:
+        type: string
+      name:
+        type: string
+      objectiveTypes:
+        items:
+          $ref: '#/definitions/enum.ObjectiveType'
+        type: array
+    required:
+    - name
+    - objectiveTypes
     type: object
 info:
   contact:
@@ -733,7 +800,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get all public groups
       tags:
       - groups
@@ -751,14 +818,64 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/validators.Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Create a new group
       tags:
       - groups
   /groups/{id}:
+    delete:
+      description: Delete a group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Delete a group
+      tags:
+      - groups
     get:
       description: Get a group by ID
       parameters:
@@ -777,11 +894,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get a group by ID
       tags:
       - groups
@@ -799,15 +916,64 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/model.GroupUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Join a group
+      tags:
+      - groups
+  /groups/{id}/leave:
+    post:
+      consumes:
+      - application/json
+      description: Leave a group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Leave a group
       tags:
       - groups
   /groups/join:
@@ -825,10 +991,30 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/model.GroupUser'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Join a group with code
       tags:
       - groups
@@ -932,6 +1118,44 @@ paths:
       summary: Get the user
       tags:
       - authentication
+  /objectifs:
+    get:
+      description: Get all objectifs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/enum.ObjectiveType'
+            type: array
+      summary: Get all objectifs
+      tags:
+      - objectifs
+  /objectifs/{name}:
+    get:
+      description: Get an objectif
+      parameters:
+      - description: Objectif name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Objective'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get an objectif
+      tags:
+      - objectifs
   /planets:
     get:
       description: Get all planets

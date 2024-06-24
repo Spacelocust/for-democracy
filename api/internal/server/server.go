@@ -24,6 +24,14 @@ type Server struct {
 	validator validators.Service
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("API_PORT"))
 	NewServer := &Server{
@@ -33,11 +41,16 @@ func NewServer() *http.Server {
 	}
 
 	// Register custom validation rules
-	NewServer.validator.RegisterValidations(map[string]validator.Func{
-		"difficulty":   enum.ValidateDifficulty,
-		"datetime":     validators.DateTime,
-		"gte_datetime": validators.GteDateTime,
+	err := NewServer.validator.RegisterValidations(map[string]validator.Func{
+		"difficulty":    enum.ValidateDifficulty,
+		"objectiveType": enum.ValidateObjectiveType,
+		"datetime":      validators.DateTime,
+		"gte_datetime":  validators.GteDateTime,
 	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("DOMAIN"), os.Getenv("API_PORT"))
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}

@@ -72,7 +72,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -101,10 +101,34 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/validators.Group"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -135,10 +159,40 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/model.GroupUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -173,13 +227,64 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Delete a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -208,16 +313,90 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/model.GroupUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/leave": {
+            "post": {
+                "description": "Leave a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Leave a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -375,6 +554,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/objectifs": {
+            "get": {
+                "description": "Get all objectifs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "objectifs"
+                ],
+                "summary": "Get all objectifs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/enum.ObjectiveType"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/objectifs/{name}": {
+            "get": {
+                "description": "Get an objectif",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "objectifs"
+                ],
+                "summary": "Get an objectif",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Objectif name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Objective"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/planets": {
             "get": {
                 "description": "Get all planets",
@@ -495,12 +732,15 @@ const docTemplate = `{
                 "eliminate_brood_commanders",
                 "purge_hatcheries",
                 "activate_e710_pumps",
+                "nuke_nursery",
+                "activate_terminid_control_system",
                 "blitz_search_and_destroy_terminids",
                 "eliminate_chargers",
                 "eradicate_terminid_swarm",
                 "eliminate_bile_titans",
                 "enable_e710_extraction",
                 "eliminate_devastators",
+                "eliminate_automaton_hulks",
                 "sabotage_supply_bases",
                 "destroy_transmission_network",
                 "eradicate_automaton_forces",
@@ -521,12 +761,15 @@ const docTemplate = `{
                 "EliminateBroodCommanders",
                 "PurgeHatcheries",
                 "ActivateE710Pumps",
+                "NukeNursery",
+                "ActivateTerminidControlSystem",
                 "BlitzSearchAndDestroyTerminids",
                 "EliminateChargers",
                 "EradicateTerminidSwarm",
                 "EliminateBileTitans",
                 "EnableE710Extraction",
                 "EliminateDevastators",
+                "EliminateAutomatonHulks",
                 "SabotageSupplyBases",
                 "DestroyTransmissionNetwork",
                 "EradicateAutomatonForces",
@@ -1045,6 +1288,29 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Objective": {
+            "type": "object",
+            "properties": {
+                "difficulties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.Difficulty"
+                    }
+                },
+                "factions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.Faction"
+                    }
+                },
+                "missionTime": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "objectiveType": {
+                    "$ref": "#/definitions/enum.ObjectiveType"
+                }
+            }
+        },
         "model.Planet": {
             "type": "object",
             "properties": {
@@ -1362,6 +1628,14 @@ const docTemplate = `{
                 }
             }
         },
+        "server.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "server.Event": {
             "type": "object",
             "properties": {
@@ -1392,6 +1666,37 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "server.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
         },
         "validators.Group": {
             "type": "object",
@@ -1432,6 +1737,30 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
+                }
+            }
+        },
+        "validators.Mission": {
+            "type": "object",
+            "required": [
+                "name",
+                "objectiveTypes"
+            ],
+            "properties": {
+                "groupID": {
+                    "type": "integer"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "objectiveTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.ObjectiveType"
+                    }
                 }
             }
         }

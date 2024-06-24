@@ -13,7 +13,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token missing", "type": "oauth"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token missing"})
 		return
 	}
 
@@ -26,16 +26,16 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 
 			// Delete the cookie
 			c.SetCookie("token", "", -1, "/", "", false, true)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token expired", "type": "oauth"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token expired"})
 			return
 		}
 
 		if err.Error() == utils.InvalidToken {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token", "type": "oauth"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized", "type": "oauth"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
@@ -43,7 +43,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 	var token model.Token
 	err = db.Preload("User").First(&token, "token = ?", tokenString).Error
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not found", "type": "oauth"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
 		return
 	}
 
