@@ -1018,6 +1018,187 @@ paths:
       summary: Join a group with code
       tags:
       - groups
+  /missions:
+    post:
+      description: Create a mission
+      parameters:
+      - description: Mission object that needs to be created
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.Mission'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/validators.Mission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Create a mission
+      tags:
+      - missions
+  /missions/{id}:
+    delete:
+      description: Delete a mission
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Delete a mission
+      tags:
+      - missions
+    put:
+      description: Update a mission
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Mission properties that needs to be updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.Mission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/validators.Mission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Update a mission
+      tags:
+      - missions
+  /missions/{id}/join:
+    post:
+      description: Join a mission
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.GroupUserMission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Join a mission
+      tags:
+      - missions
+  /missions/{id}/leave:
+    post:
+      description: Leave a mission
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Leave a mission
+      tags:
+      - missions
   /oauth/{provider}:
     get:
       description: Route used to authenticate the user
@@ -1175,6 +1356,21 @@ paths:
       summary: Get all planets
       tags:
       - planets
+  /planets-stream/:
+    get:
+      description: Get planets stream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Planet'
+            type: array
+      summary: Get planets stream
+      tags:
+      - stream
   /planets/{id}:
     get:
       description: Get planet by ID

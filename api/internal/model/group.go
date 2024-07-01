@@ -15,7 +15,7 @@ type Group struct {
 	Public      bool            `gorm:"not null;default:true"`
 	StartAt     time.Time       `gorm:"not null"`
 	Difficulty  enum.Difficulty `gorm:"not null;type:difficulty"`
-	Missions    []Mission
+	Missions    []Mission       `gorm:"constraint:OnDelete:CASCADE"`
 	Planet      Planet
 	PlanetID    uint
 }

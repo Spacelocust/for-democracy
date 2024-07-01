@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
@@ -62,7 +64,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	// Generate random code
 	code, err := utils.GenerateRandomString(10)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong creating group, please try again later"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -84,7 +86,11 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	}
 
 	if err := db.First(&model.Planet{}, newGroup.PlanetID).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "planet not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "planet not found"})
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -121,7 +127,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 	var groups []model.Group
 
 	if err := db.Where("public = ?", true).Find(&groups).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "error when fetching groups"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "Something went wrong, please try again later"})
 	}
 
 	c.JSON(http.StatusOK, groups)
@@ -144,12 +150,12 @@ func (s *Server) GetGroup(c *gin.Context) {
 	var group model.Group
 
 	if err := db.First(&group, groupID).Error; err != nil {
-		if err.Error() == "record not found" {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "error when fetching group"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "Something went wrong, please try again later"})
 		return
 	}
 
@@ -188,12 +194,27 @@ func (s *Server) JoinGroup(c *gin.Context) {
 
 	groupID := c.Param("id")
 
+	// Check if the group exists and get the count of users in the group
 	var count int64
+
 	if err := db.Model(&model.GroupUser{}).Where("group_id = ?", groupID).Count(&count).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "Something went wrong, please try again later"})
 		return
 	}
 
+	// Check if user is already in the group
+	var groupUser model.GroupUser
+
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not a member of this group"})
+		return
+	}
+
+	// Check if the group is full
 	if count > 3 {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "group is full"})
 		return
@@ -273,6 +294,19 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 		return
 	}
 
+	// Check if user is already in the group
+	var userGroup model.GroupUser
+
+	err = db.Where("user_id = ? AND group_id = ?", user.ID, result.GroupID).Find(&userGroup).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join group"})
+	}
+
+	if userGroup.ID != 0 {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are already a member of this group"})
+		return
+	}
+
 	if result.Count > 3 {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "group is full"})
 		return
@@ -314,9 +348,15 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 
 	groupID := c.Param("id")
 
+	// Check if user is in the group before leaving
 	var groupUser model.GroupUser
 
-	if err := db.Where("user_id = ? AND group_id = ?", user.ID, groupID).First(&groupUser).Error; err != nil {
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "you are not a member of this group"})
+			return
+		}
+
 		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
 		return
 	}
@@ -326,7 +366,7 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, SuccessResponse{Message: "left group"})
+	c.JSON(http.StatusOK, SuccessResponse{Message: "you have left the group"})
 }
 
 // @Summary Delete a group
@@ -357,7 +397,9 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		return
 	}
 
+	// Check if the user is a member of the group
 	var groupUser model.GroupUser
+
 	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not a member of this group"})
 		return
