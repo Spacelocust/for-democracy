@@ -17,7 +17,7 @@ type Mission struct {
 	ObjectiveTypes    datatype.EnumArray[enum.ObjectiveType] `gorm:"not null;type:text[]"`
 	Group             Group
 	GroupID           uint
-	GroupUserMissions []GroupUserMission
+	GroupUserMissions []GroupUserMission `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 // Returns the objectives of the mission

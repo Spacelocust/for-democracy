@@ -27,6 +27,7 @@ type Planet struct {
 	Liberation    *Liberation
 	Defence       *Defence
 	Effects       []Effect `gorm:"many2many:planet_effects;"`
+	Group         []Group
 	Biome         Biome
 	BiomeID       uint
 	Sector        Sector

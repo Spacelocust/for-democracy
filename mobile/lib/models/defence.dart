@@ -52,9 +52,8 @@ class Defence {
   double getEnemyImpactPerHour() => (((1 / 24) * maxHealth) / 3600);
 
   double getEnemyHealthPercentage() {
-    int elapsedTime = DateTime.now().difference(startAt).inSeconds;
-
-    return ((elapsedTime / 3600) * getEnemyImpactPerHour() / 100);
+    int elapsedTime = endAt.difference(DateTime.now()).inSeconds;
+    return 1 - (((elapsedTime / 3600) * getEnemyImpactPerHour()) / 100);
   }
 
   double getHealthPercentage() => 1 - (health / maxHealth);

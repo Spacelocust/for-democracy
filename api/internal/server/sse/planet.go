@@ -9,6 +9,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// @Summary Get planets stream
+// @Description Get planets stream
+// @Tags    stream
+// @Produce  json
+// @Success 200 {array} model.Planet
+// @Router /planets-stream/ [get]
 func (stream *Event) PlanetsStream(r *gin.Engine) {
 	db := (*stream.Db).GetDB()
 

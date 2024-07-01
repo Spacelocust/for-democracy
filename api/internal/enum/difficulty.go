@@ -3,6 +3,8 @@ package enum
 import (
 	"database/sql/driver"
 	"fmt"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Difficulty string
@@ -36,4 +38,14 @@ func (d *Difficulty) Scan(value interface{}) error {
 
 func (d Difficulty) Value() (driver.Value, error) {
 	return string(d), nil
+}
+
+func ValidateDifficulty(fl validator.FieldLevel) bool {
+	value := fl.Field().Interface().(Difficulty)
+	switch value {
+	case Trivial, Easy, Medium, Challenging, Hard, Extreme, SuicideMission, Impossible, Helldive:
+		return true
+	default:
+		return false
+	}
 }

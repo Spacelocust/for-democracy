@@ -3,6 +3,8 @@ package enum
 import (
 	"database/sql/driver"
 	"fmt"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ObjectiveType string
@@ -19,12 +21,15 @@ const (
 	EliminateBroodCommanders         ObjectiveType = "eliminate_brood_commanders"
 	PurgeHatcheries                  ObjectiveType = "purge_hatcheries"
 	ActivateE710Pumps                ObjectiveType = "activate_e710_pumps"
+	NukeNursery                      ObjectiveType = "nuke_nursery"
+	ActivateTerminidControlSystem    ObjectiveType = "activate_terminid_control_system"
 	BlitzSearchAndDestroyTerminids   ObjectiveType = "blitz_search_and_destroy_terminids"
 	EliminateChargers                ObjectiveType = "eliminate_chargers"
 	EradicateTerminidSwarm           ObjectiveType = "eradicate_terminid_swarm"
 	EliminateBileTitans              ObjectiveType = "eliminate_bile_titans"
 	EnableE710Extraction             ObjectiveType = "enable_e710_extraction"
 	EliminateDevastators             ObjectiveType = "eliminate_devastators"
+	EliminateAutomatonHulks          ObjectiveType = "eliminate_automaton_hulks"
 	SabotageSupplyBases              ObjectiveType = "sabotage_supply_bases"
 	DestroyTransmissionNetwork       ObjectiveType = "destroy_transmission_network"
 	EradicateAutomatonForces         ObjectiveType = "eradicate_automaton_forces"
@@ -33,6 +38,45 @@ const (
 	EliminateAutomatonFactoryStrider ObjectiveType = "eliminate_automaton_factory_strider"
 	DestroyCommandBunkers            ObjectiveType = "destroy_command_bunkers"
 )
+
+func GetObjectifs() []ObjectiveType {
+	return []ObjectiveType{
+		TerminateIllegalBroadcast,
+		PumpFuelToICBM,
+		UploadEscapePodData,
+		ConductGeologicalSurvey,
+		LaunchICBM,
+		RetrieveValuableData,
+		EmergencyEvacuation,
+		SpreadDemocracy,
+		EliminateBroodCommanders,
+		PurgeHatcheries,
+		ActivateE710Pumps,
+		BlitzSearchAndDestroyTerminids,
+		EliminateChargers,
+		EradicateTerminidSwarm,
+		EliminateBileTitans,
+		EnableE710Extraction,
+		EliminateDevastators,
+		SabotageSupplyBases,
+		DestroyTransmissionNetwork,
+		EradicateAutomatonForces,
+		BlitzSearchAndDestroyAutomatons,
+		SabotageAirBase,
+		EliminateAutomatonFactoryStrider,
+		DestroyCommandBunkers,
+	}
+}
+
+func ValidateObjectiveType(fl validator.FieldLevel) bool {
+	value := fl.Field().Interface().(ObjectiveType)
+	switch value {
+	case TerminateIllegalBroadcast, PumpFuelToICBM, UploadEscapePodData, ConductGeologicalSurvey, LaunchICBM, RetrieveValuableData, EmergencyEvacuation, SpreadDemocracy, EliminateBroodCommanders, PurgeHatcheries, ActivateE710Pumps, BlitzSearchAndDestroyTerminids, EliminateChargers, EradicateTerminidSwarm, EliminateBileTitans, EnableE710Extraction, EliminateDevastators, SabotageSupplyBases, DestroyTransmissionNetwork, EradicateAutomatonForces, BlitzSearchAndDestroyAutomatons, SabotageAirBase, EliminateAutomatonFactoryStrider, DestroyCommandBunkers:
+		return true
+	}
+
+	return false
+}
 
 func (ot *ObjectiveType) Scan(value interface{}) error {
 	str, ok := value.(string)
