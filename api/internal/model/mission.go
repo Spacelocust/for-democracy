@@ -20,6 +20,11 @@ type Mission struct {
 	GroupUserMissions []GroupUserMission `gorm:"constraint:OnDelete:CASCADE"`
 }
 
+func (m *Mission) BeforeDelete(tx *gorm.DB) (err error) {
+	// Delete all GroupUserMission records associated with the Mission
+	return tx.Unscoped().Where("mission_id = ?", m.ID).Delete(&GroupUserMission{}).Error
+}
+
 // Returns the objectives of the mission
 func (m *Mission) GetObjectives() (map[enum.ObjectiveType]Objective, error) {
 	var objectives = make(map[enum.ObjectiveType]Objective, len(m.ObjectiveTypes))

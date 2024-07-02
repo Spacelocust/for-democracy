@@ -301,6 +301,10 @@ definitions:
         type: string
       difficulty:
         $ref: '#/definitions/enum.Difficulty'
+      groupUsers:
+        items:
+          $ref: '#/definitions/model.GroupUser'
+        type: array
       id:
         type: integer
       missions:
@@ -724,7 +728,7 @@ definitions:
       public:
         type: boolean
       startAt:
-        default: "2006-01-02 15:04:05"
+        default: "2024-08-02 15:04:05"
         type: string
     required:
     - difficulty
@@ -787,7 +791,7 @@ paths:
       - events
   /groups:
     get:
-      description: Get all public groups
+      description: Get groups
       produces:
       - application/json
       responses:
@@ -801,7 +805,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.ErrorResponse'
-      summary: Get all public groups
+      summary: Get groups
       tags:
       - groups
     post:
@@ -821,7 +825,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/validators.Group'
+            $ref: '#/definitions/model.Group'
         "400":
           description: Bad Request
           schema:
@@ -900,6 +904,52 @@ paths:
           schema:
             $ref: '#/definitions/server.ErrorResponse'
       summary: Get a group by ID
+      tags:
+      - groups
+    patch:
+      consumes:
+      - application/json
+      description: Update a group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Properties to update
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.Group'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Update a group
       tags:
       - groups
   /groups/{id}/join:
@@ -1138,6 +1188,12 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Mission properties that needs to be updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.Mission'
       produces:
       - application/json
       responses:

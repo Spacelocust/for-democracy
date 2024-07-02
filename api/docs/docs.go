@@ -51,14 +51,14 @@ const docTemplate = `{
         },
         "/groups": {
             "get": {
-                "description": "Get all public groups",
+                "description": "Get groups",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "groups"
                 ],
-                "summary": "Get all public groups",
+                "summary": "Get groups",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -104,7 +104,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/validators.Group"
+                            "$ref": "#/definitions/model.Group"
                         }
                     },
                     "400": {
@@ -261,6 +261,75 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Update a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Properties to update",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Group"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "401": {
@@ -587,6 +656,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Mission properties that needs to be updated",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Mission"
+                        }
                     }
                 ],
                 "responses": {
@@ -1378,6 +1456,12 @@ const docTemplate = `{
                 "difficulty": {
                     "$ref": "#/definitions/enum.Difficulty"
                 },
+                "groupUsers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUser"
+                    }
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2022,7 +2106,7 @@ const docTemplate = `{
                 },
                 "startAt": {
                     "type": "string",
-                    "default": "2006-01-02 15:04:05"
+                    "default": "2024-08-02 15:04:05"
                 }
             }
         },

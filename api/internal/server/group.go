@@ -17,11 +17,12 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route := r.Group("/groups")
 	route.Use(s.OAuthMiddleware)
 
-	route.POST("/", s.CreateGroup)
 	route.GET("/", s.GetGroups)
-	route.GET("/:id", s.GetGroup)
-	route.POST("/:id/join", s.JoinGroup)
+	route.POST("/", s.CreateGroup)
 	route.POST("/join", s.JoinGroupWithCode)
+	route.GET("/:id", s.GetGroup)
+	route.DELETE("/:id", s.DeleteGroup)
+	route.POST("/:id/join", s.JoinGroup)
 	route.POST("/:id/leave", s.LeaveGroup)
 }
 
@@ -31,7 +32,7 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 // @Accept  json
 // @Produce  json
 // @Param data body validators.Group true "Group object that needs to be created"
-// @Success 201 {object} validators.Group
+// @Success 201 {object} model.Group
 // @Failure      500  {object}  server.ErrorResponse
 // @Failure      404  {object}  server.ErrorResponse
 // @Failure      400  {object}  server.ErrorResponse
@@ -47,16 +48,16 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	}
 
 	// Get data from request body and validate
-	var group validators.Group
+	var groupData validators.Group
 
 	// Bind JSON request to Group struct
-	if err := c.ShouldBindJSON(&group); err != nil {
+	if err := c.ShouldBindJSON(&groupData); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	// Validate Group struct
-	if err := s.validator.Validate(group); err != nil {
+	if err := s.validator.Validate(groupData); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -68,7 +69,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	startAt, err := time.Parse(time.DateTime, group.StartAt)
+	startAt, err := time.Parse(time.DateTime, groupData.StartAt)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: "invalid date time format"})
 		return
@@ -77,17 +78,18 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	// Create new group
 	newGroup := model.Group{
 		Code:        code,
-		Name:        group.Name,
-		Description: group.Description,
-		Public:      group.Public,
-		Difficulty:  group.Difficulty,
-		PlanetID:    group.PlanetID,
+		Name:        groupData.Name,
+		Description: groupData.Description,
+		Public:      *groupData.Public,
+		Difficulty:  groupData.Difficulty,
+		PlanetID:    groupData.PlanetID,
 		StartAt:     startAt,
 	}
 
 	if err := db.First(&model.Planet{}, newGroup.PlanetID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "planet not found"})
+			return
 		}
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
@@ -114,8 +116,8 @@ func (s *Server) CreateGroup(c *gin.Context) {
 	c.JSON(http.StatusCreated, newGroup)
 }
 
-// @Summary			 Get all public groups
-// @Description  Get all public groups
+// @Summary			 Get groups
+// @Description  Get groups
 // @Tags         groups
 // @Produce      json
 // @Success      200  {array}  model.Group
@@ -124,9 +126,16 @@ func (s *Server) CreateGroup(c *gin.Context) {
 func (s *Server) GetGroups(c *gin.Context) {
 	db := s.db.GetDB()
 
+	user, ok := c.MustGet("user").(model.User)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
+		return
+	}
+
 	var groups []model.Group
 
-	if err := db.Where("public = ?", true).Find(&groups).Error; err != nil {
+	// Get groups that the user is a member of and public groups
+	if err := db.Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).Find(&groups).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "Something went wrong, please try again later"})
 	}
 
@@ -145,6 +154,11 @@ func (s *Server) GetGroups(c *gin.Context) {
 func (s *Server) GetGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
+	if _, ok := c.MustGet("user").(model.User); !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
+		return
+	}
+
 	groupID := c.Param("id")
 
 	var group model.Group
@@ -162,13 +176,99 @@ func (s *Server) GetGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, group)
 }
 
-// func (s *Server) UpdateGroup(c *gin.Context) {
+// @Summary Update a group
+// @Description Update a group
+// @Tags    groups
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Group ID"
+// @Param data body validators.Group true "Properties to update"
+// @Success 200 {object} server.SuccessResponse
+// @Failure      500  {object}  server.ErrorResponse
+// @Failure      404  {object}  server.ErrorResponse
+// @Failure      403  {object}  server.ErrorResponse
+// @Failure      401  {object}  server.ErrorResponse
+// @Failure      400  {object}  server.ErrorResponse
+// @Router /groups/{id} [put]
+func (s *Server) UpdateGroup(c *gin.Context) {
+	db := s.db.GetDB()
 
-// }
+	// Check if the user is authenticated
+	user, ok := c.MustGet("user").(model.User)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
+		return
+	}
 
-// func (s *Server) DeleteGroup(c *gin.Context) {
+	groupID := c.Param("id")
 
-// }
+	// Get data from request body and validate
+	var groupData validators.Group
+
+	// Bind JSON request to Group struct
+	if err := c.ShouldBindJSON(&groupData); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	// Validate Group struct
+	if err := s.validator.Validate(groupData); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	// Check if the group exists
+	var group model.Group
+	if err := db.First(&group, groupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
+	}
+
+	// Check if the user is the owner of the group
+	var groupUser model.GroupUser
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not a member of this group"})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "something went wrong, please try again later"})
+		return
+	}
+
+	if !groupUser.Owner {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not the owner of this group"})
+		return
+	}
+
+	startAt, err := time.Parse(time.DateTime, groupData.StartAt)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: "invalid date time format"})
+		return
+	}
+
+	updatedGroup := model.Group{
+		ID:          group.ID,
+		Name:        groupData.Name,
+		Description: groupData.Description,
+		Public:      *groupData.Public,
+		Difficulty:  groupData.Difficulty,
+		PlanetID:    groupData.PlanetID,
+		StartAt:     startAt,
+	}
+
+	// Update group
+	if err := db.Save(&updatedGroup).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not update group"})
+		return
+	}
+
+	c.JSON(http.StatusOK, SuccessResponse{Message: "group updated"})
+}
 
 // @Summary Join a group
 // @Description Join a group
@@ -209,8 +309,13 @@ func (s *Server) JoinGroup(c *gin.Context) {
 	// Check if user is already in the group
 	var groupUser model.GroupUser
 
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not a member of this group"})
+	if err := db.Find(&groupUser, "user_id = ? AND group_id = ?", user.ID, groupID).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "something went wrong, please try again later"})
+		return
+	}
+
+	if groupUser.ID != 0 {
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are already a member of this group"})
 		return
 	}
 
@@ -278,28 +383,32 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 	}
 
 	var result struct {
-		GroupID uint
-		Count   int
+		ID    uint
+		Count int
 	}
-
-	// Check if group exists and get the count of users in the group
-	err := db.Model(&model.GroupUser{}).
-		Select("groups.id as group_id, COUNT(group_users.id) as count").
-		Joins("inner join groups on groups.id = group_users.group_id").
-		Where("groups.code = ?", groupCode).
-		Group("groups.id, groups.code").First(&result).Error
+	// Get the group ID and count of users in the group
+	err := db.Model(&model.Group{}).
+		Select("groups.id, COUNT(group_users.id) as count").
+		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
+		Where("groups.code = ?", groupCode.Code).
+		Group("groups.id").
+		First(&result).Error
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
-		return
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 	}
 
 	// Check if user is already in the group
 	var userGroup model.GroupUser
 
-	err = db.Where("user_id = ? AND group_id = ?", user.ID, result.GroupID).Find(&userGroup).Error
+	err = db.Where("user_id = ? AND group_id = ?", user.ID, result.ID).Find(&userGroup).Error
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join group"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 	}
 
 	if userGroup.ID != 0 {
@@ -314,12 +423,12 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 
 	newUserGroup := model.GroupUser{
 		UserID:  user.ID,
-		GroupID: result.GroupID,
+		GroupID: result.ID,
 		Owner:   false,
 	}
 
 	if err := db.Create(&newUserGroup).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join group"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -361,8 +470,33 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 		return
 	}
 
-	if err := db.Delete(&groupUser).Error; err != nil {
+	if err := db.Unscoped().Delete(&groupUser).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not leave group"})
+		return
+	}
+
+	// Check if the group is empty
+	var group model.Group
+	if err := db.First(&group, groupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
+	}
+
+	// Subquery to know if the group has no users
+	countGroupUser := db.Model(&model.Group{}).
+		Select("groups.id").
+		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
+		Where("groups.id = ?", groupID).
+		Group("groups.id").
+		Having("COUNT(group_users.id) = 0")
+
+	// Delete the group if it has no users
+	if err := db.Where("id IN (?)", countGroupUser).Unscoped().Delete(&model.Group{}).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not remove group"})
 		return
 	}
 
@@ -393,7 +527,12 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 
 	var group model.Group
 	if err := db.First(&group, groupID).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -410,8 +549,8 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		return
 	}
 
-	if err := db.Delete(&group).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "could not delete group"})
+	if err := db.Unscoped().Delete(&group).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 

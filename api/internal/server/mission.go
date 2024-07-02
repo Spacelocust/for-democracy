@@ -13,19 +13,11 @@ import (
 func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route := r.Group("/missions")
 
-	route.GET("/", s.GetMissions)
-	route.GET("/:id", s.GetMission)
 	route.POST("/", s.CreateMission)
 	route.PUT("/:id", s.EditMission)
 	route.DELETE("/:id", s.DeleteMission)
 	route.POST("/:id/join", s.JoinMision)
 	route.POST("/:id/leave", s.LeaveMission)
-}
-
-func (s *Server) GetMissions(c *gin.Context) {
-}
-
-func (s *Server) GetMission(c *gin.Context) {
 }
 
 // @Summary Create a mission
@@ -267,6 +259,7 @@ func (s *Server) DeleteMission(c *gin.Context) {
 // @Tags    missions
 // @Produce  json
 // @Param id path int true "Mission ID"
+// @Param data body validators.Mission true "Mission properties that needs to be updated"
 // @Success 201 {object} model.GroupUserMission
 // @Failure      500  {object}  server.ErrorResponse
 // @Failure      404  {object}  server.ErrorResponse

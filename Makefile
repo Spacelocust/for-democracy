@@ -99,7 +99,7 @@ db-hash: ## Generate the hash for the migration
 	$(EXECAPI) atlas migrate hash
 
 db-drop: ## Drop the database
-	$(EXECPG) dropdb ${DB_NAME}
+	$(EXECPG) dropdb ${DB_NAME} --force
 
 db-create: ## Create the database
 	$(EXECPG) createdb ${DB_NAME}
