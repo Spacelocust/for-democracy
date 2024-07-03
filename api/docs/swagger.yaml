@@ -760,6 +760,16 @@ definitions:
     - name
     - objectiveTypes
     type: object
+  validators.UserMission:
+    properties:
+      stratagems:
+        items:
+          type: integer
+        maxItems: 4
+        type: array
+    required:
+    - stratagems
+    type: object
 info:
   contact:
     email: support@for-democracy
@@ -906,7 +916,7 @@ paths:
       summary: Get a group by ID
       tags:
       - groups
-    patch:
+    put:
       consumes:
       - application/json
       description: Update a group
@@ -928,7 +938,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.SuccessResponse'
+            $ref: '#/definitions/model.Group'
         "400":
           description: Bad Request
           schema:
@@ -1193,7 +1203,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/validators.Mission'
+          $ref: '#/definitions/validators.UserMission'
       produces:
       - application/json
       responses:
@@ -1450,4 +1460,50 @@ paths:
       summary: Get planet by ID
       tags:
       - planets
+  /stratagems:
+    get:
+      description: Get all stratagems
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Stratagem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get all stratagems
+      tags:
+      - stratagems
+  /stratagems/{id}:
+    get:
+      description: Get a stratagem
+      parameters:
+      - description: Stratagem ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Stratagem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get a stratagem
+      tags:
+      - stratagems
 swagger: "2.0"

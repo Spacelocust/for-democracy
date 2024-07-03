@@ -21,6 +21,7 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route.POST("/", s.CreateGroup)
 	route.POST("/join", s.JoinGroupWithCode)
 	route.GET("/:id", s.GetGroup)
+	route.PUT("/:id", s.UpdateGroup)
 	route.DELETE("/:id", s.DeleteGroup)
 	route.POST("/:id/join", s.JoinGroup)
 	route.POST("/:id/leave", s.LeaveGroup)
@@ -135,7 +136,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 	var groups []model.Group
 
 	// Get groups that the user is a member of and public groups
-	if err := db.Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).Find(&groups).Error; err != nil {
+	if err := db.Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).Preload("Missions").Find(&groups).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "Something went wrong, please try again later"})
 	}
 
@@ -183,7 +184,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 // @Produce  json
 // @Param id path int true "Group ID"
 // @Param data body validators.Group true "Properties to update"
-// @Success 200 {object} server.SuccessResponse
+// @Success 200 {object} model.Group
 // @Failure      500  {object}  server.ErrorResponse
 // @Failure      404  {object}  server.ErrorResponse
 // @Failure      403  {object}  server.ErrorResponse
@@ -253,6 +254,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 
 	updatedGroup := model.Group{
 		ID:          group.ID,
+		Code:        group.Code,
 		Name:        groupData.Name,
 		Description: groupData.Description,
 		Public:      *groupData.Public,
@@ -267,7 +269,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, SuccessResponse{Message: "group updated"})
+	c.JSON(http.StatusOK, updatedGroup)
 }
 
 // @Summary Join a group

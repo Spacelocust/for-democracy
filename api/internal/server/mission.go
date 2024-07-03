@@ -12,11 +12,12 @@ import (
 
 func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route := r.Group("/missions")
+	route.Use(s.OAuthMiddleware)
 
 	route.POST("/", s.CreateMission)
-	route.PUT("/:id", s.EditMission)
+	route.PUT("/:id", s.UpdateMission)
 	route.DELETE("/:id", s.DeleteMission)
-	route.POST("/:id/join", s.JoinMision)
+	route.POST("/:id/join", s.JoinMission)
 	route.POST("/:id/leave", s.LeaveMission)
 }
 
@@ -79,7 +80,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 	}
 
 	if !groupUser.Owner {
-		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are the owner of this group"})
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not the owner of this group"})
 		return
 	}
 
@@ -111,7 +112,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 // @Failure      400  {object}  server.ErrorResponse
 // @Failure      401  {object}  server.ErrorResponse
 // @Router /missions/{id} [put]
-func (s *Server) EditMission(c *gin.Context) {
+func (s *Server) UpdateMission(c *gin.Context) {
 	db := s.db.GetDB()
 
 	missionID := c.Param("id")
@@ -161,7 +162,7 @@ func (s *Server) EditMission(c *gin.Context) {
 	}
 
 	if !groupUser.Owner {
-		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are the owner of this group"})
+		c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not the owner of this group"})
 		return
 	}
 
@@ -180,11 +181,6 @@ func (s *Server) EditMission(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
-		return
-	}
-
-	if updatedMission.ID == 0 {
-		c.JSON(http.StatusNotFound, ErrorResponse{Error: "mission not found"})
 		return
 	}
 
@@ -217,7 +213,7 @@ func (s *Server) DeleteMission(c *gin.Context) {
 	// Check if the mission exists
 	var mission model.Mission
 
-	if err := db.First(&mission, "id = ?", missionID).Error; err != nil {
+	if err := db.First(&mission, missionID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, ErrorResponse{Error: "mission not found"})
 			return
@@ -246,7 +242,7 @@ func (s *Server) DeleteMission(c *gin.Context) {
 	}
 
 	// Delete the mission
-	if err := db.Delete(&mission).Error; err != nil {
+	if err := db.Unscoped().Delete(&mission).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not delete mission"})
 		return
 	}
@@ -259,23 +255,23 @@ func (s *Server) DeleteMission(c *gin.Context) {
 // @Tags    missions
 // @Produce  json
 // @Param id path int true "Mission ID"
-// @Param data body validators.Mission true "Mission properties that needs to be updated"
+// @Param data body validators.UserMission true "Mission properties that needs to be updated"
 // @Success 201 {object} model.GroupUserMission
 // @Failure      500  {object}  server.ErrorResponse
 // @Failure      404  {object}  server.ErrorResponse
 // @Failure      400  {object}  server.ErrorResponse
 // @Failure      401  {object}  server.ErrorResponse
 // @Router /missions/{id}/join [post]
-func (s *Server) JoinMision(c *gin.Context) {
+func (s *Server) JoinMission(c *gin.Context) {
 	db := s.db.GetDB()
-
-	missionID := c.Param("id")
 
 	user, ok := c.MustGet("user").(model.User)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
 		return
 	}
+
+	missionID := c.Param("id")
 
 	// Check if the mission exists
 	var mission model.Mission
@@ -287,6 +283,19 @@ func (s *Server) JoinMision(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
+		return
+	}
+
+	var missionData validators.UserMission
+
+	if err := c.ShouldBindJSON(&missionData); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	// Validate Group struct
+	if err := s.validator.Validate(missionData); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -306,12 +315,19 @@ func (s *Server) JoinMision(c *gin.Context) {
 	// Check if the user is already in the mission
 	var groupUserMission model.GroupUserMission
 
-	if err := db.First(&groupUserMission, "user_id = ? AND mission_id = ?", user.ID, missionID).Error; err != nil {
+	if err := db.Find(&groupUserMission, "group_user_id = ? AND mission_id = ?", groupUser.ID, missionID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 	}
 
 	if groupUserMission.ID != 0 {
-		c.JSON(http.StatusForbidden, ErrorResponse{Error: "you are already in this mission"})
+		c.JSON(http.StatusForbidden, ErrorResponse{Error: "you are already joined this mission"})
+		return
+	}
+
+	var userStratagems []*model.Stratagem
+
+	if err := db.Find(&userStratagems, "id IN ?", missionData.Stratagems).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -319,10 +335,23 @@ func (s *Server) JoinMision(c *gin.Context) {
 	newGroupUserMission := model.GroupUserMission{
 		MissionID:   mission.ID,
 		GroupUserID: groupUser.ID,
+		Stratagems:  []*model.Stratagem{},
 	}
 
-	if err := db.Create(&newGroupUserMission).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join mission"})
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("Stratagems").Create(&newGroupUserMission).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&newGroupUserMission).Association("Stratagems").Replace(userStratagems); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join the mission"})
 		return
 	}
 
@@ -343,13 +372,13 @@ func (s *Server) JoinMision(c *gin.Context) {
 func (s *Server) LeaveMission(c *gin.Context) {
 	db := s.db.GetDB()
 
-	missionID := c.Param("id")
-
 	user, ok := c.MustGet("user").(model.User)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
 		return
 	}
+
+	missionID := c.Param("id")
 
 	// Check if the mission exists
 	var mission model.Mission
@@ -380,13 +409,14 @@ func (s *Server) LeaveMission(c *gin.Context) {
 	// Check if the user is already in the mission
 	var groupUserMission model.GroupUserMission
 
-	if err := db.First(&groupUserMission, "user_id = ? AND mission_id = ?", user.ID, missionID).Error; err != nil {
+	if err := db.First(&groupUserMission, "group_user_id = ? AND mission_id = ?", groupUser.ID, missionID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusForbidden, ErrorResponse{Error: "you are not in this mission"})
 			return
 		}
 
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
+		return
 	}
 
 	// Leave the mission
