@@ -780,13 +780,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -812,13 +812,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -848,18 +842,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/goth.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -891,16 +873,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/goth.User"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }

@@ -773,13 +773,13 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -805,13 +805,7 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -841,18 +835,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/goth.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -884,16 +866,10 @@
                             "$ref": "#/definitions/goth.User"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }

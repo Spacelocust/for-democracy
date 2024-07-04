@@ -13,6 +13,7 @@ import (
 
 	"github.com/Spacelocust/for-democracy/internal/database"
 	"github.com/Spacelocust/for-democracy/internal/enum"
+	"github.com/Spacelocust/for-democracy/internal/logger"
 	_ "github.com/Spacelocust/for-democracy/internal/oauth"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 )
@@ -22,6 +23,7 @@ type Server struct {
 
 	db        database.Service
 	validator validators.Service
+	logger    logger.Service
 }
 
 type ErrorResponse struct {
@@ -38,6 +40,7 @@ func NewServer() *http.Server {
 		port:      port,
 		db:        database.New(),
 		validator: validators.New(),
+		logger:    logger.New(),
 	}
 
 	// Register custom validation rules

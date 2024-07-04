@@ -13,10 +13,12 @@ import (
 )
 
 func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
-	r.GET("/oauth/:provider/callback", s.OAuthCallback)
-	r.GET("/oauth/logout/:provider", s.OAuthLogout)
-	r.GET("/oauth/me", s.OAuthMiddleware, s.OAuthMe)
-	r.GET("/oauth/:provider", s.OAuth)
+	route := r.Group("/oauth")
+
+	route.GET("/me", s.OAuthMiddleware, s.OAuthMe)
+	route.GET("/logout/:provider", s.OAuthLogout)
+	route.GET("/:provider", s.OAuth)
+	route.GET("/:provider/callback", s.OAuthCallback)
 }
 
 type Me struct {
@@ -30,12 +32,11 @@ type Me struct {
 // @Tags         authentication
 // @Produce      json
 // @Success      200  {object}  server.Me
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      401  {object}  server.ErrorResponse
 // @Router       /oauth/me [get]
 func (s *Server) OAuthMe(c *gin.Context) {
 	if user, ok := c.MustGet("user").(model.User); !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no user found", "type": "oauth"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "user not found"})
 	} else {
 		c.JSON(http.StatusOK, Me{
 			Username:  user.Username,
@@ -51,17 +52,16 @@ func (s *Server) OAuthMe(c *gin.Context) {
 // @Produce      json
 // @Param        provider   path      string  true  "Provider name"
 // @Success      200  {object}  goth.User
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /oauth/{provider}/callback [get]
 func (s *Server) OAuthCallback(c *gin.Context) {
 	db := s.db.GetDB()
 	user, err := oauth.CompleteUserAuth(c)
 
 	if err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while completing user auth"})
+		return
 	}
 
 	newUser := model.User{
@@ -77,14 +77,15 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 	}).Create(&newUser).Error
 
 	if err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while completing user auth"})
+		return
 	}
 
 	tokenString, err := utils.CreateToken(newUser)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Error creating token")
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while completing user auth"})
 		return
 	}
 
@@ -92,12 +93,12 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 		Token:  tokenString,
 		UserId: newUser.ID,
 	}).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while completing user auth"})
+		return
 	}
 
-	c.SetCookie("token", tokenString, 3600, "/", "", false, true)
+	c.SetCookie("token", tokenString, 60*60*24*7, "/", "", false, true)
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(pageLoading))
 }
@@ -108,16 +109,16 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 // @Produce      json
 // @Param        provider   path      string  true  "Provider name"
 // @Success      200
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      401  {object}  server.ErrorResponse
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /oauth/logout/{provider} [get]
 func (s *Server) OAuthLogout(c *gin.Context) {
 	q := c.Request.URL.Query()
 	c.Request.URL.RawQuery = q.Encode()
 	if err := gothic.Logout(c.Writer, c.Request); err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while completing user auth"})
+		return
 	}
 
 	c.JSON(http.StatusOK, nil)
@@ -129,8 +130,6 @@ func (s *Server) OAuthLogout(c *gin.Context) {
 // @Produce      json
 // @Param        provider   path      string  true  "Provider name"
 // @Success      200  {object}  goth.User
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
 // @Router       /oauth/{provider} [get]
 func (s *Server) OAuth(c *gin.Context) {
 	oauth.BeginAuthHandler(c)

@@ -38,9 +38,10 @@ func (s *Server) GetObjectif(c *gin.Context) {
 
 	objectif, err := model.GetObjective(enum.ObjectiveType(name))
 	if err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusNotFound, ErrorResponse{Error: "Objectif not found"})
 		return
 	}
 
-	c.JSON(200, objectif)
+	c.JSON(http.StatusOK, objectif)
 }

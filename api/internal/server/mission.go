@@ -62,6 +62,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -75,6 +76,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -93,6 +95,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 	}
 
 	if err := db.Create(&newMission).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not create mission"})
 		return
 	}
@@ -144,6 +147,7 @@ func (s *Server) UpdateMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -157,6 +161,7 @@ func (s *Server) UpdateMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -180,6 +185,7 @@ func (s *Server) UpdateMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -213,12 +219,13 @@ func (s *Server) DeleteMission(c *gin.Context) {
 	// Check if the mission exists
 	var mission model.Mission
 
-	if err := db.First(&mission, missionID).Error; err != nil {
+	if err := db.First(&mission, "id = ?", missionID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, ErrorResponse{Error: "mission not found"})
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -232,6 +239,7 @@ func (s *Server) DeleteMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -243,6 +251,7 @@ func (s *Server) DeleteMission(c *gin.Context) {
 
 	// Delete the mission
 	if err := db.Unscoped().Delete(&mission).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not delete mission"})
 		return
 	}
@@ -282,6 +291,7 @@ func (s *Server) JoinMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -308,6 +318,7 @@ func (s *Server) JoinMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -316,6 +327,7 @@ func (s *Server) JoinMission(c *gin.Context) {
 	var groupUserMission model.GroupUserMission
 
 	if err := db.Find(&groupUserMission, "group_user_id = ? AND mission_id = ?", groupUser.ID, missionID).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 	}
 
@@ -326,7 +338,8 @@ func (s *Server) JoinMission(c *gin.Context) {
 
 	var userStratagems []*model.Stratagem
 
-	if err := db.Find(&userStratagems, "id IN ?", missionData.Stratagems).Error; err != nil {
+	if err := db.Find(&userStratagems, "id IN (?)", missionData.Stratagems).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -351,7 +364,8 @@ func (s *Server) JoinMission(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not join the mission"})
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
@@ -389,6 +403,7 @@ func (s *Server) LeaveMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -402,6 +417,7 @@ func (s *Server) LeaveMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -415,12 +431,14 @@ func (s *Server) LeaveMission(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
 
 	// Leave the mission
 	if err := db.Delete(&groupUserMission).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "could not leave mission"})
 		return
 	}

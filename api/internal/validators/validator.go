@@ -32,15 +32,12 @@ func (s *service) GetValidate() *validator.Validate {
 func (s *service) Validate(i interface{}) error {
 	err := s.validate.Struct(i)
 	if err != nil {
-		if _, ok := err.(*validator.InvalidValidationError); ok {
-			fmt.Println(err)
-			return err
+		errors := ""
+		for _, e := range err.(validator.ValidationErrors) {
+			errors += fmt.Sprintf("field: %s, rule: %s, ", e.Field(), e.Tag())
 		}
 
-		if len(err.(validator.ValidationErrors)) > 0 {
-			fmt.Println(err.(validator.ValidationErrors).Error())
-			return fmt.Errorf(err.(validator.ValidationErrors).Error())
-		}
+		return fmt.Errorf(errors)
 	}
 
 	return nil

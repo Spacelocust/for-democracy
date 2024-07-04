@@ -29,6 +29,7 @@ func (s *Server) GetStratagems(c *gin.Context) {
 	var stratagems []model.Stratagem
 
 	if err := db.Find(&stratagems).Error; err != nil {
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}
@@ -58,6 +59,7 @@ func (s *Server) GetStratagem(c *gin.Context) {
 			return
 		}
 
+		s.logger.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
 		return
 	}

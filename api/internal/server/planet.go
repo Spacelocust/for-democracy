@@ -1,10 +1,12 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -23,13 +25,11 @@ func (s *Server) RegisterPlanetRoutes(r *gin.Engine) {
 func (s *Server) GetPlanets(c *gin.Context) {
 	db := s.db.GetDB()
 
-	// Get all planets
-	planets := []model.Planet{}
+	var planets []model.Planet
 
 	if err := db.Preload(clause.Associations).Find(&planets).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, "Error while fetching planets")
 	}
 
 	c.JSON(http.StatusOK, planets)
@@ -46,13 +46,19 @@ func (s *Server) GetPlanets(c *gin.Context) {
 func (s *Server) GetPlanet(c *gin.Context) {
 	db := s.db.GetDB()
 
-	// Get planet by ID
-	planet := model.Planet{}
+	id := c.Param("id")
 
-	if err := db.Preload(clause.Associations).First(&planet, "id = ?", c.Param("id")).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
+	var planet model.Planet
+
+	if err := db.Preload(clause.Associations).First(&planet, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, "Planet not found")
 			return
 		}
+
+		s.logger.Error(err.Error())
+		c.JSON(http.StatusInternalServerError, "Error while fetching planet")
+		return
 	}
 
 	c.JSON(http.StatusOK, planet)

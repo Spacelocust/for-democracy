@@ -1281,14 +1281,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/goth.User'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gin.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gin.Error'
       summary: Authenticate the user
       tags:
       - authentication
@@ -1308,14 +1300,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/goth.User'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gin.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get the user after authentication is complete from the provider
       tags:
       - authentication
@@ -1336,11 +1324,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Log the user out
       tags:
       - authentication
@@ -1357,11 +1345,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/gin.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get the user
       tags:
       - authentication
