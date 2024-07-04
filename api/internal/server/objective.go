@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/enum"
@@ -19,10 +20,23 @@ func (s *Server) RegisterObjectiveRoutes(r *gin.Engine) {
 // @Description Get all objectifs
 // @Tags    objectifs
 // @Produce  json
-// @Success 200 {array} enum.ObjectiveType
+// @Success 200 {array} model.Objective
 // @Router /objectifs [get]
 func (s *Server) GetObjectifs(c *gin.Context) {
-	c.JSON(http.StatusOK, enum.GetObjectifs())
+	var objectifs []model.Objective
+
+	for _, obj := range enum.GetObjectifs() {
+		objectif, err := model.GetObjective(obj)
+		if err != nil {
+			s.logger.Error(err.Error())
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Error while fetching objectifs"})
+			return
+		}
+
+		objectifs = append(objectifs, objectif)
+	}
+
+	c.JSON(http.StatusOK, objectifs)
 }
 
 // @Summary Get an objectif
@@ -31,7 +45,7 @@ func (s *Server) GetObjectifs(c *gin.Context) {
 // @Produce  json
 // @Param name path string true "Objectif name"
 // @Success 200 {object} model.Objective
-// @Failure      404  {object}  server.ErrorResponse
+// @Failure 404  {object}  server.ErrorResponse
 // @Router /objectifs/{name} [get]
 func (s *Server) GetObjectif(c *gin.Context) {
 	name := c.Param("name")
@@ -39,7 +53,7 @@ func (s *Server) GetObjectif(c *gin.Context) {
 	objectif, err := model.GetObjective(enum.ObjectiveType(name))
 	if err != nil {
 		s.logger.Error(err.Error())
-		c.JSON(http.StatusNotFound, ErrorResponse{Error: "Objectif not found"})
+		c.JSON(http.StatusNotFound, ErrorResponse{Error: fmt.Sprintf(NOT_FOUND_MESSAGE, "objectif")})
 		return
 	}
 

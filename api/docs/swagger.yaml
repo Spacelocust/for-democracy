@@ -1359,7 +1359,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/enum.ObjectiveType'
+              $ref: '#/definitions/model.Objective'
             type: array
       summary: Get all objectifs
       tags:

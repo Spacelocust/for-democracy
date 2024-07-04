@@ -2,7 +2,9 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
@@ -42,21 +44,23 @@ func (s *Server) CreateMission(c *gin.Context) {
 	}
 
 	// Parse the mission
-	var mission validators.Mission
+	var missionData validators.Mission
 
-	if err := c.ShouldBindJSON(&mission); err != nil {
+	if err := c.ShouldBindJSON(&missionData); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	// Validate the mission
-	if err := s.validator.Validate(mission); err != nil {
+	if err := s.validator.Validate(missionData); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	// Check if the group exists
-	if err := db.First(&model.Group{}, "id = ?", mission.GroupID).Error; err != nil {
+	var group model.Group
+
+	if err := db.Preload("Planet").First(&group, "id = ?", missionData.GroupID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: "group not found"})
 			return
@@ -67,10 +71,24 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
+	// Check if the objectives are available for the group
+	for _, objectifType := range missionData.ObjectiveTypes {
+		objectif, err := model.GetObjective(objectifType)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		if !slices.Contains(objectif.Factions, group.Planet.Owner) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Sprintf("objective '%s' is not available for this group", objectifType)})
+			return
+		}
+	}
+
 	// Check if the user is in a group
 	var groupUser model.GroupUser
 
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, mission.GroupID).Error; err != nil {
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, missionData.GroupID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: "you are not a member of this group"})
 			return
@@ -88,10 +106,10 @@ func (s *Server) CreateMission(c *gin.Context) {
 
 	// Create the mission
 	newMission := model.Mission{
-		Name:           mission.Name,
-		Instructions:   mission.Instructions,
-		ObjectiveTypes: mission.ObjectiveTypes,
-		GroupID:        mission.GroupID,
+		Name:           missionData.Name,
+		Instructions:   missionData.Instructions,
+		ObjectiveTypes: missionData.ObjectiveTypes,
+		GroupID:        missionData.GroupID,
 	}
 
 	if err := db.Create(&newMission).Error; err != nil {

@@ -898,7 +898,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/enum.ObjectiveType"
+                                "$ref": "#/definitions/model.Objective"
                             }
                         }
                     }

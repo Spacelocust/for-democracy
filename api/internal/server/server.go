@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/Spacelocust/for-democracy/docs"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/Spacelocust/for-democracy/internal/database"
 	"github.com/Spacelocust/for-democracy/internal/enum"
 	"github.com/Spacelocust/for-democracy/internal/logger"
+	"github.com/Spacelocust/for-democracy/internal/model"
 	_ "github.com/Spacelocust/for-democracy/internal/oauth"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 )
@@ -33,6 +35,13 @@ type ErrorResponse struct {
 type SuccessResponse struct {
 	Message string `json:"message"`
 }
+
+const (
+	SERVER_ERROR_MESSAGE      = "something went wrong, please try again later"
+	ERROR_FETCHING_MESSAGE    = "error while fetching %s"
+	NOT_FOUND_MESSAGE         = "%s not found"
+	NOT_AUTHENTICATED_MESSAGE = "you must be authenticated"
+)
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("API_PORT"))
@@ -73,4 +82,15 @@ func NewServer() *http.Server {
 	})
 
 	return server
+}
+
+// checkAuth checks if the user is authenticated and returns the user
+func checkAuth(c *gin.Context) model.User {
+	user, ok := c.MustGet("user").(model.User)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: NOT_AUTHENTICATED_MESSAGE})
+		return model.User{}
+	}
+
+	return user
 }

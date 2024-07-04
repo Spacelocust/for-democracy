@@ -21,25 +21,21 @@ type Event struct {
 // @Tags         events
 // @Produce      json
 // @Success      200  {object}  server.Event
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object} server.ErrorResponse
 // @Router       /events [get]
 func (s *Server) GetEvents(c *gin.Context) {
 	db := s.db.GetDB()
 
 	// Get all events
-	defences := []model.Defence{}
-	liberations := []model.Liberation{}
+	var defences []model.Defence
+	var liberations []model.Liberation
 
 	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&defences).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "Error while fetching defences")
 	}
 
 	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&liberations).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, "Error while fetching liberations")
 	}
 
 	c.JSON(http.StatusOK, gin.H{

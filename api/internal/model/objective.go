@@ -14,6 +14,7 @@ type Objective struct {
 	Difficulties  []enum.Difficulty
 }
 
+// GetObjective returns an objective based on the objective type
 func GetObjective(objectiveType enum.ObjectiveType) (Objective, error) {
 	switch objectiveType {
 	// General Missions

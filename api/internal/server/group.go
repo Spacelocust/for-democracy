@@ -42,11 +42,7 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 func (s *Server) CreateGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	// Get data from request body and validate
 	var groupData validators.Group
@@ -132,11 +128,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 func (s *Server) GetGroups(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	var groups []model.Group
 
@@ -167,10 +159,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 func (s *Server) GetGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
-	if _, ok := c.MustGet("user").(model.User); !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	checkAuth(c)
 
 	groupID := c.Param("id")
 
@@ -208,11 +197,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
 	// Check if the user is authenticated
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	groupID := c.Param("id")
 
@@ -305,11 +290,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 func (s *Server) JoinGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	groupID := c.Param("id")
 
@@ -384,11 +365,7 @@ func (s *Server) JoinGroup(c *gin.Context) {
 func (s *Server) JoinGroupWithCode(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	// Get data from request body and validate
 	var groupCode validators.GroupCode
@@ -475,11 +452,7 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 func (s *Server) LeaveGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	groupID := c.Param("id")
 
@@ -547,11 +520,7 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 func (s *Server) DeleteGroup(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user, ok := c.MustGet("user").(model.User)
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "not authenticated"})
-		return
-	}
+	user := checkAuth(c)
 
 	groupID := c.Param("id")
 
