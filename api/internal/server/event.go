@@ -31,11 +31,11 @@ func (s *Server) GetEvents(c *gin.Context) {
 	var liberations []model.Liberation
 
 	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&defences).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, "Error while fetching defences")
+		s.InternalErrorResponse(c, err)
 	}
 
 	if err := db.Preload("Planet.Statistic").Preload("Planet.Biome").Preload("Planet.Effects").Preload("Planet.Sector").Find(&liberations).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, "Error while fetching liberations")
+		s.InternalErrorResponse(c, err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

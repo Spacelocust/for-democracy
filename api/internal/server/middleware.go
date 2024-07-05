@@ -2,8 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
-	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/utils"
@@ -16,7 +14,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "you need to be authenticated to access this route"})
+		s.UnauthorizedResponse(c, "you need to be authenticated to access this route")
 		return
 	}
 
@@ -25,21 +23,24 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 	if err != nil {
 		if err.Error() == utils.ExpiredToken {
 			// Delete the token from the database
-			db.Unscoped().Delete(&model.Token{}, "token = ?", tokenString)
+			if err := db.Unscoped().Delete(&model.Token{}, "token = ?", tokenString).Error; err != nil {
+				s.InternalErrorResponse(c, err)
+				return
+			}
 
 			// Delete the cookie
 			utils.DeleteCookieToken(c)
 
-			c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "token expired"})
+			s.UnauthorizedResponse(c, "token expired")
 			return
 		}
 
 		if err.Error() == utils.InvalidToken {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: "invalid token"})
+			s.UnauthorizedResponse(c, "invalid token")
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: SERVER_ERROR_MESSAGE})
+		s.InternalErrorResponse(c, err)
 		return
 	}
 
@@ -49,11 +50,11 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 	err = db.Preload("User").First(&token, "token = ?", tokenString).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: fmt.Sprintf(NOT_FOUND_MESSAGE, "user")})
+			s.NotFoundResponse(c, "user")
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: SERVER_ERROR_MESSAGE})
+		s.InternalErrorResponse(c, err)
 		return
 	}
 

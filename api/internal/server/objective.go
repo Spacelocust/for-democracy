@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/enum"
@@ -21,6 +20,7 @@ func (s *Server) RegisterObjectiveRoutes(r *gin.Engine) {
 // @Tags    objectifs
 // @Produce  json
 // @Success 200 {array} model.Objective
+// @Failure 404  {object}  server.ErrorResponse
 // @Router /objectifs [get]
 func (s *Server) GetObjectifs(c *gin.Context) {
 	var objectifs []model.Objective
@@ -28,8 +28,7 @@ func (s *Server) GetObjectifs(c *gin.Context) {
 	for _, obj := range enum.GetObjectifs() {
 		objectif, err := model.GetObjective(obj)
 		if err != nil {
-			s.logger.Error(err.Error())
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Error while fetching objectifs"})
+			s.NotFoundResponse(c, "objectif")
 			return
 		}
 
@@ -52,8 +51,7 @@ func (s *Server) GetObjectif(c *gin.Context) {
 
 	objectif, err := model.GetObjective(enum.ObjectiveType(name))
 	if err != nil {
-		s.logger.Error(err.Error())
-		c.JSON(http.StatusNotFound, ErrorResponse{Error: fmt.Sprintf(NOT_FOUND_MESSAGE, "objectif")})
+		s.NotFoundResponse(c, "objectif")
 		return
 	}
 

@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
@@ -30,8 +29,7 @@ func (s *Server) GetStratagems(c *gin.Context) {
 	var stratagems []model.Stratagem
 
 	if err := db.Find(&stratagems).Error; err != nil {
-		s.logger.Error(err.Error())
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "something went wrong, please try again later"})
+		s.InternalErrorResponse(c, err)
 		return
 	}
 
@@ -56,12 +54,11 @@ func (s *Server) GetStratagem(c *gin.Context) {
 
 	if err := db.First(&stratagem, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, ErrorResponse{Error: fmt.Sprintf(NOT_FOUND_MESSAGE, "stratagem")})
+			s.NotFoundResponse(c, "stratagem")
 			return
 		}
 
-		s.logger.Error(err.Error())
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "error while fetching stratagem"})
+		s.InternalErrorResponse(c, err)
 		return
 	}
 

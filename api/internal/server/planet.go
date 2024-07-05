@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
@@ -29,8 +28,7 @@ func (s *Server) GetPlanets(c *gin.Context) {
 	var planets []model.Planet
 
 	if err := db.Preload(clause.Associations).Find(&planets).Error; err != nil {
-		s.logger.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, fmt.Sprintf(ERROR_FETCHING_MESSAGE, "planets"))
+		s.InternalErrorResponse(c, err)
 		return
 	}
 
@@ -55,13 +53,11 @@ func (s *Server) GetPlanet(c *gin.Context) {
 	// Get the planet
 	if err := db.Preload(clause.Associations).First(&planet, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, fmt.Sprintf(NOT_FOUND_MESSAGE, "planet"))
+			s.NotFoundResponse(c, "planet")
 			return
 		}
 
-		s.logger.Error(err.Error())
-
-		c.JSON(http.StatusInternalServerError, fmt.Sprintf(ERROR_FETCHING_MESSAGE, "planet"))
+		s.InternalErrorResponse(c, err)
 		return
 	}
 

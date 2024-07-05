@@ -39,6 +39,8 @@ type SuccessResponse struct {
 const (
 	SERVER_ERROR_MESSAGE      = "something went wrong, please try again later"
 	ERROR_FETCHING_MESSAGE    = "error while fetching %s"
+	ERROR_DELETING_MESSAGE    = "error while deleting %s"
+	ERROR_UPDATING_MESSAGE    = "error while updating %s"
 	NOT_FOUND_MESSAGE         = "%s not found"
 	NOT_AUTHENTICATED_MESSAGE = "you must be authenticated"
 )
@@ -93,4 +95,30 @@ func checkAuth(c *gin.Context) model.User {
 	}
 
 	return user
+}
+
+// NotFoundResponse sends a 404 response with a custom message (e.g "'your text' not found")
+func (s *Server) NotFoundResponse(c *gin.Context, text string) {
+	c.AbortWithStatusJSON(http.StatusNotFound, ErrorResponse{Error: fmt.Sprintf(NOT_FOUND_MESSAGE, text)})
+}
+
+// InternalErrorResponse sends a 500 response with a custom message (e.g "something went wrong, please try again later")
+func (s *Server) InternalErrorResponse(c *gin.Context, err error) {
+	s.logger.Error(err.Error())
+	c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: SERVER_ERROR_MESSAGE})
+}
+
+// ForbiddenResponse sends a 403 response with a custom message
+func (s *Server) ForbiddenResponse(c *gin.Context, text string) {
+	c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: text})
+}
+
+// BadRequestResponse sends a 400 response with a custom message
+func (s *Server) BadRequestResponse(c *gin.Context, text string) {
+	c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: text})
+}
+
+// UnauthorizedResponse sends a 401 response with a custom message
+func (s *Server) UnauthorizedResponse(c *gin.Context, text string) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: text})
 }
