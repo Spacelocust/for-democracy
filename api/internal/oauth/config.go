@@ -10,7 +10,7 @@ import (
 	"github.com/markbates/goth/providers/steam"
 )
 
-var baseUrl = os.Getenv("SITE_BASE_URL")
+var baseUrl = os.Getenv("API_BASE_URL")
 var secretKey = os.Getenv("API_SECRET")
 
 func init() {
