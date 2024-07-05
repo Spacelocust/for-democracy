@@ -3,6 +3,7 @@ package cron
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/Spacelocust/for-democracy/internal/collector"
@@ -13,8 +14,15 @@ import (
 // Before running the cron job, make sure to have launched the collector command
 // Cron job for developement purposes
 
+const CRON_CYCLE = 1 * time.Minute
+
 // StartCron starts the cron job
 func StartCron() {
+	// Do not run the cron job in production
+	if os.Getenv("API_ENV") == "production" {
+		return
+	}
+
 	// create a scheduler
 	s, err := gocron.NewScheduler()
 	if err != nil {
@@ -22,12 +30,13 @@ func StartCron() {
 		return
 	}
 
+	// create a database connection
 	db := database.New()
 
 	// add a job to the scheduler
 	j, err := s.NewJob(
 		gocron.DurationJob(
-			1*time.Minute,
+			CRON_CYCLE,
 		),
 		gocron.NewTask(
 			func() {

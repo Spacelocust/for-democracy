@@ -13,11 +13,11 @@
 
 ## Prerequisites
 
--   [Flutter](https://flutter.dev/docs/get-started/install)
--   [Android Studio](https://developer.android.com/studio) or Android SDK
--   [Docker](https://www.docker.com/get-started)
--   [Docker Compose](https://docs.docker.com/compose/install/)
--   [GNU Make](https://www.gnu.org/software/make/)
+- [Flutter](https://flutter.dev/docs/get-started/install)
+- [Android Studio](https://developer.android.com/studio) or Android SDK
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- [GNU Make](https://www.gnu.org/software/make/)
 
 ## Installation
 
@@ -27,13 +27,15 @@
 1. Clone the repository
 2. (Optional) Add `compose.override.yml` to override the default compose configuration
 3. Run `make start`
-4. Run `make db-fixtures` to load the database with fixtures (under development)
-5. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
+4. Run `make db-migrate` to load the database migrations
+5. Run `make collector` to load the data from helldivers API
+6. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
 
 After the first run, you can use `make stop` & `make up` to quickly stop and start the containers.
 All the available commands are listed in the `Makefile`, you can use `make` or `make help` to list them all. Read the [commands section](#commands) for more information.
 
-if you want to reset the database, you can use `make db-reset` it will remove the database and create a new one and load migrations, you will have to run `make db-fixtures` again to load the database with fixtures.
+if you want to reset the database, you can use `make db-reset` it will remove the database and create a new one and load migrations, and run `make collector` to load the data from helldivers API.
+You can also run a CronJob to load the events from the helldivers API every minute by running `make cron`, be sure to have run `make collector` before running the cron job.
 
 ## Services
 
@@ -42,11 +44,11 @@ All the services used by the project.
 > [!NOTE]  
 > Some services are only available in dev. They will never be used in production or even test environments.
 
-| Service name | Host             | Aliases                | Ports | Description                                              |
-| ------------ | ---------------- | ---------------------- | ----- | -------------------------------------------------------- |
-| `api`        | `localhost:5000` | `fd-api`               |       | The Golang API                                           |
-| `postgres`   |                  | `fd-postgres`          |       | The database used by the API.                            |
-| `adminer`    | `localhost:8080` | `fd-adminer`           |       | Used to manage PostgreSQL easily. Only available in dev. | 
+| Service name | Host             | Aliases       | Ports | Description                                              |
+| ------------ | ---------------- | ------------- | ----- | -------------------------------------------------------- |
+| `api`        | `localhost:5000` | `fd-api`      |       | The Golang API                                           |
+| `postgres`   |                  | `fd-postgres` |       | The database used by the API.                            |
+| `adminer`    | `localhost:8080` | `fd-adminer`  |       | Used to manage PostgreSQL easily. Only available in dev. |
 
 ## Authentication
 
@@ -63,4 +65,5 @@ We use simple username/password for development purposes.
 > If you want to add a new command, please add it to the `Makefile` and document it here.
 
 ## Swagger
+
 The API is documented using Swagger. You can access the documentation by going to [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html).
