@@ -10,13 +10,13 @@ import (
 	"github.com/markbates/goth/providers/steam"
 )
 
-var baseUrl = os.Getenv("SITE_BASE_URL")
+var baseUrl = os.Getenv("API_BASE_URL")
 var secretKey = os.Getenv("API_SECRET")
 
 func init() {
-	key := secretKey  // Replace with your SESSION_SECRET or similar
-	maxAge := 60 * 60 // 1 hour
-	isProd := false   // Set to true when serving over https
+	key := secretKey           // Replace with your SESSION_SECRET or similar
+	maxAge := 60 * 60 * 24 * 7 // 1 week
+	isProd := false            // Set to true when serving over https
 
 	store := sessions.NewCookieStore([]byte(key))
 	store.MaxAge(maxAge)

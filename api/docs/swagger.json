@@ -42,6 +42,711 @@
                 }
             }
         },
+        "/groups": {
+            "get": {
+                "description": "Get groups",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Get groups",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Group"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Create a new group",
+                "parameters": [
+                    {
+                        "description": "Group object that needs to be created",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Group"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Group"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/join": {
+            "post": {
+                "description": "Join a group with code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Join a group with code",
+                "parameters": [
+                    {
+                        "description": "Code to join",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.GroupCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}": {
+            "get": {
+                "description": "Get a group by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Get a group by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Group"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Update a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Properties to update",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Group"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Group"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Delete a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/join": {
+            "post": {
+                "description": "Join a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Join a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUser"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/leave": {
+            "post": {
+                "description": "Leave a group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "groups"
+                ],
+                "summary": "Leave a group",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/missions": {
+            "post": {
+                "description": "Create a mission",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Create a mission",
+                "parameters": [
+                    {
+                        "description": "Mission object that needs to be created",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Mission"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/validators.Mission"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/missions/{id}": {
+            "put": {
+                "description": "Update a mission",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Update a mission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mission properties that needs to be updated",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.Mission"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/validators.Mission"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a mission",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Delete a mission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/missions/{id}/join": {
+            "post": {
+                "description": "Join a mission",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Join a mission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mission properties that needs to be updated",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.UserMission"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUserMission"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/missions/{id}/leave": {
+            "post": {
+                "description": "Leave a mission",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Leave a mission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/logout/{provider}": {
             "get": {
                 "description": "Route used to log the user out",
@@ -68,13 +773,13 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -100,13 +805,7 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -122,23 +821,20 @@
                     "authentication"
                 ],
                 "summary": "Authenticate the user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/goth.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
                         }
                     }
                 }
@@ -170,16 +866,68 @@
                             "$ref": "#/definitions/goth.User"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gin.Error"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/objectifs": {
+            "get": {
+                "description": "Get all objectifs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "objectifs"
+                ],
+                "summary": "Get all objectifs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Objective"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/objectifs/{name}": {
+            "get": {
+                "description": "Get an objectif",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "objectifs"
+                ],
+                "summary": "Get an objectif",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Objectif name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Objective"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -209,6 +957,29 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/planets-stream/": {
+            "get": {
+                "description": "Get planets stream",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream"
+                ],
+                "summary": "Get planets stream",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Planet"
+                            }
                         }
                     }
                 }
@@ -248,9 +1019,104 @@
                     }
                 }
             }
+        },
+        "/stratagems": {
+            "get": {
+                "description": "Get all stratagems",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stratagems"
+                ],
+                "summary": "Get all stratagems",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Stratagem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stratagems/{id}": {
+            "get": {
+                "description": "Get a stratagem",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stratagems"
+                ],
+                "summary": "Get a stratagem",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stratagem ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Stratagem"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "enum.Difficulty": {
+            "type": "string",
+            "enum": [
+                "trivial",
+                "easy",
+                "medium",
+                "challenging",
+                "hard",
+                "extreme",
+                "suicide_mission",
+                "impossible",
+                "helldive"
+            ],
+            "x-enum-varnames": [
+                "Trivial",
+                "Easy",
+                "Medium",
+                "Challenging",
+                "Hard",
+                "Extreme",
+                "SuicideMission",
+                "Impossible",
+                "Helldive"
+            ]
+        },
         "enum.Faction": {
             "type": "string",
             "enum": [
@@ -264,6 +1130,121 @@
                 "Terminids",
                 "Automatons",
                 "Illuminates"
+            ]
+        },
+        "enum.ObjectiveType": {
+            "type": "string",
+            "enum": [
+                "terminate_illegal_broadcast",
+                "pump_fuel_to_icbm",
+                "upload_escape_pod_data",
+                "conduct_geological_survey",
+                "launch_icbm",
+                "retrieve_valuable_data",
+                "emergency_evacuation",
+                "spread_democracy",
+                "eliminate_brood_commanders",
+                "purge_hatcheries",
+                "activate_e710_pumps",
+                "nuke_nursery",
+                "activate_terminid_control_system",
+                "blitz_search_and_destroy_terminids",
+                "eliminate_chargers",
+                "eradicate_terminid_swarm",
+                "eliminate_bile_titans",
+                "enable_e710_extraction",
+                "eliminate_devastators",
+                "eliminate_automaton_hulks",
+                "sabotage_supply_bases",
+                "destroy_transmission_network",
+                "eradicate_automaton_forces",
+                "blitz_search_and_destroy_automatons",
+                "sabotage_air_base",
+                "eliminate_automaton_factory_strider",
+                "destroy_command_bunkers"
+            ],
+            "x-enum-varnames": [
+                "TerminateIllegalBroadcast",
+                "PumpFuelToICBM",
+                "UploadEscapePodData",
+                "ConductGeologicalSurvey",
+                "LaunchICBM",
+                "RetrieveValuableData",
+                "EmergencyEvacuation",
+                "SpreadDemocracy",
+                "EliminateBroodCommanders",
+                "PurgeHatcheries",
+                "ActivateE710Pumps",
+                "NukeNursery",
+                "ActivateTerminidControlSystem",
+                "BlitzSearchAndDestroyTerminids",
+                "EliminateChargers",
+                "EradicateTerminidSwarm",
+                "EliminateBileTitans",
+                "EnableE710Extraction",
+                "EliminateDevastators",
+                "EliminateAutomatonHulks",
+                "SabotageSupplyBases",
+                "DestroyTransmissionNetwork",
+                "EradicateAutomatonForces",
+                "BlitzSearchAndDestroyAutomatons",
+                "SabotageAirBase",
+                "EliminateAutomatonFactoryStrider",
+                "DestroyCommandBunkers"
+            ]
+        },
+        "enum.Role": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "user"
+            ],
+            "x-enum-varnames": [
+                "Admin",
+                "User"
+            ]
+        },
+        "enum.StratagemKeys": {
+            "type": "string",
+            "enum": [
+                "up",
+                "right",
+                "down",
+                "left"
+            ],
+            "x-enum-varnames": [
+                "Up",
+                "Right",
+                "Down",
+                "Left"
+            ]
+        },
+        "enum.StratagemType": {
+            "type": "string",
+            "enum": [
+                "supply",
+                "mission",
+                "defensive",
+                "offensive"
+            ],
+            "x-enum-varnames": [
+                "Supply",
+                "Mission",
+                "Defensive",
+                "Offensive"
+            ]
+        },
+        "enum.StratagemUseType": {
+            "type": "string",
+            "enum": [
+                "self",
+                "team",
+                "shared"
+            ],
+            "x-enum-varnames": [
+                "Self",
+                "Team",
+                "Shared"
             ]
         },
         "gin.Error": {
@@ -394,6 +1375,12 @@
                 "createdAt": {
                     "type": "string"
                 },
+                "defenceHealthHistories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DefenceHealthHistory"
+                    }
+                },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
@@ -412,6 +1399,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "impactPerHour": {
+                    "type": "number"
+                },
                 "maxHealth": {
                     "type": "integer"
                 },
@@ -426,6 +1416,32 @@
                 },
                 "startAt": {
                     "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DefenceHealthHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "defence": {
+                    "$ref": "#/definitions/model.Defence"
+                },
+                "defenceID": {
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -461,6 +1477,126 @@
                 }
             }
         },
+        "model.Group": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "$ref": "#/definitions/enum.Difficulty"
+                },
+                "groupUsers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUser"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "missions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Mission"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planet": {
+                    "$ref": "#/definitions/model.Planet"
+                },
+                "planetID": {
+                    "type": "integer"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "startAt": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GroupUser": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "group": {
+                    "$ref": "#/definitions/model.Group"
+                },
+                "groupID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "owner": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.GroupUserMission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUser": {
+                    "$ref": "#/definitions/model.GroupUser"
+                },
+                "groupUserID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "mission": {
+                    "$ref": "#/definitions/model.Mission"
+                },
+                "missionID": {
+                    "type": "integer"
+                },
+                "stratagems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Stratagem"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Liberation": {
             "type": "object",
             "properties": {
@@ -479,6 +1615,15 @@
                 "id": {
                     "type": "integer"
                 },
+                "impactPerHour": {
+                    "type": "number"
+                },
+                "liberationHealthHistories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LiberationHealthHistory"
+                    }
+                },
                 "planet": {
                     "$ref": "#/definitions/model.Planet"
                 },
@@ -488,8 +1633,101 @@
                 "players": {
                     "type": "integer"
                 },
+                "regenerationPerHour": {
+                    "type": "number"
+                },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "model.LiberationHealthHistory": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "health": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "liberation": {
+                    "$ref": "#/definitions/model.Liberation"
+                },
+                "liberationID": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Mission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "group": {
+                    "$ref": "#/definitions/model.Group"
+                },
+                "groupID": {
+                    "type": "integer"
+                },
+                "groupUserMissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUserMission"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "objectiveTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.ObjectiveType"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Objective": {
+            "type": "object",
+            "properties": {
+                "difficulties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.Difficulty"
+                    }
+                },
+                "factions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.Faction"
+                    }
+                },
+                "missionTime": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "objectiveType": {
+                    "$ref": "#/definitions/enum.ObjectiveType"
                 }
             }
         },
@@ -523,6 +1761,12 @@
                         "$ref": "#/definitions/model.Effect"
                     }
                 },
+                "group": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Group"
+                    }
+                },
                 "helldiversID": {
                     "type": "integer"
                 },
@@ -552,9 +1796,6 @@
                 },
                 "positionY": {
                     "type": "number"
-                },
-                "regeneration": {
-                    "type": "integer"
                 },
                 "sector": {
                     "$ref": "#/definitions/model.Sector"
@@ -609,7 +1850,7 @@
             "type": "object",
             "properties": {
                 "accuracy": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "automatonKills": {
                     "type": "integer"
@@ -645,9 +1886,12 @@
                     "type": "integer"
                 },
                 "missionSuccessRate": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "missionTime": {
+                    "type": "integer"
+                },
+                "missionsLost": {
                     "type": "integer"
                 },
                 "missionsWon": {
@@ -670,6 +1914,129 @@
                 }
             }
         },
+        "model.Stratagem": {
+            "type": "object",
+            "properties": {
+                "activation": {
+                    "type": "integer"
+                },
+                "codeName": {
+                    "type": "string"
+                },
+                "cooldown": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUserMissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUserMission"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageURL": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.StratagemKeys"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/enum.StratagemType"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "useCount": {
+                    "type": "integer"
+                },
+                "useType": {
+                    "$ref": "#/definitions/enum.StratagemUseType"
+                }
+            }
+        },
+        "model.Token": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "groupUsers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUser"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/enum.Role"
+                },
+                "steamId": {
+                    "type": "string"
+                },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Token"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Waypoint": {
             "type": "object",
             "properties": {
@@ -678,6 +2045,14 @@
                 },
                 "y": {
                     "type": "number"
+                }
+            }
+        },
+        "server.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
                 }
             }
         },
@@ -709,6 +2084,118 @@
                 },
                 "Username": {
                     "type": "string"
+                }
+            }
+        },
+        "server.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
+        },
+        "validators.Group": {
+            "type": "object",
+            "required": [
+                "difficulty",
+                "name",
+                "planetId",
+                "public",
+                "startAt"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "$ref": "#/definitions/enum.Difficulty"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "planetId": {
+                    "type": "integer"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "startAt": {
+                    "type": "string",
+                    "default": "2024-08-02 15:04:05"
+                }
+            }
+        },
+        "validators.GroupCode": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "validators.Mission": {
+            "type": "object",
+            "required": [
+                "name",
+                "objectiveTypes"
+            ],
+            "properties": {
+                "groupID": {
+                    "type": "integer"
+                },
+                "instructions": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "objectiveTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/enum.ObjectiveType"
+                    }
+                }
+            }
+        },
+        "validators.UserMission": {
+            "type": "object",
+            "required": [
+                "stratagems"
+            ],
+            "properties": {
+                "stratagems": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         }

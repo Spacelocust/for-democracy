@@ -1,11 +1,12 @@
 package server
 
 import (
-	"net/http"
+	"errors"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (s *Server) OAuthMiddleware(c *gin.Context) {
@@ -13,7 +14,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 
 	tokenString, err := c.Cookie("token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token missing", "type": "oauth"})
+		s.UnauthorizedResponse(c, "you need to be authenticated to access this route")
 		return
 	}
 
@@ -22,32 +23,46 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 	if err != nil {
 		if err.Error() == utils.ExpiredToken {
 			// Delete the token from the database
-			db.Unscoped().Delete(&model.Token{}, "token = ?", tokenString)
+			if err := db.Unscoped().Delete(&model.Token{}, "token = ?", tokenString).Error; err != nil {
+				s.InternalErrorResponse(c, err)
+				return
+			}
 
 			// Delete the cookie
-			c.SetCookie("token", "", -1, "/", "", false, true)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token expired", "type": "oauth"})
+			utils.DeleteCookieToken(c)
+
+			s.UnauthorizedResponse(c, "token expired")
 			return
 		}
 
 		if err.Error() == utils.InvalidToken {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token", "type": "oauth"})
+			s.UnauthorizedResponse(c, "invalid token")
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized", "type": "oauth"})
+		s.InternalErrorResponse(c, err)
 		return
 	}
 
 	// Get the user from the database
 	var token model.Token
+
 	err = db.Preload("User").First(&token, "token = ?", tokenString).Error
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not found", "type": "oauth"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "user")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
 		return
 	}
 
-	// // Set the user in the context
+	// Set the token in the context
+	c.Set("token", token.Token)
+
+	// Set the user in the context
 	c.Set("user", token.User)
+
 	c.Next()
 }

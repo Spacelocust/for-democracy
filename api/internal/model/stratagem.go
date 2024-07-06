@@ -1,13 +1,18 @@
 package model
 
 import (
+	"time"
+
 	"github.com/Spacelocust/for-democracy/internal/datatype"
 	"github.com/Spacelocust/for-democracy/internal/enum"
 	"gorm.io/gorm"
 )
 
 type Stratagem struct {
-	gorm.Model
+	ID                uint `gorm:"primarykey"`
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	DeletedAt         gorm.DeletedAt `gorm:"index"`
 	CodeName          *string
 	Name              string `gorm:"not null;unique"`
 	UseCount          *int

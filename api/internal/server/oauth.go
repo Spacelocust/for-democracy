@@ -13,10 +13,12 @@ import (
 )
 
 func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
-	r.GET("/oauth/:provider/callback", s.OAuthCallback)
-	r.GET("/oauth/logout/:provider", s.OAuthLogout)
-	r.GET("/oauth/me", s.OAuthMiddleware, s.OAuthMe)
-	r.GET("/oauth/:provider", s.OAuth)
+	route := r.Group("/oauth")
+
+	route.GET("/me", s.OAuthMiddleware, s.OAuthMe)
+	route.GET("/logout/:provider", s.OAuthMiddleware, s.OAuthLogout)
+	route.GET("/:provider", s.OAuth)
+	route.GET("/:provider/callback", s.OAuthCallback)
 }
 
 type Me struct {
@@ -30,19 +32,16 @@ type Me struct {
 // @Tags         authentication
 // @Produce      json
 // @Success      200  {object}  server.Me
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      401  {object}  server.ErrorResponse
 // @Router       /oauth/me [get]
 func (s *Server) OAuthMe(c *gin.Context) {
-	if user, ok := c.MustGet("user").(model.User); !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "no user found", "type": "oauth"})
-	} else {
-		c.JSON(http.StatusOK, Me{
-			Username:  user.Username,
-			AvatarUrl: *user.AvatarUrl,
-			SteamId:   *user.SteamId,
-		})
-	}
+	user := checkAuth(c)
+
+	c.JSON(http.StatusOK, Me{
+		Username:  user.Username,
+		AvatarUrl: *user.AvatarUrl,
+		SteamId:   *user.SteamId,
+	})
 }
 
 // @Summary			 Get the user after authentication is complete from the provider
@@ -51,17 +50,16 @@ func (s *Server) OAuthMe(c *gin.Context) {
 // @Produce      json
 // @Param        provider   path      string  true  "Provider name"
 // @Success      200  {object}  goth.User
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /oauth/{provider}/callback [get]
 func (s *Server) OAuthCallback(c *gin.Context) {
 	db := s.db.GetDB()
 	user, err := oauth.CompleteUserAuth(c)
 
 	if err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
+		return
 	}
 
 	newUser := model.User{
@@ -77,14 +75,15 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 	}).Create(&newUser).Error
 
 	if err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
+		return
 	}
 
 	tokenString, err := utils.CreateToken(newUser)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Error creating token")
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
 		return
 	}
 
@@ -92,12 +91,12 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 		Token:  tokenString,
 		UserId: newUser.ID,
 	}).Error; err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
+		return
 	}
 
-	c.SetCookie("token", tokenString, 3600, "/", "", false, true)
+	utils.CreateCookieToken(tokenString, c)
 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(pageLoading))
 }
@@ -108,28 +107,46 @@ func (s *Server) OAuthCallback(c *gin.Context) {
 // @Produce      json
 // @Param        provider   path      string  true  "Provider name"
 // @Success      200
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
+// @Failure      401  {object}  server.ErrorResponse
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /oauth/logout/{provider} [get]
 func (s *Server) OAuthLogout(c *gin.Context) {
-	q := c.Request.URL.Query()
-	c.Request.URL.RawQuery = q.Encode()
-	if err := gothic.Logout(c.Writer, c.Request); err != nil {
-		if err := c.AbortWithError(http.StatusInternalServerError, err); err != nil {
-			return
-		}
+	db := s.db.GetDB()
+
+	token, ok := c.Get("token")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: NOT_AUTHENTICATED_MESSAGE})
+		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	q := c.Request.URL.Query()
+	c.Request.URL.RawQuery = q.Encode()
+
+	if err := gothic.Logout(c.Writer, c.Request); err != nil {
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while logging out the user"})
+		return
+	}
+
+	// Delete the token from the database
+	if err := db.Unscoped().Delete(&model.Token{}, "token = ?", token).Error; err != nil {
+		s.logger.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while logging out the user"})
+		return
+	}
+
+	// Delete the cookie
+	c.SetCookie("token", "", -1, "/", "", false, true)
+
+	c.JSON(http.StatusOK, SuccessResponse{Message: "you have been logged out"})
 }
 
 // @Summary			 Authenticate the user
 // @Description  Route used to authenticate the user
 // @Tags         authentication
 // @Produce      json
+// @Param        provider   path      string  true  "Provider name"
 // @Success      200  {object}  goth.User
-// @Failure      401  {object}  gin.Error
-// @Failure      500  {object}  gin.Error
 // @Router       /oauth/{provider} [get]
 func (s *Server) OAuth(c *gin.Context) {
 	oauth.BeginAuthHandler(c)

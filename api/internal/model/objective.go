@@ -14,6 +14,7 @@ type Objective struct {
 	Difficulties  []enum.Difficulty
 }
 
+// GetObjective returns an objective based on the objective type
 func GetObjective(objectiveType enum.ObjectiveType) (Objective, error) {
 	switch objectiveType {
 	// General Missions
@@ -69,7 +70,7 @@ func GetObjective(objectiveType enum.ObjectiveType) (Objective, error) {
 	// Terminid Missions
 	case enum.SpreadDemocracy:
 		return Objective{
-			ObjectiveType: enum.EmergencyEvacuation,
+			ObjectiveType: enum.SpreadDemocracy,
 			MissionTime:   40 * time.Minute,
 			Factions:      []enum.Faction{enum.Terminids},
 			Difficulties:  []enum.Difficulty{enum.Trivial, enum.Easy, enum.Medium, enum.Challenging, enum.Hard, enum.Extreme, enum.SuicideMission, enum.Impossible, enum.Helldive},
@@ -94,6 +95,20 @@ func GetObjective(objectiveType enum.ObjectiveType) (Objective, error) {
 			MissionTime:   40 * time.Minute,
 			Factions:      []enum.Faction{enum.Terminids},
 			Difficulties:  []enum.Difficulty{enum.Easy, enum.Medium},
+		}, nil
+	case enum.NukeNursery:
+		return Objective{
+			ObjectiveType: enum.NukeNursery,
+			MissionTime:   40 * time.Minute,
+			Factions:      []enum.Faction{enum.Terminids},
+			Difficulties:  []enum.Difficulty{enum.Challenging, enum.Hard, enum.Extreme, enum.SuicideMission, enum.Impossible, enum.Helldive},
+		}, nil
+	case enum.ActivateTerminidControlSystem:
+		return Objective{
+			ObjectiveType: enum.ActivateTerminidControlSystem,
+			MissionTime:   40 * time.Minute,
+			Factions:      []enum.Faction{enum.Terminids},
+			Difficulties:  []enum.Difficulty{enum.Easy, enum.Medium, enum.Challenging, enum.Hard, enum.Extreme, enum.SuicideMission, enum.Impossible, enum.Helldive},
 		}, nil
 	case enum.BlitzSearchAndDestroyTerminids:
 		return Objective{
@@ -172,6 +187,13 @@ func GetObjective(objectiveType enum.ObjectiveType) (Objective, error) {
 			MissionTime:   40 * time.Minute,
 			Factions:      []enum.Faction{enum.Automatons},
 			Difficulties:  []enum.Difficulty{enum.Medium, enum.Challenging, enum.Hard, enum.Extreme, enum.SuicideMission, enum.Impossible, enum.Helldive},
+		}, nil
+	case enum.EliminateAutomatonHulks:
+		return Objective{
+			ObjectiveType: enum.EliminateAutomatonHulks,
+			MissionTime:   40 * time.Minute,
+			Factions:      []enum.Faction{enum.Automatons},
+			Difficulties:  []enum.Difficulty{enum.Medium},
 		}, nil
 	case enum.EliminateAutomatonFactoryStrider:
 		return Objective{

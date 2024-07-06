@@ -12,9 +12,6 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
-	// Recovery middleware recovers from any panics and writes a 500 if there was one.
-	r.Use(gin.Recovery())
-
 	// Root
 	s.RegisterRootRoutes(r)
 
@@ -24,9 +21,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Health check
 	r.GET("/healthz", s.HealthHandler)
 
+	// Register routes
 	s.RegisterOauthRoutes(r)
 	s.RegisterPlanetRoutes(r)
 	s.RegisterEventRoutes(r)
+	s.RegisterGroupRoutes(r)
+	s.RegisterMissionRoutes(r)
+	s.RegisterObjectiveRoutes(r)
+	s.RegisterStratagemRoutes(r)
 
 	// Create a new server for streaming planets and register the route for it
 	sse.NewServer(&s.db).PlanetsStream(r)
