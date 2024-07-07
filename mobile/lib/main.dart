@@ -10,7 +10,7 @@ import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
-import 'package:mobile/states/galaxy_map_zoom.dart';
+import 'package:mobile/states/galaxy_map_zoom_state.dart';
 import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
@@ -111,7 +111,7 @@ Future main() async {
           create: (_) => AuthState(user: user),
         ),
         ChangeNotifierProvider(
-          create: (_) => GalaxyMapZoom(
+          create: (_) => GalaxyMapZoomState(
             zoomFactor: GalaxyMap.initialZoomFactor,
           ),
         ),

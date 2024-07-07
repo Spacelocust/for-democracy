@@ -33,39 +33,39 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   Future<List<Planet>>? _planetsFuture;
   FlutterError? _error;
 
-  late EventFlux _streamPlanets;
+  // late EventFlux _streamPlanets;
 
   @override
   void initState() {
     super.initState();
     fetchPlanets();
-
     startStream();
   }
 
   @override
   void dispose() {
-    _streamPlanets.disconnect();
+    // _streamPlanets.disconnect();
     super.dispose();
   }
 
   void startStream() {
-    /// Reset error state
-    setState(() {
-      _error = null;
-    });
+    // Reset the error state
+    // setState(() {
+    //   _error = null;
+    // });
 
-    _streamPlanets = PlanetsService.getPlanetsStream(
-      onSuccess: (planets) {
-        context.read<PlanetsState>().setPlanets(planets);
-      },
-      onError: (error) {
-        log('Error: $error');
-        setState(() {
-          _error = FlutterError(error.toString());
-        });
-      },
-    );
+    // _streamPlanets = PlanetsService.getPlanetsStream(
+    //   onSuccess: (planets) {
+    //     context.read<PlanetsState>().setPlanets(planets);
+    //   },
+    //   onError: (error) {
+    //     log('Error while getting planet stream: $error');
+
+    //     setState(() {
+    //       _error = FlutterError(error.toString());
+    //     });
+    //   },
+    // );
   }
 
   void fetchPlanets() {

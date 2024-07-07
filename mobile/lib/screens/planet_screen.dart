@@ -153,12 +153,11 @@ class _PlanetScreenView extends StatelessWidget {
     required this.scrollController,
   });
 
-  // TODO: Add more information and complete this view
   @override
   Widget build(BuildContext context) {
     List<Widget> columns = [];
 
-    /// Display event header if the planet has liberation or defence
+    // Display event header if the planet has liberation or defence
     if (planet.hasLiberationOrDefence) {
       columns = [
         ...columns,
@@ -194,13 +193,13 @@ class _PlanetScreenView extends StatelessWidget {
       ];
     }
 
-    /// Title of the planet view
+    // Title of the planet view
     columns = [
       ...columns,
       _PlanetViewTitle(planet: planet),
     ];
 
-    /// Display chips if the planet has effects
+    // Display chips if the planet has effects
     if (planet.effects.isNotEmpty) {
       columns = [
         ...columns,
@@ -213,7 +212,7 @@ class _PlanetScreenView extends StatelessWidget {
     columns = [
       ...columns,
 
-      /// Background image of the planet
+      // Background image of the planet
       _BoxDecoration(
         borderColor: Colors.grey,
         child: _BoxDecoration(
@@ -237,10 +236,10 @@ class _PlanetScreenView extends StatelessWidget {
       ),
       const SizedBox(height: 5),
 
-      /// Planet progress bar for defence
+      // Planet progress bar for defence
       if (planet.hasDefence) _ProgressDefence(planet: planet),
 
-      /// Planet progress bar for liberation
+      // Planet progress bar for liberation
       if (planet.hasLiberation) _ProgressLiberation(planet: planet),
     ];
 
@@ -869,16 +868,6 @@ class _PlanetEventDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
         ),
-        ElevatedButton.icon(
-          style: TextButton.styleFrom(
-            textStyle: Theme.of(context).textTheme.labelLarge,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          label: Text(AppLocalizations.of(context)!.viewEvent),
-          icon: const Icon(Icons.search),
-        ),
       ],
     );
   }
@@ -891,8 +880,8 @@ class _PlanetViewStatistic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 10,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         _PlanetStatisticItem(
           label: AppLocalizations.of(context)!.statisticMissionsWon,

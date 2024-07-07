@@ -6,7 +6,6 @@ abstract class OAuthService {
 
   static Future<User> getMe() async {
     var dio = APIService.getDio();
-
     var user = await dio.get(oAuthUrl);
 
     return User.fromJson(user.data);

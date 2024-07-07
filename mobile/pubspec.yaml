@@ -84,9 +84,11 @@ flutter:
   assets:
     - assets/
     - assets/images/
+    - assets/images/factions/
     - assets/images/effects/
+    - assets/images/difficulties/
+    - assets/svgs/
     - .env
-    - assets/svgs/galaxy_map.svg
 
   fonts:
     - family: Arame
