@@ -15,16 +15,15 @@ import (
 
 func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route := r.Group("/groups")
-	route.Use(s.OAuthMiddleware)
 
-	route.GET("/", s.GetGroups)
-	route.POST("/", s.CreateGroup)
-	route.POST("/join", s.JoinGroupWithCode)
+	route.GET("/", s.OAuthOptionalMiddleware, s.GetGroups)
+	route.POST("/", s.OAuthMiddleware, s.CreateGroup)
+	route.POST("/join", s.OAuthMiddleware, s.JoinGroupWithCode)
 	route.GET("/:id", s.GetGroup)
-	route.PUT("/:id", s.UpdateGroup)
-	route.DELETE("/:id", s.DeleteGroup)
-	route.POST("/:id/join", s.JoinGroup)
-	route.POST("/:id/leave", s.LeaveGroup)
+	route.PUT("/:id", s.OAuthMiddleware, s.UpdateGroup)
+	route.DELETE("/:id", s.OAuthMiddleware, s.DeleteGroup)
+	route.POST("/:id/join", s.OAuthMiddleware, s.JoinGroup)
+	route.POST("/:id/leave", s.OAuthMiddleware, s.LeaveGroup)
 }
 
 // @Summary Create a new group
@@ -123,9 +122,22 @@ func (s *Server) CreateGroup(c *gin.Context) {
 func (s *Server) GetGroups(c *gin.Context) {
 	db := s.db.GetDB()
 
-	user := checkAuth(c)
-
 	var groups []model.Group
+
+	// if the user is not authenticated, get public groups
+	user, ok := c.MustGet("user").(model.User)
+
+	if !ok {
+		// Get public groups
+		err := db.Preload("Missions").Find(&groups, "public = ?", true).Error
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, groups)
+		return
+	}
 
 	// Get groups that the user is a member of and public groups
 	err := db.
@@ -153,8 +165,6 @@ func (s *Server) GetGroups(c *gin.Context) {
 // @Router       /groups/{id} [get]
 func (s *Server) GetGroup(c *gin.Context) {
 	db := s.db.GetDB()
-
-	checkAuth(c)
 
 	groupID := c.Param("id")
 
