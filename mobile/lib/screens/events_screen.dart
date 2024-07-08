@@ -57,63 +57,74 @@ class _EventsScreenState extends State<EventsScreen> {
 
           // Success state
           final events = snapshot.data!;
+          final List<Widget> eventsList = [
+            // Defences
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.eventsOngoingDefences,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            ...events.defences.map(
+              (defence) => GestureDetector(
+                onTap: () {
+                  context.go(
+                    context.namedLocation(
+                      PlanetScreen.routeName,
+                      pathParameters: {
+                        'planetId': defence.planet!.id.toString()
+                      },
+                    ),
+                  );
+                },
+                child: ListItem(
+                  title: defence.planet!.name,
+                ),
+              ),
+            ),
+            if (events.defences.isEmpty)
+              ListTile(
+                  title: Text(
+                AppLocalizations.of(context)!.eventsNoDefences,
+                textAlign: TextAlign.center,
+              )),
+            // Liberations
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.eventsOngoingLiberations,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            ...events.liberations.map(
+              (liberation) => GestureDetector(
+                onTap: () {
+                  context.go(
+                    context.namedLocation(
+                      PlanetScreen.routeName,
+                      pathParameters: {
+                        'planetId': liberation.planet!.id.toString()
+                      },
+                    ),
+                  );
+                },
+                child: ListItem(
+                  title: liberation.planet!.name,
+                ),
+              ),
+            ),
+            if (events.liberations.isEmpty)
+              ListTile(
+                title: Text(
+                  AppLocalizations.of(context)!.eventsNoLiberations,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          ];
 
           return ListView.builder(
-            itemCount: 1,
+            itemCount: eventsList.length,
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(
-                  left: 8,
-                  right: 8,
-                ),
-                child: Column(children: [
-                  // Defences
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.eventsOngoingDefences,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  ...events.defences.map(
-                    (defence) => ListTile(
-                      onTap: () {
-                        context.go(context.namedLocation(
-                          PlanetScreen.routeName,
-                          pathParameters: {
-                            'planetId': defence.planet!.id.toString()
-                          },
-                        ));
-                      },
-                      title: Text(defence.planet!.name),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  // Liberations
-                  ListTile(
-                    title: Text(
-                      AppLocalizations.of(context)!.eventsOngoingLiberations,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  ...events.liberations.map(
-                    (liberation) => GestureDetector(
-                      onTap: () {
-                        context.go(context.namedLocation(
-                          PlanetScreen.routeName,
-                          pathParameters: {
-                            'planetId': liberation.planet!.id.toString()
-                          },
-                        ));
-                      },
-                      child: ListItem(
-                        title: liberation.planet!.name,
-                      ),
-                    ),
-                  ),
-                ]),
-              );
+              return eventsList[index];
             },
           );
         },

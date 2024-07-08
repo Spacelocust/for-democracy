@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class GalaxyMapZoom with ChangeNotifier {
+class GalaxyMapZoomState with ChangeNotifier {
   double _zoomFactor;
 
-  GalaxyMapZoom({
+  GalaxyMapZoomState({
     required double zoomFactor,
   }) : _zoomFactor = zoomFactor;
 

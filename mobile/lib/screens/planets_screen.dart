@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/models/planet.dart';
@@ -33,39 +30,40 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   Future<List<Planet>>? _planetsFuture;
   FlutterError? _error;
 
-  late EventFlux _streamPlanets;
+  // TODO fix this
+  // late EventFlux _streamPlanets;
 
   @override
   void initState() {
     super.initState();
     fetchPlanets();
-
     startStream();
   }
 
   @override
   void dispose() {
-    _streamPlanets.disconnect();
+    // _streamPlanets.disconnect();
     super.dispose();
   }
 
   void startStream() {
-    /// Reset error state
-    setState(() {
-      _error = null;
-    });
+    // Reset the error state
+    // setState(() {
+    //   _error = null;
+    // });
 
-    _streamPlanets = PlanetsService.getPlanetsStream(
-      onSuccess: (planets) {
-        context.read<PlanetsState>().setPlanets(planets);
-      },
-      onError: (error) {
-        log('Error: $error');
-        setState(() {
-          _error = FlutterError(error.toString());
-        });
-      },
-    );
+    // _streamPlanets = PlanetsService.getPlanetsStream(
+    //   onSuccess: (planets) {
+    //     context.read<PlanetsState>().setPlanets(planets);
+    //   },
+    //   onError: (error) {
+    //     log('Error while getting planet stream: $error');
+
+    //     setState(() {
+    //       _error = FlutterError(error.toString());
+    //     });
+    //   },
+    // );
   }
 
   void fetchPlanets() {
@@ -175,6 +173,13 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                         },
                       ),
                     ),
+                    if (listItems.isEmpty)
+                      ListTile(
+                        title: Text(
+                          AppLocalizations.of(context)!.planetsNoPlanets,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                   ],
                 );
               },

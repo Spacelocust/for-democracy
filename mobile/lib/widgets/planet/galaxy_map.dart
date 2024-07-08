@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
-import 'package:mobile/states/galaxy_map_zoom.dart';
+import 'package:mobile/states/galaxy_map_zoom_state.dart';
 import 'package:mobile/utils/canvas.dart';
 import 'package:mobile/utils/galaxy_map_painter.dart';
 import 'package:mobile/utils/images.dart';
@@ -76,7 +76,7 @@ class _GalaxyMapState extends State<GalaxyMap> {
     TransformationController transformationController,
   ) {
     context
-        .read<GalaxyMapZoom>()
+        .read<GalaxyMapZoomState>()
         .setZoomFactor(transformationController.value.getMaxScaleOnAxis());
   }
 
@@ -108,7 +108,7 @@ class _GalaxyMapState extends State<GalaxyMap> {
         TransformationController transformationController =
             getTransformationControllerForSize(
           canvasSize,
-          zoomFactor: context.read<GalaxyMapZoom>().zoomFactor,
+          zoomFactor: context.read<GalaxyMapZoomState>().zoomFactor,
           margin: margin,
         );
 
@@ -170,7 +170,7 @@ class _GalaxyMapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double planetSize = planetBaseSize *
-        context.watch<GalaxyMapZoom>().zoomFactor.clamp(1.0, 2.0);
+        context.watch<GalaxyMapZoomState>().zoomFactor.clamp(1.0, 2.0);
     double planetHalfSize = planetSize / 2;
 
     return Stack(

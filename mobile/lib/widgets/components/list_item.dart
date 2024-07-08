@@ -20,6 +20,10 @@ class ListItem extends StatelessWidget {
         textColor: Colors.black,
         title: Text(title),
         titleTextStyle: Theme.of(context).textTheme.labelLarge,
+        contentPadding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+        ),
       ),
     );
   }

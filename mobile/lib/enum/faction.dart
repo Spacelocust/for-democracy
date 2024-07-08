@@ -11,7 +11,11 @@ enum Faction {
   ),
 
   @JsonValue('terminids')
-  terminids('Terminids', Color(0xffffc000), Color(0xffc18700)),
+  terminids(
+    'Terminids',
+    Color(0xffffc000),
+    Color(0xffc18700),
+  ),
 
   @JsonValue('illuminates')
   illuminates(
@@ -25,8 +29,7 @@ enum Faction {
     'Automatons',
     Color(0xfffe6d6a),
     Color(0xffcb4745),
-  ),
-  ;
+  );
 
   const Faction(
     this.name,
@@ -41,7 +44,7 @@ enum Faction {
 
   final Color secondaryColor;
 
-  String get logo => 'assets/images/${name.toLowerCase()}.png';
+  String get logo => 'assets/images/factions/${name.toLowerCase()}.png';
 
   String translatedName(BuildContext context) {
     switch (this) {
