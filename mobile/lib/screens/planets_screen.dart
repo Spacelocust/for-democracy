@@ -33,6 +33,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   Future<List<Planet>>? _planetsFuture;
   FlutterError? _error;
 
+  // TODO fix this
   // late EventFlux _streamPlanets;
 
   @override
@@ -175,6 +176,13 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                         },
                       ),
                     ),
+                    if (listItems.isEmpty)
+                      ListTile(
+                        title: Text(
+                          AppLocalizations.of(context)!.planetsNoPlanets,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                   ],
                 );
               },

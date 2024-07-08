@@ -16,7 +16,8 @@ Group _$GroupFromJson(Map<String, dynamic> json) {
       'StartAt',
       'Difficulty',
       'Missions',
-      'GroupUsers'
+      'GroupUsers',
+      'Planet'
     ],
   );
   return Group(
@@ -33,6 +34,7 @@ Group _$GroupFromJson(Map<String, dynamic> json) {
     groupUsers: (json['GroupUsers'] as List<dynamic>)
         .map((e) => GroupUser.fromJson(e as Map<String, dynamic>))
         .toList(),
+    planet: Planet.fromJson(json['Planet'] as Map<String, dynamic>),
   );
 }
 
@@ -46,6 +48,7 @@ Map<String, dynamic> _$GroupToJson(Group instance) => <String, dynamic>{
       'Difficulty': _$DifficultyEnumMap[instance.difficulty]!,
       'Missions': instance.missions,
       'GroupUsers': instance.groupUsers,
+      'Planet': instance.planet,
     };
 
 const _$DifficultyEnumMap = {

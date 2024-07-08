@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/group_user.dart';
 import 'package:mobile/models/mission.dart';
+import 'package:mobile/models/planet.dart';
 
 part 'group.g.dart';
 
@@ -35,6 +36,9 @@ class Group {
   @JsonKey(required: true, name: 'GroupUsers')
   final List<GroupUser> groupUsers;
 
+  @JsonKey(required: true, name: 'Planet')
+  final Planet planet;
+
   Group({
     required this.id,
     this.code,
@@ -45,6 +49,7 @@ class Group {
     required this.difficulty,
     required this.missions,
     required this.groupUsers,
+    required this.planet,
   });
 
   GroupUser? get owner => groupUsers.firstWhere((element) => element.owner);
