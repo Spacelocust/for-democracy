@@ -11,9 +11,14 @@ RUN go mod download &&\
 COPY /api .
 
 # Build the binary
-RUN go build -o fd-democracy GOOS=linux GOARCH=amd64 main.go
+RUN GOOS=linux GOARCH=arm64 go build -o fd-democracy main.go
 
 FROM debian:buster-slim as runner
+
+RUN apt-get update && apt-get install -y \
+  curl \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # Copy the binary from the builder stage
 COPY --from=builder /go/src/app/fd-democracy /go/bin/fd-democracy
@@ -22,4 +27,4 @@ ENV PATH="/go/bin:${PATH}"
 
 EXPOSE 5000
 
-CMD ["fd-democracy"]
+CMD fd-democracy gin-server

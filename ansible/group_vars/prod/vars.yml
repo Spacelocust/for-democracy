@@ -3,9 +3,9 @@ docker_postgresql_db_name: "{{ vault_docker_postgresql_db_name }}"
 docker_postgresql_user: "{{ vault_docker_postgresql_user }}"
 docker_postgresql_password: "{{ vault_docker_postgresql_password }}"
 
-# API
-api_env: "{{ vault_api_env }}"
+docker_acme_email: "{{ vault_docker_acme_email }}"
 
+# API
 api_secret: "{{ vault_api_secret }}"
 api_jwt_secret: "{{ vault_api_jwt_secret }}"
 
