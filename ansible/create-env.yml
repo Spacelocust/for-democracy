@@ -16,5 +16,5 @@
       API_DOMAIN={{ api_domain }}
       API_PORT={{ api_port }}
       API_BASE_URL={{ api_base_url }}
-      HELLHUB_URL={{ api_hellhub_url }}
-      HELLIVERS_URL={{ api_helldivers_url }}
+      HELLHUB_API_URL={{ api_hellhub_url }}
+      HELLIVERS_API_URL={{ api_helldivers_url }}

@@ -24,7 +24,7 @@ type PlanetStatus struct {
 func fetchWar[T any](url string) (T, error) {
 	var war T
 
-	resp, err := http.Get(fmt.Sprintf("%s%s%s", os.Getenv("HELLDIVERS_URL"), "/raw/api", url))
+	resp, err := http.Get(fmt.Sprintf("%s%s%s", os.Getenv("HELLDIVERS_API_URL"), "/raw/api", url))
 	if err != nil {
 		return war, fmt.Errorf("failed to make HTTP request: %w", err)
 	}
