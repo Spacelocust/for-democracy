@@ -37,9 +37,9 @@ InterceptorsWrapper interceptorCookie() {
     onError: (e, handler) async {
       if (e.response != null) {
         if (e.response!.statusCode == 401 &&
-            e.response!.statusMessage != null) {
-          if (e.response!.statusMessage!.contains('token expired') ||
-              e.response!.statusMessage!.contains('token invalid')) {
+            e.response!.data!["error"] != null) {
+          if (e.response!.data!["error"].contains('expired token') ||
+              e.response!.data!["error"].contains('invalid token')) {
             await TokenService().deleteToken();
           }
         }

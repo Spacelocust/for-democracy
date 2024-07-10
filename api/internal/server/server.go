@@ -110,15 +110,18 @@ func (s *Server) InternalErrorResponse(c *gin.Context, err error) {
 
 // ForbiddenResponse sends a 403 response with a custom message
 func (s *Server) ForbiddenResponse(c *gin.Context, text string) {
+	s.logger.Info(fmt.Sprintf("Forbidden: %s", text))
 	c.AbortWithStatusJSON(http.StatusForbidden, ErrorResponse{Error: text})
 }
 
 // BadRequestResponse sends a 400 response with a custom message
 func (s *Server) BadRequestResponse(c *gin.Context, text string) {
+	s.logger.Info(fmt.Sprintf("Bad request: %s", text))
 	c.AbortWithStatusJSON(http.StatusBadRequest, ErrorResponse{Error: text})
 }
 
 // UnauthorizedResponse sends a 401 response with a custom message
 func (s *Server) UnauthorizedResponse(c *gin.Context, text string) {
+	s.logger.Info(fmt.Sprintf("Unauthorized: %s", text))
 	c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorResponse{Error: text})
 }
