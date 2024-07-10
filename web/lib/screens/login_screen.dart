@@ -1,4 +1,6 @@
+import 'package:app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routePath = '/login';
@@ -25,7 +27,9 @@ class LoginScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              context.goNamed(HomeScreen.routeName);
+            },
             child: const Text('Login'),
           ),
         ],
