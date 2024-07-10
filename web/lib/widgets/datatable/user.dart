@@ -40,31 +40,35 @@ class _UserDatatableState extends State<UserDatatable> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
           return Text('Error: ${snapshot.error}');
-        } else {
-          return DataTable(
-            columns: [
-              ...columns.map(
-                (column) => DataColumn(
-                  label: Expanded(
-                    child: Text(
-                      column,
-                      style: const TextStyle(fontStyle: FontStyle.italic),
-                    ),
+        }
+
+        return DataTable(
+          columns: [
+            ...columns.map(
+              (column) => DataColumn(
+                label: Expanded(
+                  child: Text(
+                    column,
+                    style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ),
               ),
-            ],
-            rows: snapshot.data!.map((user) {
+            ),
+          ],
+          rows: [
+            ...snapshot.data!.map((user) {
               return DataRow(cells: [
                 DataCell(Text(user.steamId)),
                 DataCell(Text(user.username)),
                 DataCell(Text(user.avatarUrl)),
               ]);
-            }).toList(),
-          );
-        }
+            })
+          ],
+        );
       },
     );
   }

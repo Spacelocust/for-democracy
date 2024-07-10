@@ -30,6 +30,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	s.RegisterObjectiveRoutes(r)
 	s.RegisterStratagemRoutes(r)
 	s.RegisterFeatureRoutes(r)
+	s.RegisterUsersRoutes(r)
 
 	// Create a new server for streaming planets and register the route for it
 	sse.NewServer(&s.db).PlanetsStream(r)

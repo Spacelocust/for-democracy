@@ -13,6 +13,16 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabs = [
       {
+        'label': AppLocalizations.of(context)!.features,
+        'icon': Icons.settings,
+        'widget': const Placeholder(),
+      },
+      {
+        'label': AppLocalizations.of(context)!.users,
+        'icon': Icons.person,
+        'widget': const UserDatatable(),
+      },
+      {
         'label': AppLocalizations.of(context)!.biomes,
         'icon': Icons.landscape,
         'widget': const Placeholder(),
@@ -48,18 +58,8 @@ class HomeScreen extends StatelessWidget {
         'widget': const Placeholder(),
       },
       {
-        'label': AppLocalizations.of(context)!.users,
-        'icon': Icons.person,
-        'widget': const UserDatatable(),
-      },
-      {
         'label': AppLocalizations.of(context)!.waypoints,
         'icon': Icons.gps_fixed,
-        'widget': const Placeholder(),
-      },
-      {
-        'label': AppLocalizations.of(context)!.features,
-        'icon': Icons.settings,
         'widget': const Placeholder(),
       },
     ];
