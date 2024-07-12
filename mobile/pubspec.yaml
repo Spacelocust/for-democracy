@@ -54,6 +54,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   avatar_glow: ^3.0.1
   eventflux: ^2.0.2
+  flutter_speed_dial: ^7.0.0
 
 dev_dependencies:
   flutter_test:

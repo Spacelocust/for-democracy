@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/screens/planets_screen.dart';
 
 class BottomSheetPage<T> extends Page<T> {
   final Widget child;
@@ -27,8 +26,6 @@ class BottomSheetPage<T> extends Page<T> {
           if (context.canPop()) {
             context.pop();
           }
-
-          context.goNamed(PlanetsScreen.routeName);
         },
       );
   }

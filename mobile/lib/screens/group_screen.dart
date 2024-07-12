@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class GroupScreen extends StatefulWidget {
-  static const String routePath = '/group';
+  static const String routePath = ':groupId';
 
   static const String routeName = 'group';
 

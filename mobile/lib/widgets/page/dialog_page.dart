@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/screens/planets_screen.dart';
 
 class DialogPage<T> extends Page<T> {
   final Widget child;
 
-  const DialogPage({required this.child, super.key});
+  const DialogPage({
+    required this.child,
+    super.key,
+  });
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -18,8 +20,6 @@ class DialogPage<T> extends Page<T> {
           if (context.canPop()) {
             context.pop();
           }
-
-          context.goNamed(PlanetsScreen.routeName);
         },
       );
   }

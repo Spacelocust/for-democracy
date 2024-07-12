@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/services/api_service.dart';
 
@@ -18,6 +19,13 @@ abstract class GroupsService {
   static Future<Group> getGroup(int groupId) async {
     var dio = APIService.getDio();
     var group = await dio.get('$groupsUrl/$groupId');
+
+    return Group.fromJson(group.data);
+  }
+
+  static Future<Group> createGroup(GroupDTO data) async {
+    var dio = APIService.getDio();
+    var group = await dio.post(groupsUrl, data: data);
 
     return Group.fromJson(group.data);
   }

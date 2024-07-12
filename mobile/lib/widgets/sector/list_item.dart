@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/models/sector.dart';
 import 'package:mobile/widgets/base/list_item.dart';
+import 'package:mobile/widgets/components/text_arame.dart';
 
 class SectorListItem extends ListItem {
   const SectorListItem({super.key, required this.sector});
@@ -15,9 +16,8 @@ class SectorListItem extends ListItem {
           height: 16,
         ),
         ListTile(
-          title: Text(
-            sector.name,
-            style: Theme.of(context).textTheme.titleLarge,
+          title: TextArame(
+            text: sector.name,
           ),
         ),
       ],

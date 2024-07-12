@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/error_screen.dart';
 import 'package:mobile/screens/events_screen.dart';
+import 'package:mobile/screens/group_new_screen.dart';
+import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
@@ -22,7 +24,7 @@ import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// The views that will be used by the router
+/// The views that will be used by the router.
 final Map<String, Function(BuildContext context, GoRouterState state)> _views =
     {
   PlanetsScreen.routePath: (context, state) => const PlanetsScreen(),
@@ -33,9 +35,11 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
       ),
   EventsScreen.routePath: (context, state) => const EventsScreen(),
   GroupsScreen.routePath: (context, state) => const GroupsScreen(),
+  GroupScreen.routePath: (context, state) => const GroupScreen(),
+  GroupNewScreen.routePath: (context, state) => const GroupNewScreen(),
 };
 
-/// The router configuration
+/// The router configuration.
 GoRouter router(
   Map<String, Function(BuildContext context, GoRouterState state)> views,
 ) {
@@ -48,7 +52,9 @@ GoRouter router(
     routes: [
       ShellRoute(
         builder: (context, state, child) {
-          return MainScaffold(body: child);
+          return MainScaffold(
+            body: child,
+          );
         },
         routes: [
           GoRoute(
@@ -59,6 +65,7 @@ GoRouter router(
               child: views[PlanetsScreen.routePath]!(context, state),
             ),
             routes: [
+              // TODO make this page keep the current screen in the background
               GoRoute(
                 parentNavigatorKey: _rootNavigatorKey,
                 name: PlanetScreen.routeName,
@@ -86,6 +93,24 @@ GoRouter router(
             path: GroupsScreen.routePath,
             builder: (context, state) =>
                 views[GroupsScreen.routePath]!(context, state),
+            routes: [
+              GoRoute(
+                name: GroupNewScreen.routeName,
+                path: GroupNewScreen.routePath,
+                builder: (context, state) => views[GroupNewScreen.routePath]!(
+                  context,
+                  state,
+                ),
+              ),
+              GoRoute(
+                name: GroupScreen.routeName,
+                path: GroupScreen.routePath,
+                builder: (context, state) => views[GroupScreen.routePath]!(
+                  context,
+                  state,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -130,7 +155,10 @@ Future main() async {
 class ForDemocracyApp extends StatelessWidget {
   final GoRouter? goRouter;
 
-  const ForDemocracyApp({super.key, this.goRouter});
+  const ForDemocracyApp({
+    super.key,
+    this.goRouter,
+  });
 
   @override
   Widget build(BuildContext context) {

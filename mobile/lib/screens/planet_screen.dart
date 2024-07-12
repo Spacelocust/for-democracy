@@ -8,11 +8,14 @@ import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/states/groups_filters_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/countdown.dart';
 import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/components/spinner.dart';
+import 'package:mobile/widgets/components/text_arame.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PlanetScreen extends StatefulWidget {
@@ -22,7 +25,10 @@ class PlanetScreen extends StatefulWidget {
 
   final int planetId;
 
-  const PlanetScreen({super.key, required this.planetId});
+  const PlanetScreen({
+    super.key,
+    required this.planetId,
+  });
 
   @override
   State<PlanetScreen> createState() => _PlanetScreenState();
@@ -109,9 +115,15 @@ class _PlanetScreenState extends State<PlanetScreen> {
                       children: [
                         // TODO: Proper links
                         OutlinedButton.icon(
-                          onPressed: () => context.go(
-                            context.namedLocation(GroupsScreen.routeName),
-                          ),
+                          onPressed: () {
+                            context
+                                .read<GroupsFiltersState>()
+                                .setPlanet(planet.name);
+
+                            context.go(
+                              context.namedLocation(GroupsScreen.routeName),
+                            );
+                          },
                           label: Text(AppLocalizations.of(context)!.findGroup),
                           icon: const Icon(Icons.search),
                         ),
@@ -541,7 +553,7 @@ class _ProgressDefence extends StatelessWidget {
                       AppLocalizations.of(context)!.planetDefenceInProgress,
                   child: Row(
                     children: [
-                      _TextArame(
+                      TextArame(
                         text:
                             "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
                         size: "medium",
@@ -549,7 +561,7 @@ class _ProgressDefence extends StatelessWidget {
                       const SizedBox(
                         width: 5,
                       ),
-                      _TextArame(
+                      TextArame(
                         text: AppLocalizations.of(context)!.defended,
                         size: "medium",
                         letterSpacing: 0,
@@ -571,7 +583,7 @@ class _ProgressDefence extends StatelessWidget {
                       ? Colors.green
                       : Colors.red,
                 ),
-                _TextArame(
+                TextArame(
                   text: planet.defence!.getHealthPercentage() >
                           planet.defence!.getEnemyHealthPercentage()
                       ? AppLocalizations.of(context)!.winning
@@ -606,7 +618,7 @@ class _ProgressDefence extends StatelessWidget {
                       const SizedBox(
                         width: 5,
                       ),
-                      _TextArame(
+                      TextArame(
                         color: planet.owner.color,
                         text: AppLocalizations.of(context)!.required,
                         size: "medium",
@@ -663,7 +675,7 @@ class _ProgressLiberation extends StatelessWidget {
                           .planetLiberationInProgress,
                       child: Row(
                         children: [
-                          _TextArame(
+                          TextArame(
                             text:
                                 "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
                             size: "medium",
@@ -671,7 +683,7 @@ class _ProgressLiberation extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-                          _TextArame(
+                          TextArame(
                             text: AppLocalizations.of(context)!.liberated,
                             size: "medium",
                             letterSpacing: 0,
@@ -753,7 +765,7 @@ class _FactionImpactPercentage extends StatelessWidget {
           height: 25,
         ),
         const SizedBox(width: 5),
-        _TextArame(
+        TextArame(
           text: "${value.toStringAsFixed(precision)}%",
           color: faction.color,
           size: "medium",
@@ -852,7 +864,7 @@ class _PlanetEventDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: _TextArame(
+      title: TextArame(
         text: AppLocalizations.of(context)!.planetStatistics,
       ),
       content: _PlanetViewStatistic(
@@ -1034,46 +1046,6 @@ class _ProgressBar extends StatelessWidget {
             reverse ? ThemeColors.darken(secondaryColor, 20) : secondaryColor,
         angle: angle,
         reverse: reverse,
-      ),
-    );
-  }
-}
-
-class _TextArame extends StatelessWidget {
-  final String text;
-
-  final Color color;
-
-  final String size;
-
-  final double letterSpacing;
-
-  const _TextArame(
-      {required this.text,
-      this.color = Colors.white,
-      this.size = "large",
-      this.letterSpacing = 1.5});
-
-  @override
-  Widget build(BuildContext context) {
-    double? fontSize = Theme.of(context).textTheme.titleLarge!.fontSize ?? 20;
-
-    if (size == "medium") {
-      fontSize = Theme.of(context).textTheme.titleMedium!.fontSize ?? 16;
-    }
-
-    if (size == "small") {
-      fontSize = Theme.of(context).textTheme.titleSmall!.fontSize ?? 14;
-    }
-
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontFamily: "Arame",
-        color: color,
-        letterSpacing: letterSpacing,
-        fontSize: fontSize,
       ),
     );
   }

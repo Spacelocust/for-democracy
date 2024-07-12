@@ -1,8 +1,10 @@
 {
     "@@locale": "en",
     "@COMMON": {},
+    "somethingWentWrong": "Something went wrong. Please try again later.",
     "logout": "Logout",
     "close": "Close",
+    "join": "Join",
     "planets": "Planets",
     "planet": "Planet",
     "events": "Events",
@@ -23,7 +25,16 @@
         }
     },
     "findGroup": "Find group",
-    "createGroup": "Create group",
+    "createGroup": "Create a group",
+    "groupCode": "Group code",
+    "groupCodeHint": "E.g. ABC123",
+    "groupCodeEmpty": "Please enter a group code.",
+    "groupJoining": "Joining group...",
+    "groupJoined": "Joined group!",
+    "groupInvalidCode": "Invalid code. Please try again.",
+    "groupCannotJoin": "Cannot join group at the moment. Please try again later.",
+    "groupJoin": "Join a group",
+    "groupJoinCode": "Join a group (with code)",
     "viewEvent": "View event",
     "liberation": "Liberation",
     "liberated": "Liberated",
@@ -97,10 +108,10 @@
     "planetStatistics": "Statistics",
     "planetLiberationInProgress": "Liberation in progress",
     "planetDefenceInProgress": "Defence in progress",
-    "planetLiberationPerHour": "Percentage liberation per hour",
-    "planetProgressPerHour": "progress per hour",
-    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time",
-    "planetUnderControl": "{faction} control",
+    "planetLiberationPerHour": "Liberation percentage per hour.",
+    "planetProgressPerHour": "Progress per hour.",
+    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time.",
+    "planetUnderControl": "{faction} controlled",
     "@planetUnderControl": {
         "placeholders": {
             "faction": {

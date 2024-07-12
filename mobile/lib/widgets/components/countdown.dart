@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 class Countdown extends StatefulWidget {
   final DateTime dateStart;
+
   final TextStyle style;
 
   const Countdown({
@@ -19,6 +20,7 @@ class Countdown extends StatefulWidget {
 
 class _CountdownState extends State<Countdown> {
   Timer? _timer;
+
   Duration _remaining = const Duration();
 
   void startTimer() {

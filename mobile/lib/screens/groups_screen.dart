@@ -8,6 +8,7 @@ import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/groups_filters_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/spinner.dart';
+import 'package:mobile/widgets/components/text_arame.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,9 @@ class GroupsScreen extends StatefulWidget {
 
   static const String routeName = 'groups';
 
-  const GroupsScreen({super.key});
+  const GroupsScreen({
+    super.key,
+  });
 
   @override
   State<GroupsScreen> createState() => _GroupsScreenState();
@@ -98,9 +101,8 @@ class _GroupsScreenState extends State<GroupsScreen> {
 
           final List<Widget> groupsList = [
             ListTile(
-              title: Text(
-                AppLocalizations.of(context)!.groupsAllGroups,
-                style: Theme.of(context).textTheme.titleLarge,
+              title: TextArame(
+                text: AppLocalizations.of(context)!.groupsAllGroups,
               ),
             ),
             const Padding(
