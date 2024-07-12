@@ -32,12 +32,12 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 			// Delete the cookie
 			utils.DeleteCookieToken(c)
 
-			s.UnauthorizedResponse(c, "token expired")
+			s.UnauthorizedResponse(c, utils.ExpiredToken)
 			return
 		}
 
 		if err.Error() == utils.InvalidToken {
-			s.UnauthorizedResponse(c, "invalid token")
+			s.UnauthorizedResponse(c, utils.InvalidToken)
 			return
 		}
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/services/token_service.dart';
@@ -8,12 +9,13 @@ abstract class APIService {
   static const String baseUrlEnv = 'API_BASE_URL';
 
   // KONO DIO DA!
-  static final Dio _dio = Dio(BaseOptions(
-    baseUrl: dotenv.get(baseUrlEnv),
-    connectTimeout: const Duration(seconds: 30),
-    receiveTimeout: const Duration(seconds: 60),
-  ))
-    ..interceptors.add(interceptorCookie());
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: dotenv.get(baseUrlEnv),
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 60),
+    ),
+  )..interceptors.add(interceptorCookie());
 
   static Dio getDio() {
     return _dio;
@@ -37,9 +39,9 @@ InterceptorsWrapper interceptorCookie() {
     onError: (e, handler) async {
       if (e.response != null) {
         if (e.response!.statusCode == 401 &&
-            e.response!.statusMessage != null) {
-          if (e.response!.statusMessage!.contains('token expired') ||
-              e.response!.statusMessage!.contains('token invalid')) {
+            e.response!.data!["error"] != null) {
+          if (e.response!.data!["error"].contains('expired token') ||
+              e.response!.data!["error"].contains('invalid token')) {
             await TokenService().deleteToken();
           }
         }
