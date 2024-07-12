@@ -43,7 +43,6 @@ dependencies:
   dio: ^5.4.3+1
   json_annotation: ^4.9.0
   flutter_dotenv: ^5.1.0
-  dio_cookie_manager: ^3.1.1
   cookie_jar: ^4.0.8
   webview_flutter: ^4.8.0
   webview_cookie_manager: ^2.0.6

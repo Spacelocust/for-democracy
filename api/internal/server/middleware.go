@@ -137,5 +137,4 @@ func (s *Server) OAuthOptionalMiddleware(c *gin.Context) {
 	c.Set("user", token.User)
 
 	c.Next()
-
 }
