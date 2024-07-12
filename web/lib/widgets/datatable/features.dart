@@ -1,27 +1,27 @@
-import 'package:app/models/user.dart';
-import 'package:app/services/users_service.dart';
+import 'package:app/models/feature.dart';
+import 'package:app/services/feature_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class UsersDatatable extends StatefulWidget {
-  const UsersDatatable({super.key});
+class FeaturesDatatable extends StatefulWidget {
+  const FeaturesDatatable({super.key});
 
   @override
-  State<UsersDatatable> createState() => _UsersDatatableState();
+  State<FeaturesDatatable> createState() => _FeaturesDatatableState();
 }
 
-class _UsersDatatableState extends State<UsersDatatable> {
-  late Future<List<User>> _usersFuture;
+class _FeaturesDatatableState extends State<FeaturesDatatable> {
+  late Future<List<Feature>> _featuresFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchUsers();
+    fetchFeatures();
   }
 
-  void fetchUsers() {
+  void fetchFeatures() {
     setState(() {
-      _usersFuture = UsersService.getUsers();
+      _featuresFuture = FeaturesService.getFeatures();
     });
   }
 
@@ -30,13 +30,12 @@ class _UsersDatatableState extends State<UsersDatatable> {
     final l10n = AppLocalizations.of(context)!;
 
     final columns = [
-      l10n.steamId,
-      l10n.username,
-      l10n.avatarUrl,
+      l10n.name,
+      l10n.state,
     ];
 
-    return FutureBuilder<List<User>>(
-      future: _usersFuture,
+    return FutureBuilder<List<Feature>>(
+      future: _featuresFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -60,12 +59,18 @@ class _UsersDatatableState extends State<UsersDatatable> {
             ),
           ],
           rows: [
-            ...snapshot.data!.map((user) {
-              return DataRow(cells: [
-                DataCell(Text(user.steamId)),
-                DataCell(Text(user.username)),
-                DataCell(Text(user.avatarUrl)),
-              ]);
+            ...snapshot.data!.map((feature) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(feature.name)),
+                  DataCell(
+                    Switch(
+                      value: feature.active,
+                      onChanged: (bool value) {},
+                    ),
+                  ),
+                ],
+              );
             })
           ],
         );

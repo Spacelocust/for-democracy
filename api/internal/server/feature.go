@@ -10,7 +10,7 @@ import (
 func (s *Server) RegisterFeatureRoutes(r *gin.Engine) {
 	route := r.Group("/features")
 
-	route.GET("/", s.GetFeatures)
+	route.GET("", s.GetFeatures)
 }
 
 // @Summary Get features
@@ -33,22 +33,3 @@ func (s *Server) GetFeatures(c *gin.Context) {
 
 	c.JSON(http.StatusOK, features)
 }
-
-// func (s *Server) CreateFeature(c *gin.Context) {
-// 	db := s.db.GetDB()
-
-// 	// Get data from request body and validate
-// 	var featureData validators.Feature
-
-// 	// Bind JSON request to feature struct
-// 	if err := c.ShouldBindJSON(&featureData); err != nil {
-// 		s.BadRequestResponse(c, err.Error())
-// 		return
-// 	}
-
-// 	// Validate feature struct
-// 	if err := s.validator.Validate(featureData); err != nil {
-// 		s.BadRequestResponse(c, err.Error())
-// 		return
-// 	}
-// }

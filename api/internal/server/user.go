@@ -10,7 +10,7 @@ import (
 func (s *Server) RegisterUsersRoutes(r *gin.Engine) {
 	route := r.Group("/users")
 
-	route.GET("/", s.GetUsers)
+	route.GET("", s.GetUsers)
 }
 
 // @Summary Get users

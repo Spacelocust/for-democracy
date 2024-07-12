@@ -9,16 +9,16 @@ abstract class UsersService {
 
   static Future<List<User>> getUsers() async {
     var dio = APIService.getDio();
-    var groups = await dio.get(usersUrl);
-    var groupsData = groups.data as List<dynamic>;
+    var users = await dio.get(usersUrl);
+    var usersData = users.data as List<dynamic>;
 
-    return groupsData.map((group) => User.fromJson(group)).toList();
+    return [...usersData.map((user) => User.fromJson(user))];
   }
 
   static Future<User> getUser(int userId) async {
     var dio = APIService.getDio();
-    var group = await dio.get('$usersUrl/$userId');
+    var user = await dio.get('$usersUrl/$userId');
 
-    return User.fromJson(group.data);
+    return User.fromJson(user.data);
   }
 }

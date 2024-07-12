@@ -1,3 +1,5 @@
+import 'package:app/widgets/datatable/events.dart';
+import 'package:app/widgets/datatable/features.dart';
 import 'package:app/widgets/datatable/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -15,12 +17,17 @@ class HomeScreen extends StatelessWidget {
       {
         'label': AppLocalizations.of(context)!.features,
         'icon': Icons.settings,
-        'widget': const Placeholder(),
+        'widget': const FeaturesDatatable(),
+      },
+      {
+        'label': AppLocalizations.of(context)!.events,
+        'icon': Icons.event,
+        'widget': const EventsDatatable(),
       },
       {
         'label': AppLocalizations.of(context)!.users,
         'icon': Icons.person,
-        'widget': const UserDatatable(),
+        'widget': const UsersDatatable(),
       },
       {
         'label': AppLocalizations.of(context)!.biomes,
