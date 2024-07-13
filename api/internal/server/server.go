@@ -14,6 +14,7 @@ import (
 
 	"github.com/Spacelocust/for-democracy/internal/database"
 	"github.com/Spacelocust/for-democracy/internal/enum"
+	"github.com/Spacelocust/for-democracy/internal/firebase"
 	"github.com/Spacelocust/for-democracy/internal/logger"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	_ "github.com/Spacelocust/for-democracy/internal/oauth"
@@ -26,6 +27,7 @@ type Server struct {
 	db        database.Service
 	validator validators.Service
 	logger    logger.Service
+	firebase  firebase.Service
 }
 
 type ErrorResponse struct {
@@ -52,6 +54,7 @@ func NewServer() *http.Server {
 		db:        database.New(),
 		validator: validators.New(),
 		logger:    logger.New(),
+		firebase:  firebase.New(),
 	}
 
 	// Register custom validation rules

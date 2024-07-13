@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,6 +12,8 @@ import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
+import 'package:mobile/services/firebase_service.dart';
+import 'package:mobile/services/local_notification_service.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/galaxy_map_zoom_state.dart';
@@ -21,6 +24,8 @@ import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:provider/provider.dart';
+
+import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -139,6 +144,16 @@ GoRouter router(
 Future main() async {
   await dotenv.load(fileName: '.env');
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize Firebase Messaging
+  await FirebaseMessagingService.init();
+
+  // Initialize local notifications
+  await LocalNotificationService.init();
 
   User? user;
 
