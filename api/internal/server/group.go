@@ -123,13 +123,16 @@ func (s *Server) GetGroups(c *gin.Context) {
 	db := s.db.GetDB()
 
 	var groups []model.Group
-
 	// if the user is not authenticated, get public groups
 	user, ok := c.MustGet("user").(model.User)
 
 	if !ok {
 		// Get public groups
-		err := db.Preload("Missions").Find(&groups, "public = ?", true).Error
+		err := db.
+			Preload("Missions").
+			Preload("GroupUsers").
+			Preload("Planet").
+			Find(&groups, "public = ?", true).Error
 		if err != nil {
 			s.InternalErrorResponse(c, err)
 			return
@@ -145,6 +148,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
 		Preload("GroupUsers").
+		Preload("Planet").
 		Find(&groups).Error
 
 	if err != nil {
@@ -175,7 +179,12 @@ func (s *Server) GetGroup(c *gin.Context) {
 	var group model.Group
 
 	if !ok {
-		if err := db.Preload("Missions").Preload("GroupUsers").First(&group, "id = ? AND public = ?", groupID, true).Error; err != nil {
+		if err := db.
+			Preload("Missions").
+			Preload("GroupUsers").
+			Preload("Planet").
+			First(&group, "id = ? AND public = ?", groupID, true).
+			Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				s.NotFoundResponse(c, "group")
 				return
@@ -191,6 +200,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
 		Preload("GroupUsers").
+		Preload("Planet").
 		First(&group, "groups.id = ?", groupID).Error
 
 	if err != nil {
@@ -198,6 +208,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 			s.NotFoundResponse(c, "group")
 			return
 		}
+
 		s.InternalErrorResponse(c, err)
 		return
 	}
