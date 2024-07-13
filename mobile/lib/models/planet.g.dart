@@ -16,6 +16,11 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
       'PositionX',
       'PositionY',
       'HelldiversID',
+      'Owner',
+      'InitialOwner',
+      'ImageURL',
+      'BackgroundURL',
+      'Waypoints',
       'Statistic',
       'Effects',
       'Sector'
