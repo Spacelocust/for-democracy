@@ -212,7 +212,7 @@ class _PlanetScreenView extends StatelessWidget {
     ];
 
     // Display chips if the planet has effects
-    if (planet.effects.isNotEmpty) {
+    if (planet.effects!.isNotEmpty) {
       columns = [
         ...columns,
         const SizedBox(height: columnSpacing),
@@ -441,7 +441,7 @@ class _PlanetViewChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: planet.effects.fold(
+      children: planet.effects!.fold(
         [],
         (previousValue, effect) {
           if (effect.name != "None") {

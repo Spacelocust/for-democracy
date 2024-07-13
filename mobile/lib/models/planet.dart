@@ -57,8 +57,8 @@ class Planet {
   @JsonKey(name: 'Defence')
   final Defence? defence;
 
-  @JsonKey(required: true, name: 'Effects')
-  final List<Effect> effects;
+  @JsonKey(name: 'Effects')
+  final List<Effect>? effects;
 
   @JsonKey(required: true, name: 'Sector')
   final Sector sector;

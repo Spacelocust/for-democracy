@@ -35,7 +35,11 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
       ),
   EventsScreen.routePath: (context, state) => const EventsScreen(),
   GroupsScreen.routePath: (context, state) => const GroupsScreen(),
-  GroupScreen.routePath: (context, state) => const GroupScreen(),
+  GroupScreen.routePath: (context, state) => GroupScreen(
+        groupId: int.parse(
+          state.pathParameters['groupId']!,
+        ),
+      ),
   GroupNewScreen.routePath: (context, state) => const GroupNewScreen(),
 };
 

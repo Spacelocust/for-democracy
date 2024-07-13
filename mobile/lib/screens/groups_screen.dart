@@ -85,7 +85,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
           ];
           final groups = initialGroups.where((group) {
             if (context.read<GroupsFiltersState>().myGroups &&
-                group.owner?.user != currentUser) {
+                group.owner?.user?.steamId != currentUser?.steamId) {
               return false;
             }
 
