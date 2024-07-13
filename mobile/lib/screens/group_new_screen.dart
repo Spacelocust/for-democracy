@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -80,6 +81,34 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
                 onSubmit: (formData) async {
                   try {
                     await GroupsService.createGroup(formData);
+                  } on DioException catch (e) {
+                    var statusCode = e.response?.statusCode;
+
+                    if (!context.mounted || statusCode == null) {
+                      return;
+                    }
+
+                    if (statusCode < 500) {
+                      ScaffoldMessenger.of(context)
+                        ..removeCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content:
+                                Text(AppLocalizations.of(context)!.invalidForm),
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                    } else {
+                      ScaffoldMessenger.of(context)
+                        ..removeCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!
+                                .somethingWentWrong),
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                    }
                   } catch (error) {
                     if (!context.mounted) {
                       return;
@@ -90,6 +119,7 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
                         content: Text(
                           AppLocalizations.of(context)!.somethingWentWrong,
                         ),
+                        duration: const Duration(seconds: 5),
                       ),
                     );
                   }

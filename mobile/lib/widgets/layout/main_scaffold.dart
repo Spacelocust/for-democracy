@@ -21,46 +21,49 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GoRouterState routerState = GoRouterState.of(context);
+    final user = context.watch<AuthState>().user;
 
     Widget? floatingActionButton;
 
-    if (routerState.matchedLocation == "/groups") {
-      floatingActionButton = SpeedDial(
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: ThemeColors.primary,
-        foregroundColor: ThemeColors.surface,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.groups),
-            backgroundColor: ThemeColors.primary,
-            foregroundColor: ThemeColors.surface,
-            label: AppLocalizations.of(context)!.createGroup,
-            onTap: () {
-              context.go(
-                context.namedLocation(
-                  GroupNewScreen.routeName,
-                ),
-              );
-            },
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.group_add),
-            backgroundColor: ThemeColors.primary,
-            foregroundColor: ThemeColors.surface,
-            label: AppLocalizations.of(context)!.groupJoinCode,
-            onTap: () {
-              showDialog<void>(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return const JoinCodeDialog();
-                },
-              );
-            },
-          ),
-        ],
-      );
+    if (user != null) {
+      if (routerState.matchedLocation == "/groups") {
+        floatingActionButton = SpeedDial(
+          icon: Icons.add,
+          activeIcon: Icons.close,
+          backgroundColor: ThemeColors.primary,
+          foregroundColor: ThemeColors.surface,
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.groups),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.createGroup,
+              onTap: () {
+                context.go(
+                  context.namedLocation(
+                    GroupNewScreen.routeName,
+                  ),
+                );
+              },
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.group_add),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.groupJoinCode,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const JoinCodeDialog();
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      }
     }
 
     return Scaffold(

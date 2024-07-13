@@ -5,57 +5,57 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 enum Difficulty {
   @JsonValue('trivial')
   trivial(
-    'Trivial',
+    'trivial',
   ),
 
   @JsonValue('easy')
   easy(
-    'Easy',
+    'easy',
   ),
 
   @JsonValue('medium')
   medium(
-    'Medium',
+    'medium',
   ),
 
   @JsonValue('challenging')
   challenging(
-    'Challenging',
+    'challenging',
   ),
 
   @JsonValue('hard')
   hard(
-    'Hard',
+    'hard',
   ),
 
   @JsonValue('extreme')
   extreme(
-    'Extreme',
+    'extreme',
   ),
 
   @JsonValue('suicide_mission')
   suicideMission(
-    'Suicide Mission',
+    'suicide_mission',
   ),
 
   @JsonValue('impossible')
   impossible(
-    'Impossible',
+    'impossible',
   ),
 
   @JsonValue('helldive')
   helldive(
-    'Helldive',
+    'helldive',
   );
 
   const Difficulty(
-    this.name,
+    this.code,
   );
 
-  /// The untranslated name of the difficulty. Use [translatedName] to get the translated name.
-  final String name;
+  /// The enum code of the difficulty. Use [translatedName] to get the translated name.
+  final String code;
 
-  String get logo => 'assets/images/difficulties/${name.toLowerCase()}.png';
+  String get logo => 'assets/images/difficulties/${code.toLowerCase()}.png';
 
   String translatedName(BuildContext context) {
     switch (this) {

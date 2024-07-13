@@ -2,6 +2,7 @@
     "@@locale": "en",
     "@COMMON": {},
     "somethingWentWrong": "Something went wrong. Please try again later.",
+    "invalidForm": "Invalid form. Please check the fields and try again.",
     "logout": "Logout",
     "close": "Close",
     "join": "Join",

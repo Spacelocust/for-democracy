@@ -2,6 +2,7 @@
     "@@locale": "fr",
     "@COMMON": {},
     "somethingWentWrong": "Quelque chose s'est mal passé. Veuillez réessayer plus tard.",
+    "invalidForm": "Formulaire invalide. Veuillez vérifier les champs et réessayer.",
     "logout": "Déconnexion",
     "close": "Fermer",
     "join": "Rejoindre",

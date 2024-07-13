@@ -25,14 +25,23 @@ abstract class GroupsService {
 
   static Future<Group> createGroup(GroupDTO data) async {
     var dio = APIService.getDio();
-    var group = await dio.post(groupsUrl, data: data);
+    var group = await dio.post(groupsUrl, data: {
+      'name': data.name,
+      'description': data.description,
+      'public': !data.private,
+      'planetId': data.planet!.id,
+      'difficulty': data.difficulty.code,
+      'startAt': data.startAt.toString(),
+    });
 
     return Group.fromJson(group.data);
   }
 
   static Future<Group> joinGroupWithCode(String code) async {
     var dio = APIService.getDio();
-    var group = await dio.post('$groupsUrl/join', data: {'code': code});
+    var group = await dio.post('$groupsUrl/join', data: {
+      'code': code,
+    });
 
     return Group.fromJson(group.data);
   }
