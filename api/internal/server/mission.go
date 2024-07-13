@@ -16,7 +16,7 @@ func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route := r.Group("/missions")
 	route.Use(s.OAuthMiddleware)
 
-	route.POST("/", s.CreateMission)
+	route.POST("", s.CreateMission)
 	route.PUT("/:id", s.UpdateMission)
 	route.DELETE("/:id", s.DeleteMission)
 	route.POST("/:id/join", s.JoinMission)
