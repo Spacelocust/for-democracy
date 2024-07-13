@@ -15,7 +15,6 @@ type Mission struct {
 	Name              string                                 `gorm:"not null"`
 	Instructions      *string                                `gorm:"type:text"`
 	ObjectiveTypes    datatype.EnumArray[enum.ObjectiveType] `gorm:"not null;type:text[]"`
-	Group             Group
 	GroupID           uint
 	GroupUserMissions []GroupUserMission `gorm:"constraint:OnDelete:CASCADE"`
 }
