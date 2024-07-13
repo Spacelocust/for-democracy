@@ -16,8 +16,8 @@ import (
 func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route := r.Group("/groups")
 
-	route.GET("/", s.OAuthOptionalMiddleware, s.GetGroups)
-	route.POST("/", s.OAuthMiddleware, s.CreateGroup)
+	route.GET("", s.OAuthOptionalMiddleware, s.GetGroups)
+	route.POST("", s.OAuthMiddleware, s.CreateGroup)
 	route.POST("/join", s.OAuthMiddleware, s.JoinGroupWithCode)
 	route.GET("/:id", s.GetGroup)
 	route.PUT("/:id", s.OAuthMiddleware, s.UpdateGroup)
@@ -144,6 +144,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
+		Preload("GroupUsers").
 		Find(&groups).Error
 
 	if err != nil {
@@ -170,7 +171,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 
 	var group model.Group
 
-	if err := db.First(&group, "id = ?", groupID).Error; err != nil {
+	if err := db.Preload("Missions").Preload("GroupUsers").First(&group, "id = ?", groupID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group")
 			return

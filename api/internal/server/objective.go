@@ -11,7 +11,7 @@ import (
 func (s *Server) RegisterObjectiveRoutes(r *gin.Engine) {
 	route := r.Group("/objectifs")
 
-	route.GET("/", s.GetObjectifs)
+	route.GET("", s.GetObjectifs)
 	route.GET("/:name", s.GetObjectif)
 }
 

@@ -12,7 +12,7 @@ import (
 func (s *Server) RegisterStratagemRoutes(r *gin.Engine) {
 	route := r.Group("/stratagems")
 
-	route.GET("/", s.GetStratagems)
+	route.GET("", s.GetStratagems)
 	route.GET("/:id", s.GetStratagem)
 }
 
