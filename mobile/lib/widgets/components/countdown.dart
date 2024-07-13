@@ -27,8 +27,10 @@ class _CountdownState extends State<Countdown> {
     setState(() {
       _remaining = widget.dateStart.difference(DateTime.now());
     });
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final now = DateTime.now();
+
       setState(() {
         if (now.isBefore(widget.dateStart)) {
           _remaining = widget.dateStart.difference(now);

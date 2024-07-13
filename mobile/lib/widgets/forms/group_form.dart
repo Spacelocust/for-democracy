@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GroupForm extends StatefulWidget {
   /// The list of planets to choose from.
@@ -20,7 +21,7 @@ class GroupForm extends StatefulWidget {
   final bool editing;
 
   const GroupForm({
-    required this.planets,
+    this.planets,
     this.onBackPress,
     this.onSubmit,
     this.initialData,
@@ -85,7 +86,7 @@ class GroupFormState extends State<GroupForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
+      child: ListView(
         children: <Widget>[
           // Name
           TextFormField(
@@ -180,37 +181,38 @@ class GroupFormState extends State<GroupForm> {
             },
           ),
           // Difficulty
-          FormField<Difficulty>(
-            initialValue: _formData.difficulty,
-            validator: (value) {
-              return null;
-            },
-            builder: (FormFieldState<Difficulty> field) {
-              return DropdownMenu<Difficulty>(
-                label: Text("Difficulty"),
-                initialSelection: field.value,
-                enabled: !_submitting,
-                errorText: field.errorText,
-                onSelected: (Difficulty? value) {
-                  field.didChange(value);
+          if (!widget.editing)
+            FormField<Difficulty>(
+              initialValue: _formData.difficulty,
+              validator: (value) {
+                return null;
+              },
+              builder: (FormFieldState<Difficulty> field) {
+                return DropdownMenu<Difficulty>(
+                  label: Text("Difficulty"),
+                  initialSelection: field.value,
+                  enabled: !_submitting,
+                  errorText: field.errorText,
+                  onSelected: (Difficulty? value) {
+                    field.didChange(value);
 
-                  setState(() {
-                    _formData.difficulty = value!;
-                  });
-                },
-                dropdownMenuEntries: Difficulty.values
-                    .map<DropdownMenuEntry<Difficulty>>(
-                        (Difficulty difficulty) {
-                  return DropdownMenuEntry<Difficulty>(
-                    value: difficulty,
-                    label: difficulty.translatedName(context),
-                  );
-                }).toList(),
-              );
-            },
-          ),
+                    setState(() {
+                      _formData.difficulty = value!;
+                    });
+                  },
+                  dropdownMenuEntries: Difficulty.values
+                      .map<DropdownMenuEntry<Difficulty>>(
+                          (Difficulty difficulty) {
+                    return DropdownMenuEntry<Difficulty>(
+                      value: difficulty,
+                      label: difficulty.translatedName(context),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
           // Planet
-          if (widget.planets != null)
+          if (!widget.editing && widget.planets != null)
             FormField<Planet>(
               initialValue: _formData.planet,
               validator: (value) {
@@ -241,14 +243,23 @@ class GroupFormState extends State<GroupForm> {
                 );
               },
             ),
-          if (widget.onBackPress != null)
-            ElevatedButton(
-              onPressed: _submitting ? null : onBackPress,
-              child: const Text('Back'),
-            ),
-          ElevatedButton(
-            onPressed: _submitting ? null : onSubmit,
-            child: const Text('Save'),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.arrow_back),
+                label: Text(AppLocalizations.of(context)!.back),
+                onPressed: _submitting ? null : onBackPress,
+              ),
+              OutlinedButton.icon(
+                onPressed: _submitting ? null : onSubmit,
+                icon: const Icon(Icons.save),
+                label: Text(
+                  AppLocalizations.of(context)!.save,
+                ),
+              )
+            ],
           ),
         ],
       ),

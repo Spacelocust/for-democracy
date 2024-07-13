@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
-import 'package:mobile/widgets/components/text_arame.dart';
+import 'package:mobile/widgets/components/text_style_arame.dart';
 
 class JoinCodeDialog extends StatefulWidget {
   const JoinCodeDialog({
@@ -31,8 +31,9 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: TextArame(
-        text: AppLocalizations.of(context)!.groupJoin,
+      title: Text(
+        AppLocalizations.of(context)!.groupJoin,
+        style: const TextStyleArame(),
       ),
       content: Form(
         key: _formKey,

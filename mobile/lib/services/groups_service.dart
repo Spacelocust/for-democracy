@@ -37,6 +37,38 @@ abstract class GroupsService {
     return Group.fromJson(group.data);
   }
 
+  static Future<Group> editGroup(int groupId, GroupDTO data) async {
+    var dio = APIService.getDio();
+    var group = await dio.put("$groupsUrl/$groupId", data: {
+      'name': data.name,
+      'description': data.description,
+      'public': !data.private,
+      'planetId': data.planet!.id,
+      'difficulty': data.difficulty.code,
+      'startAt': data.startAt.toString(),
+    });
+
+    return Group.fromJson(group.data);
+  }
+
+  static Future<void> deleteGroup(int groupId) async {
+    var dio = APIService.getDio();
+
+    await dio.delete("$groupsUrl/$groupId");
+  }
+
+  static Future<void> joinGroup(int groupId) async {
+    var dio = APIService.getDio();
+
+    await dio.post("$groupsUrl/$groupId/join");
+  }
+
+  static Future<void> leaveGroup(int groupId) async {
+    var dio = APIService.getDio();
+
+    await dio.post("$groupsUrl/$groupId/leave");
+  }
+
   static Future<Group> joinGroupWithCode(String code) async {
     var dio = APIService.getDio();
     var group = await dio.post('$groupsUrl/join', data: {

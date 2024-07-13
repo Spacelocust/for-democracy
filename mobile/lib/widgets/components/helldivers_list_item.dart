@@ -15,13 +15,17 @@ class HelldiversListTile extends ListTile {
       borderRadius: BorderRadius.all(
         Radius.circular(8),
       ),
+      // TODO this is bugged
+      // side: BorderSide(
+      //   color: ThemeColors.primary,
+      // ),
     ),
     super.style,
     super.selectedColor,
     super.iconColor,
-    super.textColor = Colors.black,
+    super.textColor = Colors.white,
     super.titleTextStyle = const TextStyle(
-      color: Colors.black,
+      color: Colors.white,
     ),
     super.subtitleTextStyle,
     super.leadingAndTrailingTextStyle,
@@ -40,12 +44,12 @@ class HelldiversListTile extends ListTile {
     super.splashColor,
     super.focusNode,
     super.autofocus = false,
-    super.tileColor = ThemeColors.softPrimary,
+    super.tileColor = ThemeColors.surface,
     super.selectedTileColor,
     super.enableFeedback,
     super.horizontalTitleGap,
     super.minVerticalPadding,
     super.minLeadingWidth,
     super.titleAlignment,
-  }) : assert(!isThreeLine || subtitle != null);
+  });
 }

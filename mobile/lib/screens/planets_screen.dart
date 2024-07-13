@@ -154,20 +154,13 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                         right: xPadding,
                         bottom: yPadding,
                       ),
-                      child: ListView.builder(
+                      child: ListView.separated(
+                        separatorBuilder: (context, index) => const SizedBox(
+                          height: 8,
+                        ),
                         itemCount: listItems.length,
                         itemBuilder: (context, index) {
                           final item = listItems[index];
-
-                          if (item is PlanetListItem) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 8,
-                                right: 8,
-                              ),
-                              child: item.build(context),
-                            );
-                          }
 
                           return item.build(context);
                         },

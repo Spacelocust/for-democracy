@@ -108,38 +108,31 @@ class PlanetListItem extends ListItem {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 8,
-        ),
-        ListTile(
-          leading: Container(
-            clipBehavior: Clip.hardEdge,
-            decoration: decoration,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: CachedNetworkImage(
-                width: 55,
-                height: 55,
-                imageUrl: planet.imageUrl,
-                placeholder: (context, url) => const SizedBox(
-                  width: 55,
-                  height: 55,
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
+    return ListTile(
+      leading: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: decoration,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: CachedNetworkImage(
+            width: 55,
+            height: 55,
+            imageUrl: planet.imageUrl,
+            placeholder: (context, url) => const SizedBox(
+              width: 55,
+              height: 55,
             ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
-          title: getTitle(context),
-          trailing: getTrailing(context),
-          subtitle: getSubtitle(context),
-          onTap: () => context.go(context.namedLocation(
-            PlanetScreen.routeName,
-            pathParameters: {'planetId': planet.id.toString()},
-          )),
         ),
-      ],
+      ),
+      title: getTitle(context),
+      trailing: getTrailing(context),
+      subtitle: getSubtitle(context),
+      onTap: () => context.go(context.namedLocation(
+        PlanetScreen.routeName,
+        pathParameters: {'planetId': planet.id.toString()},
+      )),
     );
   }
 }

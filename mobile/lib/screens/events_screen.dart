@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/services/events_service.dart';
-import 'package:mobile/widgets/components/list_item.dart';
+import 'package:mobile/widgets/components/helldivers_list_item.dart';
 import 'package:mobile/widgets/components/spinner.dart';
-import 'package:mobile/widgets/components/text_arame.dart';
+import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -60,14 +60,15 @@ class _EventsScreenState extends State<EventsScreen> {
           // Success state
           final events = snapshot.data!;
           final TextStyle textStyle = TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
           );
           final List<Widget> eventsList = [
             // Defences
             ListTile(
-              title: TextArame(
-                text: AppLocalizations.of(context)!.eventsOngoingDefences,
+              title: Text(
+                AppLocalizations.of(context)!.eventsOngoingDefences,
+                style: const TextStyleArame(),
               ),
             ),
             ...events.defences.map(
@@ -89,17 +90,11 @@ class _EventsScreenState extends State<EventsScreen> {
                         child: SizedBox(width: 10),
                       ),
                       const WidgetSpan(
-                        child: ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                          child: Image(
-                            image: AssetImage(
-                                "assets/images/helldivers-player.png"),
-                            width: 20,
-                            height: 20,
-                          ),
+                        child: Image(
+                          image:
+                              AssetImage("assets/images/helldivers-player.png"),
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                     ],
@@ -126,8 +121,9 @@ class _EventsScreenState extends State<EventsScreen> {
             const SizedBox(height: 0),
             // Liberations
             ListTile(
-              title: TextArame(
-                text: AppLocalizations.of(context)!.eventsOngoingLiberations,
+              title: Text(
+                AppLocalizations.of(context)!.eventsOngoingLiberations,
+                style: const TextStyleArame(),
               ),
             ),
             ...events.liberations.map(
@@ -149,17 +145,11 @@ class _EventsScreenState extends State<EventsScreen> {
                         child: SizedBox(width: 10),
                       ),
                       const WidgetSpan(
-                        child: ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                          child: Image(
-                            image: AssetImage(
-                                "assets/images/helldivers-player.png"),
-                            width: 20,
-                            height: 20,
-                          ),
+                        child: Image(
+                          image:
+                              AssetImage("assets/images/helldivers-player.png"),
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                     ],

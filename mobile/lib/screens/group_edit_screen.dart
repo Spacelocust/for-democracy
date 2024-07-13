@@ -2,30 +2,32 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/models/planet.dart';
-import 'package:mobile/screens/groups_screen.dart';
+import 'package:mobile/models/group.dart';
+import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
-import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/forms/group_form.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 
-class GroupNewScreen extends StatefulWidget {
-  static const String routePath = 'new';
+class GroupEditScreen extends StatefulWidget {
+  static const String routePath = 'edit/:groupId';
 
-  static const String routeName = 'groupNew';
+  static const String routeName = 'groupEdit';
 
-  const GroupNewScreen({
+  final int groupId;
+
+  const GroupEditScreen({
     super.key,
+    required this.groupId,
   });
 
   @override
-  State<GroupNewScreen> createState() => _GroupNewScreenState();
+  State<GroupEditScreen> createState() => _GroupEditScreenState();
 }
 
-class _GroupNewScreenState extends State<GroupNewScreen> {
-  Future<List<Planet>>? _planetsFuture;
+class _GroupEditScreenState extends State<GroupEditScreen> {
+  Future<Group>? _groupFuture;
 
   @override
   void initState() {
@@ -35,7 +37,7 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
 
   void fetchPlanets() {
     setState(() {
-      _planetsFuture = PlanetsService.getPlanets();
+      _groupFuture = GroupsService.getGroup(widget.groupId);
     });
   }
 
@@ -43,8 +45,8 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: FutureBuilder<List<Planet>>(
-        future: _planetsFuture,
+      child: FutureBuilder<Group>(
+        future: _groupFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
@@ -62,7 +64,7 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
           }
 
           // Success state
-          final planets = snapshot.data!;
+          final group = snapshot.data!;
 
           return Column(
             children: [
@@ -73,15 +75,20 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
                 ),
               ),
               GroupForm(
-                planets: planets,
+                editing: true,
                 onBackPress: () {
                   context.go(
-                    context.namedLocation(GroupsScreen.routeName),
+                    context.namedLocation(
+                      GroupScreen.routeName,
+                      pathParameters: {
+                        'groupId': group.id.toString(),
+                      },
+                    ),
                   );
                 },
                 onSubmit: (formData) async {
                   try {
-                    await GroupsService.createGroup(formData);
+                    await GroupsService.editGroup(widget.groupId, formData);
                   } on DioException catch (e) {
                     var statusCode = e.response?.statusCode;
 

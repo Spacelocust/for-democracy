@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
+import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/group/join_code_dialog.dart';
 import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
 import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
@@ -27,41 +28,45 @@ class MainScaffold extends StatelessWidget {
 
     if (user != null) {
       if (routerState.matchedLocation == "/groups") {
-        floatingActionButton = SpeedDial(
-          icon: Icons.add,
-          activeIcon: Icons.close,
-          backgroundColor: ThemeColors.primary,
-          foregroundColor: ThemeColors.surface,
-          children: [
-            SpeedDialChild(
-              child: const Icon(Icons.groups),
-              backgroundColor: ThemeColors.primary,
-              foregroundColor: ThemeColors.surface,
-              label: AppLocalizations.of(context)!.createGroup,
-              onTap: () {
-                context.go(
-                  context.namedLocation(
-                    GroupNewScreen.routeName,
-                  ),
-                );
-              },
-            ),
-            SpeedDialChild(
-              child: const Icon(Icons.group_add),
-              backgroundColor: ThemeColors.primary,
-              foregroundColor: ThemeColors.surface,
-              label: AppLocalizations.of(context)!.groupJoinCode,
-              onTap: () {
-                showDialog<void>(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return const JoinCodeDialog();
-                  },
-                );
-              },
-            ),
-          ],
+        floatingActionButton = Padding(
+          padding: const EdgeInsets.only(top: 90.0),
+          child: SpeedDial(
+            direction: SpeedDialDirection.down,
+            icon: Icons.add,
+            activeIcon: Icons.close,
+            backgroundColor: ThemeColors.primary,
+            foregroundColor: ThemeColors.surface,
+            children: [
+              SpeedDialChild(
+                child: const Icon(Icons.groups),
+                backgroundColor: ThemeColors.primary,
+                foregroundColor: ThemeColors.surface,
+                label: AppLocalizations.of(context)!.createGroup,
+                onTap: () {
+                  context.go(
+                    context.namedLocation(
+                      GroupNewScreen.routeName,
+                    ),
+                  );
+                },
+              ),
+              SpeedDialChild(
+                child: const Icon(Icons.group_add),
+                backgroundColor: ThemeColors.primary,
+                foregroundColor: ThemeColors.surface,
+                label: AppLocalizations.of(context)!.groupJoinCode,
+                onTap: () {
+                  showDialog<void>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const JoinCodeDialog();
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         );
       }
     }
@@ -78,10 +83,7 @@ class MainScaffold extends StatelessWidget {
             SizedBox(width: 10.0),
             Text(
               'For Democracy',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: "Arame",
-              ),
+              style: TextStyleArame(),
             )
           ],
         ),
@@ -106,6 +108,7 @@ class MainScaffold extends StatelessWidget {
       drawer: const MainNavigationDrawer(),
       body: body,
       floatingActionButton: floatingActionButton,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     );
   }
 }
