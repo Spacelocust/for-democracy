@@ -1,6 +1,7 @@
 import 'package:app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routePath = '/login';
@@ -17,12 +18,12 @@ class LoginScreen extends StatelessWidget {
         children: [
           TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Username',
+              labelText: AppLocalizations.of(context)!.username,
             ),
           ),
           TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Password',
+              labelText: AppLocalizations.of(context)!.password,
             ),
           ),
           const SizedBox(height: 16),
@@ -30,7 +31,7 @@ class LoginScreen extends StatelessWidget {
             onPressed: () {
               context.goNamed(HomeScreen.routeName);
             },
-            child: const Text('Login'),
+            child: const Text(AppLocalizations.of(context)!.login),
           ),
         ],
       ),
