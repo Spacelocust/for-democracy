@@ -131,6 +131,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		err := db.
 			Preload("Missions").
 			Preload("GroupUsers").
+			Preload("GroupUsers.User").
 			Preload("Planet").
 			Find(&groups, "public = ?", true).Error
 		if err != nil {
@@ -148,6 +149,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
 		Preload("GroupUsers").
+		Preload("GroupUsers.User").
 		Preload("Planet").
 		Find(&groups).Error
 
@@ -182,6 +184,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		if err := db.
 			Preload("Missions").
 			Preload("GroupUsers").
+			Preload("GroupUsers.User").
 			Preload("Planet").
 			First(&group, "id = ? AND public = ?", groupID, true).
 			Error; err != nil {
@@ -200,6 +203,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
 		Preload("GroupUsers").
+		Preload("GroupUsers.User").
 		Preload("Planet").
 		First(&group, "groups.id = ?", groupID).Error
 
