@@ -19,7 +19,7 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route.GET("", s.OAuthOptionalMiddleware, s.GetGroups)
 	route.POST("", s.OAuthMiddleware, s.CreateGroup)
 	route.POST("/join", s.OAuthMiddleware, s.JoinGroupWithCode)
-	route.GET("/:id", s.GetGroup)
+	route.GET("/:id", s.OAuthOptionalMiddleware, s.GetGroup)
 	route.PUT("/:id", s.OAuthMiddleware, s.UpdateGroup)
 	route.DELETE("/:id", s.OAuthMiddleware, s.DeleteGroup)
 	route.POST("/:id/join", s.OAuthMiddleware, s.JoinGroup)
@@ -169,14 +169,35 @@ func (s *Server) GetGroup(c *gin.Context) {
 
 	groupID := c.Param("id")
 
+	// if the user is not authenticated, get public group by ID only
+	user, ok := c.MustGet("user").(model.User)
+
 	var group model.Group
 
-	if err := db.Preload("Missions").Preload("GroupUsers").First(&group, "id = ?", groupID).Error; err != nil {
+	if !ok {
+		if err := db.Preload("Missions").Preload("GroupUsers").First(&group, "id = ? AND public = ?", groupID, true).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				s.NotFoundResponse(c, "group")
+				return
+			}
+
+			s.InternalErrorResponse(c, err)
+			return
+		}
+	}
+
+	// Get private group where the user is a member of or public group by ID
+	err := db.Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
+		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
+		Preload("Missions").
+		Preload("GroupUsers").
+		First(&group, "groups.id = ?", groupID).Error
+
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group")
 			return
 		}
-
 		s.InternalErrorResponse(c, err)
 		return
 	}
