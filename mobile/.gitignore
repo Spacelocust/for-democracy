@@ -46,3 +46,9 @@ app.*.map.json
 *.env
 !.env.example
 !.env.ci
+
+
+# Firebase related
+firebase.json
+google-services.json
+firebase_options.dart

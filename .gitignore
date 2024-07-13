@@ -11,3 +11,7 @@ compose.*.yml
 .history
 
 sdks/*
+
+firebase/*
+
+.DS_Store
