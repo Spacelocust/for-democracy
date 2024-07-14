@@ -9,6 +9,7 @@ import 'package:mobile/screens/group_edit_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/confirm_action_dialog.dart';
 import 'package:mobile/widgets/components/spinner.dart';
@@ -115,32 +116,27 @@ class _GroupScreenState extends State<GroupScreen> {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!
-                                          .groupDeleted,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!.groupDeleted,
                                 );
 
-                                GoRouter.of(context).go(
-                                  context.namedLocation(
-                                    GroupsScreen.routeName,
-                                  ),
-                                );
+                                GoRouter.of(context)
+                                  ..go(
+                                    context.namedLocation(
+                                      GroupsScreen.routeName,
+                                    ),
+                                  )
+                                  ..refresh();
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!
-                                          .somethingWentWrong,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!
+                                      .somethingWentWrong,
                                 );
                               } finally {
                                 if (context.mounted) {
@@ -196,34 +192,21 @@ class _GroupScreenState extends State<GroupScreen> {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!.groupLeft,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!.groupLeft,
                                 );
 
-                                context.go(
-                                  context.namedLocation(
-                                    GroupScreen.routeName,
-                                    pathParameters: {
-                                      'groupId': group.id.toString(),
-                                    },
-                                  ),
-                                );
+                                GoRouter.of(context).refresh();
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!
-                                          .somethingWentWrong,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!
+                                      .somethingWentWrong,
                                 );
                               } finally {
                                 if (context.mounted) {
@@ -262,34 +245,21 @@ class _GroupScreenState extends State<GroupScreen> {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!.groupJoined,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!.groupJoined,
                                 );
 
-                                context.go(
-                                  context.namedLocation(
-                                    GroupScreen.routeName,
-                                    pathParameters: {
-                                      'groupId': group.id.toString(),
-                                    },
-                                  ),
-                                );
+                                GoRouter.of(context).refresh();
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;
                                 }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!
-                                          .somethingWentWrong,
-                                    ),
-                                  ),
+                                showSnackBar(
+                                  context,
+                                  AppLocalizations.of(context)!
+                                      .somethingWentWrong,
                                 );
                               } finally {
                                 if (context.mounted) {
@@ -375,8 +345,9 @@ class _GroupScreenState extends State<GroupScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 16),
-              if (group.description != null)
+              if (group.description != null && group.description!.isNotEmpty)
+                const SizedBox(height: 16),
+              if (group.description != null && group.description!.isNotEmpty)
                 Text(
                   group.description!,
                   style: Theme.of(context).textTheme.bodyLarge,

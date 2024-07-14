@@ -28,7 +28,9 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
     {
   PlanetsScreen.routePath: (context, state) => const PlanetsScreen(),
   EventsScreen.routePath: (context, state) => const EventsScreen(),
-  GroupsScreen.routePath: (context, state) => const GroupsScreen(),
+  GroupsScreen.routePath: (context, state) => GroupsScreen(
+        key: UniqueKey(),
+      ),
   GroupScreen.routePath: (context, state) => GroupScreen(
         groupId: int.parse(
           state.pathParameters['groupId']!,

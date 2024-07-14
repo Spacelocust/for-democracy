@@ -8,13 +8,16 @@ import 'package:mobile/utils/sse.dart';
 
 abstract class PlanetsService {
   static const String planetsUrl = '/planets';
+  static const String planetsEventUrl = '/planets-event';
   static const String planetsStreamUrl = '/planets-stream';
 
   static String url = '${dotenv.get(APIService.baseUrlEnv)}$planetsStreamUrl';
 
-  static Future<List<Planet>> getPlanets() async {
+  static Future<List<Planet>> getPlanets({
+    onlyEvents = false,
+  }) async {
     var dio = APIService.getDio();
-    var planets = await dio.get(planetsUrl);
+    var planets = await dio.get(onlyEvents ? planetsEventUrl : planetsUrl);
     var planetsData = planets.data as List<dynamic>;
 
     return planetsData.map((planet) => Planet.fromJson(planet)).toList();

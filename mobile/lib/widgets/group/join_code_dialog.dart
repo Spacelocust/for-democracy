@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
+import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
 
 class JoinCodeDialog extends StatefulWidget {
@@ -74,20 +75,15 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
                       _submitting = true;
                     });
 
-                    ScaffoldMessenger.of(context)
-                      ..removeCurrentSnackBar()
-                      ..showSnackBar(
-                        SnackBar(
-                          content:
-                              Text(AppLocalizations.of(context)!.groupJoining),
-                          showCloseIcon: false,
-                          duration: const Duration(
-                            // Their phone will run out of battery before this finishes
-                            days: 365,
-                          ),
-                          dismissDirection: null,
-                        ),
-                      );
+                    showSnackBar(
+                      context,
+                      AppLocalizations.of(context)!.groupJoining,
+                      showCloseIcon: false,
+                      duration: const Duration(
+                        // Their phone will run out of battery before this finishes
+                        days: 365,
+                      ),
+                    );
 
                     try {
                       final group = await GroupsService.joinGroupWithCode(
@@ -98,15 +94,10 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
                         return;
                       }
 
-                      ScaffoldMessenger.of(context)
-                        ..removeCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content:
-                                Text(AppLocalizations.of(context)!.groupJoined),
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
+                      showSnackBar(
+                        context,
+                        AppLocalizations.of(context)!.groupJoined,
+                      );
 
                       context
                         ..pop()
@@ -124,40 +115,25 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
                       }
 
                       if (e.response?.statusCode == 400) {
-                        ScaffoldMessenger.of(context)
-                          ..removeCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context)!
-                                  .groupInvalidCode),
-                              duration: const Duration(seconds: 5),
-                            ),
-                          );
+                        showSnackBar(
+                          context,
+                          AppLocalizations.of(context)!.groupInvalidCode,
+                        );
                       } else {
-                        ScaffoldMessenger.of(context)
-                          ..removeCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context)!
-                                  .groupCannotJoin),
-                              duration: const Duration(seconds: 5),
-                            ),
-                          );
+                        showSnackBar(
+                          context,
+                          AppLocalizations.of(context)!.groupCannotJoin,
+                        );
                       }
                     } catch (e) {
                       if (!context.mounted) {
                         return;
                       }
 
-                      ScaffoldMessenger.of(context)
-                        ..removeCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context)!
-                                .somethingWentWrong),
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
+                      showSnackBar(
+                        context,
+                        AppLocalizations.of(context)!.somethingWentWrong,
+                      );
                     } finally {
                       setState(() {
                         _submitting = false;

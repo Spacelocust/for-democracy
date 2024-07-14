@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/forms/group_form.dart';
@@ -40,7 +42,9 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
 
   void fetchPlanets() {
     setState(() {
-      _planetsFuture = PlanetsService.getPlanets();
+      _planetsFuture = PlanetsService.getPlanets(
+        onlyEvents: true,
+      );
     });
   }
 
@@ -102,7 +106,23 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
                 },
                 onSubmit: (formData) async {
                   try {
-                    await GroupsService.createGroup(formData);
+                    final newGroup = await GroupsService.createGroup(formData);
+
+                    if (context.mounted) {
+                      showSnackBar(
+                        context,
+                        AppLocalizations.of(context)!.groupCreated,
+                      );
+
+                      context.go(
+                        context.namedLocation(
+                          GroupScreen.routeName,
+                          pathParameters: {
+                            'groupId': newGroup.id.toString(),
+                          },
+                        ),
+                      );
+                    }
                   } on DioException catch (e) {
                     var statusCode = e.response?.statusCode;
 
@@ -111,38 +131,24 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
                     }
 
                     if (statusCode < 500) {
-                      ScaffoldMessenger.of(context)
-                        ..removeCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content:
-                                Text(AppLocalizations.of(context)!.invalidForm),
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
+                      showSnackBar(
+                        context,
+                        AppLocalizations.of(context)!.invalidForm,
+                      );
                     } else {
-                      ScaffoldMessenger.of(context)
-                        ..removeCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context)!
-                                .somethingWentWrong),
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
+                      showSnackBar(
+                        context,
+                        AppLocalizations.of(context)!.somethingWentWrong,
+                      );
                     }
                   } catch (error) {
                     if (!context.mounted) {
                       return;
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.of(context)!.somethingWentWrong,
-                        ),
-                        duration: const Duration(seconds: 5),
-                      ),
+                    showSnackBar(
+                      context,
+                      AppLocalizations.of(context)!.somethingWentWrong,
                     );
                   }
                 },

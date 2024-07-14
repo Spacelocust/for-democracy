@@ -246,32 +246,24 @@ class _GroupsScreenState extends State<GroupsScreen> {
             ),
             ...groups.map(
               (group) {
-                Widget title;
-
-                if (group.public) {
-                  title = Text(
-                    group.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  );
-                } else {
-                  title = Row(
+                return HelldiversListTile(
+                  title: Wrap(
                     children: [
-                      const Icon(
-                        Icons.lock,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 5),
+                      if (!group.public)
+                        const Icon(
+                          Icons.lock,
+                          size: 16,
+                        ),
+                      if (!group.public) const SizedBox(width: 5),
                       Text(
                         group.name,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
-                  );
-                }
-
-                return HelldiversListTile(
-                  title: title,
-                  subtitle: Text(group.planet.name),
+                  ),
+                  subtitle: Wrap(children: [
+                    Text(group.planet.name),
+                  ]),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,

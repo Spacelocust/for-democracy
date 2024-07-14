@@ -301,7 +301,8 @@ class _PlanetViewTitle extends StatelessWidget {
 
     titleRow = [
       ...titleRow,
-      Expanded(
+      SizedBox(
+        width: MediaQuery.of(context).size.width / 3,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
