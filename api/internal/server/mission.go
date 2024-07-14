@@ -107,8 +107,6 @@ func (s *Server) CreateMission(c *gin.Context) {
 		GroupID:        missionData.GroupID,
 	}
 
-	newMission.EstimatedTime = newMission.CalulateEstimatedTime()
-
 	if err := db.Create(&newMission).Error; err != nil {
 		s.InternalErrorResponse(c, err)
 		return
@@ -227,8 +225,6 @@ func (s *Server) UpdateMission(c *gin.Context) {
 		ObjectiveTypes: mission.ObjectiveTypes,
 		GroupID:        mission.GroupID,
 	}
-
-	updatedMission.EstimatedTime = updatedMission.CalulateEstimatedTime()
 
 	if err := db.Model(&model.Mission{}).Where("id = ?", missionID).Updates(&updatedMission).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
