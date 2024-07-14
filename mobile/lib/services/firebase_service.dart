@@ -44,8 +44,8 @@ abstract class FirebaseMessagingService {
       payload: jsonEncode(message.toMap()),
     );
   }
-}
 
-Future<void> handleBackgroundMessage(RemoteMessage message) async {
-  log(message.toString());
+  static Future<void> handleBackgroundMessage(RemoteMessage message) async {
+    log('handleBackgroundMessage: ${message.notification!.title!}');
+  }
 }

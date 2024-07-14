@@ -1,9 +1,12 @@
 package server
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -32,6 +35,24 @@ func (s *Server) GetStratagems(c *gin.Context) {
 		s.InternalErrorResponse(c, err)
 		return
 	}
+
+	client := s.firebase.GetMessaging()
+
+	// TODO - replace with actual token from the database
+	response, err := client.Send(context.Background(), &messaging.Message{
+		Token: "dzMbcc3RSY2MC-d1qeI2s2:APA91bEhgCXS6l_LLy6ZvYNk3sJgCUgcrKfOZMsbDh-0ymParNYY0Y_PCr7LCV-JfX_PKVa6QwzMZ_GEtxhwnuGxLuOHMlaaupo3liLtb77eXgGauv02v0Q1XMfFdQIubs_tHpRlSxIb",
+		Notification: &messaging.Notification{
+			Title: "Hello",
+			Body:  "Hello, World!",
+		},
+	})
+
+	if err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, stratagems)
 }
