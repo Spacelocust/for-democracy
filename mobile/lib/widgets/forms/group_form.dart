@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as picker_theme;
+import 'package:mobile/utils/theme_colors.dart';
 
 class GroupForm extends StatefulWidget {
   /// The list of planets to choose from.
@@ -86,25 +91,25 @@ class GroupFormState extends State<GroupForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: ListView(
+      child: Column(
         children: <Widget>[
           // Name
           TextFormField(
             initialValue: _formData.name,
             enabled: !_submitting,
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              hintText: 'The name of your group',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.groupName,
+              hintText: AppLocalizations.of(context)!.groupNameHint,
             ),
             validator: (value) {
               final trimmedValue = value?.trim();
 
               if (trimmedValue == null || trimmedValue.isEmpty) {
-                return 'Please enter some text';
+                return AppLocalizations.of(context)!.groupNameNotEmpty;
               }
 
-              if (trimmedValue.length > 100) {
-                return 'The name must be less than 100 characters';
+              if (trimmedValue.length > 50) {
+                return AppLocalizations.of(context)!.groupNameMaxLength;
               }
 
               return null;
@@ -115,6 +120,7 @@ class GroupFormState extends State<GroupForm> {
               });
             },
           ),
+          const SizedBox(height: 2),
           // Description
           TextFormField(
             initialValue: _formData.description,
@@ -122,9 +128,9 @@ class GroupFormState extends State<GroupForm> {
             minLines: 3,
             maxLines: null,
             keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              hintText: 'The optional description of your group',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.groupDescription,
+              hintText: AppLocalizations.of(context)!.groupDescriptionHint,
             ),
             validator: (value) {
               final trimmedValue = value?.trim();
@@ -134,7 +140,7 @@ class GroupFormState extends State<GroupForm> {
               }
 
               if (trimmedValue.length > 1000) {
-                return 'The description must be less than 1000 characters';
+                return AppLocalizations.of(context)!.groupDescriptionMaxLength;
               }
 
               return null;
@@ -145,42 +151,9 @@ class GroupFormState extends State<GroupForm> {
               });
             },
           ),
-          // Private
-          FormField(
-            initialValue: _formData.private,
-            validator: (value) {
-              return null;
-            },
-            builder: (FormFieldState<bool> field) {
-              return SwitchListTile(
-                title: Text("Private"),
-                value: field.value!,
-                onChanged: _submitting
-                    ? null
-                    : (value) {
-                        field.didChange(value);
-
-                        setState(() {
-                          _formData.private = value;
-                        });
-                      },
-              );
-            },
-          ),
-          // Start at
-          InputDatePickerFormField(
-            initialDate: _formData.startAt,
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(
-              const Duration(days: 365),
-            ),
-            onDateSubmitted: (DateTime value) {
-              setState(() {
-                _formData.startAt = value;
-              });
-            },
-          ),
+          const SizedBox(height: 12),
           // Difficulty
+          if (!widget.editing) const SizedBox(height: 18),
           if (!widget.editing)
             FormField<Difficulty>(
               initialValue: _formData.difficulty,
@@ -189,8 +162,9 @@ class GroupFormState extends State<GroupForm> {
               },
               builder: (FormFieldState<Difficulty> field) {
                 return DropdownMenu<Difficulty>(
-                  label: Text("Difficulty"),
+                  label: Text(AppLocalizations.of(context)!.groupDifficulty),
                   initialSelection: field.value,
+                  expandedInsets: EdgeInsets.zero,
                   enabled: !_submitting,
                   errorText: field.errorText,
                   onSelected: (Difficulty? value) {
@@ -206,6 +180,11 @@ class GroupFormState extends State<GroupForm> {
                     return DropdownMenuEntry<Difficulty>(
                       value: difficulty,
                       label: difficulty.translatedName(context),
+                      leadingIcon: Image(
+                        image: AssetImage(difficulty.logo),
+                        width: 30,
+                        height: 30,
+                      ),
                     );
                   }).toList(),
                 );
@@ -213,19 +192,22 @@ class GroupFormState extends State<GroupForm> {
             ),
           // Planet
           if (!widget.editing && widget.planets != null)
+            const SizedBox(height: 22),
+          if (!widget.editing && widget.planets != null)
             FormField<Planet>(
               initialValue: _formData.planet,
               validator: (value) {
                 if (value == null) {
-                  return 'Please select a planet';
+                  return AppLocalizations.of(context)!.groupPlanetNotEmpty;
                 }
 
                 return null;
               },
               builder: (FormFieldState<Planet> field) {
                 return DropdownMenu<Planet>(
-                  label: Text("Planet"),
+                  label: Text(AppLocalizations.of(context)!.groupPlanet),
                   initialSelection: field.value,
+                  expandedInsets: EdgeInsets.zero,
                   enabled: !_submitting,
                   errorText: field.errorText,
                   onSelected: (Planet? value) {
@@ -243,7 +225,78 @@ class GroupFormState extends State<GroupForm> {
                 );
               },
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
+          // Private
+          FormField(
+            initialValue: _formData.private,
+            validator: (value) {
+              return null;
+            },
+            builder: (FormFieldState<bool> field) {
+              return SwitchListTile(
+                title: Text(AppLocalizations.of(context)!.groupPrivate),
+                subtitle: Text(AppLocalizations.of(context)!.groupPrivateHint),
+                value: field.value!,
+                onChanged: _submitting
+                    ? null
+                    : (value) {
+                        field.didChange(value);
+
+                        setState(() {
+                          _formData.private = value;
+                        });
+                      },
+              );
+            },
+          ),
+          const SizedBox(height: 18),
+          // Start at
+          FormField<DateTime>(
+            initialValue: _formData.startAt,
+            validator: (value) {
+              return null;
+            },
+            builder: (FormFieldState<DateTime> field) {
+              return OutlinedButton.icon(
+                icon: const Icon(Icons.calendar_today),
+                label: Text(
+                  "${AppLocalizations.of(context)!.groupStartAt} (${DateFormat.MMMMd().format(_formData.startAt)}, ${DateFormat.Hm().format(_formData.startAt)})",
+                ),
+                onPressed: () {
+                  DatePicker.showDateTimePicker(
+                    context,
+                    showTitleActions: true,
+                    theme: const picker_theme.DatePickerTheme(
+                      backgroundColor: ThemeColors.surface,
+                      headerColor: ThemeColors.surface,
+                      doneStyle: TextStyle(color: ThemeColors.primary),
+                      cancelStyle: TextStyle(color: ThemeColors.primary),
+                      itemStyle: TextStyle(color: ThemeColors.primary),
+                    ),
+                    locale:
+                        Localizations.localeOf(context) == const Locale('fr')
+                            ? LocaleType.fr
+                            : LocaleType.en,
+                    minTime: DateTime.now().subtract(
+                      const Duration(hours: 1),
+                    ),
+                    maxTime: DateTime.now().add(
+                      const Duration(days: 365),
+                    ),
+                    currentTime: DateTime.now(),
+                    onConfirm: (date) {
+                      field.didChange(date);
+
+                      setState(() {
+                        _formData.startAt = date;
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          ),
+          const SizedBox(height: 22),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

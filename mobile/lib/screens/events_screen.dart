@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/services/events_service.dart';
@@ -64,10 +63,20 @@ class _EventsScreenState extends State<EventsScreen> {
             fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
           );
           final List<Widget> eventsList = [
+            // Title
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.events,
+                style: TextStyleArame(
+                  fontSize:
+                      Theme.of(context).textTheme.headlineMedium!.fontSize,
+                ),
+              ),
+            ),
             // Defences
             ListTile(
               title: Text(
-                AppLocalizations.of(context)!.eventsOngoingDefences,
+                "${AppLocalizations.of(context)!.eventsOngoingDefences} (${events.defences.length})",
                 style: const TextStyleArame(),
               ),
             ),
@@ -101,13 +110,9 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                 ),
                 onTap: () {
-                  context.go(
-                    context.namedLocation(
-                      PlanetScreen.routeName,
-                      pathParameters: {
-                        'planetId': defence.planet!.id.toString()
-                      },
-                    ),
+                  PlanetScreen.show(
+                    context,
+                    defence.planet!.id,
                   );
                 },
               ),
@@ -122,7 +127,7 @@ class _EventsScreenState extends State<EventsScreen> {
             // Liberations
             ListTile(
               title: Text(
-                AppLocalizations.of(context)!.eventsOngoingLiberations,
+                "${AppLocalizations.of(context)!.eventsOngoingLiberations} (${events.liberations.length})",
                 style: const TextStyleArame(),
               ),
             ),
@@ -156,13 +161,9 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                 ),
                 onTap: () {
-                  context.go(
-                    context.namedLocation(
-                      PlanetScreen.routeName,
-                      pathParameters: {
-                        'planetId': liberation.planet!.id.toString()
-                      },
-                    ),
+                  PlanetScreen.show(
+                    context,
+                    liberation.planet!.id,
                   );
                 },
               ),

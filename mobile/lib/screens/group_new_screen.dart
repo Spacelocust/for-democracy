@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/dto/group_dto.dart';
+import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
@@ -16,8 +18,11 @@ class GroupNewScreen extends StatefulWidget {
 
   static const String routeName = 'groupNew';
 
+  final int? initialPlanetId;
+
   const GroupNewScreen({
     super.key,
+    this.initialPlanetId,
   });
 
   @override
@@ -64,16 +69,32 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
           // Success state
           final planets = snapshot.data!;
 
-          return Column(
+          return ListView(
             children: [
               ListTile(
                 title: Text(
-                  AppLocalizations.of(context)!.groupsAllGroups,
-                  style: const TextStyleArame(),
+                  AppLocalizations.of(context)!.groupsNewScreenTitle,
+                  style: TextStyleArame(
+                    fontSize:
+                        Theme.of(context).textTheme.headlineMedium!.fontSize,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               GroupForm(
                 planets: planets,
+                initialData: GroupDTO(
+                  name: '',
+                  description: null,
+                  difficulty: Difficulty.trivial,
+                  private: false,
+                  startAt: DateTime.now(),
+                  planet: widget.initialPlanetId != null
+                      ? planets.firstWhere(
+                          (planet) => planet.id == widget.initialPlanetId,
+                        )
+                      : null,
+                ),
                 onBackPress: () {
                   context.go(
                     context.namedLocation(GroupsScreen.routeName),

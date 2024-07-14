@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
@@ -66,16 +67,28 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
           // Success state
           final group = snapshot.data!;
 
-          return Column(
+          return ListView(
             children: [
               ListTile(
                 title: Text(
-                  AppLocalizations.of(context)!.groupsAllGroups,
-                  style: const TextStyleArame(),
+                  AppLocalizations.of(context)!.groupsEditScreenTitle,
+                  style: TextStyleArame(
+                    fontSize:
+                        Theme.of(context).textTheme.headlineMedium!.fontSize,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               GroupForm(
                 editing: true,
+                initialData: GroupDTO(
+                  name: group.name,
+                  description: group.description,
+                  private: !group.public,
+                  planet: group.planet,
+                  difficulty: group.difficulty,
+                  startAt: DateTime.now(),
+                ),
                 onBackPress: () {
                   context.go(
                     context.namedLocation(

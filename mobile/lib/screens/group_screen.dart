@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/group.dart';
@@ -10,7 +11,6 @@ import 'package:mobile/services/groups_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/confirm_action_dialog.dart';
-import 'package:mobile/widgets/components/rounded_icon_button.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
@@ -61,14 +61,14 @@ class _GroupScreenState extends State<GroupScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
             return Spinner(
-              semanticsLabel: AppLocalizations.of(context)!.planetScreenLoading,
+              semanticsLabel: AppLocalizations.of(context)!.groupScreenLoading,
             );
           }
 
           if (snapshot.hasError || !snapshot.hasData) {
             // Error state
             return ErrorMessage(
-              errorMessage: AppLocalizations.of(context)!.planetScreenError,
+              errorMessage: AppLocalizations.of(context)!.groupScreenError,
               onPressed: fetchGroup,
             );
           }
@@ -77,7 +77,7 @@ class _GroupScreenState extends State<GroupScreen> {
           final user = context.watch<AuthState>().user;
           final group = snapshot.data!;
           final groupUsers = group.groupUsers;
-          final bottomButtons = <Widget>[];
+          Widget? actions;
 
           groupUsers.sort((a, b) {
             if (a.owner) {
@@ -88,102 +88,96 @@ class _GroupScreenState extends State<GroupScreen> {
           });
 
           if (user != null) {
-            if (group.isOwner(user.steamId)) {
-              bottomButtons
-                ..add(
-                  RoundedIconButton(
-                    child: IconButton(
-                      color: ThemeColors.surface,
-                      icon: Icon(
-                        Icons.delete,
-                        semanticLabel: AppLocalizations.of(context)!.delete,
-                      ),
-                      onPressed: () async {
-                        await showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return ConfirmActionDialog(
-                              onConfirm: () async {
-                                try {
-                                  await GroupsService.deleteGroup(group.id);
+            actions = SpeedDial(
+              direction: SpeedDialDirection.up,
+              icon: Icons.more_vert,
+              activeIcon: Icons.close,
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              children: [
+                if (group.isOwner(user.steamId))
+                  SpeedDialChild(
+                    child: const Icon(Icons.delete),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.delete,
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) {
+                          return ConfirmActionDialog(
+                            onConfirm: () async {
+                              try {
+                                await GroupsService.deleteGroup(group.id);
 
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppLocalizations.of(context)!
-                                            .groupDeleted,
-                                      ),
-                                    ),
-                                  );
-
-                                  context.go(
-                                    context.namedLocation(
-                                      GroupsScreen.routeName,
-                                    ),
-                                  );
-                                } catch (e) {
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppLocalizations.of(context)!
-                                            .somethingWentWrong,
-                                      ),
-                                    ),
-                                  );
-                                } finally {
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-
-                                  context.pop();
+                                if (!context.mounted) {
+                                  return;
                                 }
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                )
-                ..add(
-                  RoundedIconButton(
-                    child: IconButton(
-                      color: ThemeColors.surface,
-                      icon: Icon(
-                        Icons.edit,
-                        semanticLabel: AppLocalizations.of(context)!.edit,
-                      ),
-                      onPressed: () {
-                        context.go(
-                          context.namedLocation(
-                            GroupEditScreen.routeName,
-                            pathParameters: {
-                              'groupId': group.id.toString(),
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(context)!
+                                          .groupDeleted,
+                                    ),
+                                  ),
+                                );
+
+                                GoRouter.of(context).go(
+                                  context.namedLocation(
+                                    GroupsScreen.routeName,
+                                  ),
+                                );
+                              } catch (e) {
+                                if (!context.mounted) {
+                                  return;
+                                }
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(context)!
+                                          .somethingWentWrong,
+                                    ),
+                                  ),
+                                );
+                              } finally {
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              }
                             },
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                );
-            } else if (group.isMember(user.steamId)) {
-              bottomButtons.add(
-                RoundedIconButton(
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.exit_to_app,
-                      semanticLabel: AppLocalizations.of(context)!.leave,
-                    ),
-                    onPressed: () async {
+                if (group.isOwner(user.steamId))
+                  SpeedDialChild(
+                    child: const Icon(Icons.edit),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.edit,
+                    onTap: () {
+                      context.go(
+                        context.namedLocation(
+                          GroupEditScreen.routeName,
+                          pathParameters: {
+                            'groupId': group.id.toString(),
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                if (!group.isOwner(user.steamId) &&
+                    group.isMember(user.steamId))
+                  SpeedDialChild(
+                    child: const Icon(Icons.exit_to_app),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.leave,
+                    onTap: () async {
                       await showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -210,7 +204,7 @@ class _GroupScreenState extends State<GroupScreen> {
                                   ),
                                 );
 
-                                context.replace(
+                                context.go(
                                   context.namedLocation(
                                     GroupScreen.routeName,
                                     pathParameters: {
@@ -235,8 +229,6 @@ class _GroupScreenState extends State<GroupScreen> {
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
-
-                                context.pop();
                               }
                             },
                           );
@@ -244,17 +236,14 @@ class _GroupScreenState extends State<GroupScreen> {
                       );
                     },
                   ),
-                ),
-              );
-            } else {
-              bottomButtons.add(
-                RoundedIconButton(
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.add,
-                      semanticLabel: AppLocalizations.of(context)!.join,
-                    ),
-                    onPressed: () async {
+                if (!group.isOwner(user.steamId) &&
+                    !group.isMember(user.steamId))
+                  SpeedDialChild(
+                    child: const Icon(Icons.add),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.join,
+                    onTap: () async {
                       await showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -281,7 +270,7 @@ class _GroupScreenState extends State<GroupScreen> {
                                   ),
                                 );
 
-                                context.replace(
+                                context.go(
                                   context.namedLocation(
                                     GroupScreen.routeName,
                                     pathParameters: {
@@ -306,8 +295,6 @@ class _GroupScreenState extends State<GroupScreen> {
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
-
-                                context.pop();
                               }
                             },
                           );
@@ -315,9 +302,8 @@ class _GroupScreenState extends State<GroupScreen> {
                       );
                     },
                   ),
-                ),
-              );
-            }
+              ],
+            );
           }
 
           return ListView(
@@ -399,9 +385,7 @@ class _GroupScreenState extends State<GroupScreen> {
               ListTile(
                 title: Text(
                   AppLocalizations.of(context)!.planet,
-                  style: TextStyleArame(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                  ),
+                  style: const TextStyleArame(),
                 ),
               ),
               PlanetListItem(
@@ -411,9 +395,7 @@ class _GroupScreenState extends State<GroupScreen> {
               ListTile(
                 title: Text(
                   "${AppLocalizations.of(context)!.members} (${groupUsers.length}/4)",
-                  style: TextStyleArame(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                  ),
+                  style: const TextStyleArame(),
                 ),
               ),
               ...groupUsers.map(
@@ -427,9 +409,7 @@ class _GroupScreenState extends State<GroupScreen> {
               ListTile(
                 title: Text(
                   "${AppLocalizations.of(context)!.missions} (${group.missions.length})",
-                  style: TextStyleArame(
-                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-                  ),
+                  style: const TextStyleArame(),
                 ),
               ),
               if (group.missions.isEmpty)
@@ -452,12 +432,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       context.go(context.namedLocation(GroupsScreen.routeName));
                     },
                   ),
-                  if (bottomButtons.isNotEmpty)
-                    Wrap(
-                      alignment: WrapAlignment.end,
-                      spacing: 16,
-                      children: bottomButtons,
-                    ),
+                  if (actions != null) actions,
                 ],
               ),
             ],

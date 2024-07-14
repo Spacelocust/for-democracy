@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
+import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/states/groups_filters_state.dart';
@@ -18,11 +19,8 @@ import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Note : This screen is not directly used in the GoRouter configuration. It is displayed using the [PlanetScreen.show] method.
 class PlanetScreen extends StatefulWidget {
-  static const String routePath = ":planetId";
-
-  static const String routeName = 'planet';
-
   final int planetId;
 
   const PlanetScreen({
@@ -32,6 +30,20 @@ class PlanetScreen extends StatefulWidget {
 
   @override
   State<PlanetScreen> createState() => _PlanetScreenState();
+
+  static void show(BuildContext context, int planetId) {
+    showModalBottomSheet(
+      context: context,
+      enableDrag: true,
+      isDismissible: true,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useRootNavigator: true,
+      builder: (context) {
+        return PlanetScreen(planetId: planetId);
+      },
+    );
+  }
 }
 
 /// Planet screen
@@ -108,35 +120,53 @@ class _PlanetScreenState extends State<PlanetScreen> {
                 planetViewChildren = [
                   ...planetViewChildren,
                   Positioned(
+                    width: MediaQuery.of(context).size.width,
                     bottom: 5,
-                    right: 5,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // TODO: Proper links
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            context
-                                .read<GroupsFiltersState>()
-                                .setPlanet(planet.id);
+                    right: 0,
+                    child: SingleChildScrollView(
+                      clipBehavior: Clip.none,
+                      padding: const EdgeInsets.only(
+                        left: 36,
+                      ),
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              context
+                                ..pop()
+                                ..read<GroupsFiltersState>()
+                                    .setPlanet(planet.id);
 
-                            context.go(
-                              context.namedLocation(GroupsScreen.routeName),
-                            );
-                          },
-                          label: Text(AppLocalizations.of(context)!.findGroup),
-                          icon: const Icon(Icons.search),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: () => context.go(
-                            context.namedLocation(GroupsScreen.routeName),
+                              context.go(
+                                context.namedLocation(GroupsScreen.routeName),
+                              );
+                            },
+                            label:
+                                Text(AppLocalizations.of(context)!.findGroup),
+                            icon: const Icon(Icons.search),
                           ),
-                          label:
-                              Text(AppLocalizations.of(context)!.createGroup),
-                          icon: const Icon(Icons.add),
-                        ),
-                      ],
+                          const SizedBox(width: 5),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context
+                                ..pop()
+                                ..go(
+                                  context.namedLocation(
+                                    GroupNewScreen.routeName,
+                                    queryParameters: {
+                                      "planetId": planet.id.toString(),
+                                    },
+                                  ),
+                                );
+                            },
+                            label:
+                                Text(AppLocalizations.of(context)!.createGroup),
+                            icon: const Icon(Icons.add),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ];
@@ -217,7 +247,6 @@ class _PlanetScreenView extends StatelessWidget {
 
     columns = [
       ...columns,
-
       // Background image of the planet
       _BoxDecoration(
         borderColor: Colors.grey,
@@ -241,10 +270,8 @@ class _PlanetScreenView extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 5),
-
       // Planet progress bar for defence
       if (planet.hasDefence) _ProgressDefence(planet: planet),
-
       // Planet progress bar for liberation
       if (planet.hasLiberation) _ProgressLiberation(planet: planet),
     ];
@@ -274,38 +301,41 @@ class _PlanetViewTitle extends StatelessWidget {
 
     titleRow = [
       ...titleRow,
-      Row(
-        children: [
-          if (planet.players != null)
-            Row(
-              children: [
-                Text(
-                  NumberFormat.compact().format(planet.players!),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(width: 10),
-                const Image(
-                  image: AssetImage("assets/images/helldivers-player.png"),
-                  width: 20,
-                  height: 20,
-                ),
-              ],
-            ),
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => _PlanetEventDialog(
-                  planet: planet,
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.insert_chart_outlined,
-              size: 30,
-            ),
-          )
-        ],
+      Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (planet.players != null)
+              Row(
+                children: [
+                  Text(
+                    NumberFormat.compact().format(planet.players!),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(width: 10),
+                  const Image(
+                    image: AssetImage("assets/images/helldivers-player.png"),
+                    width: 20,
+                    height: 20,
+                  ),
+                ],
+              ),
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => _PlanetEventDialog(
+                    planet: planet,
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.insert_chart_outlined,
+                size: 30,
+              ),
+            )
+          ],
+        ),
       ),
     ];
 
@@ -318,6 +348,7 @@ class _PlanetViewTitle extends StatelessWidget {
 
 class _EventHeader extends StatelessWidget {
   final Widget child;
+
   final AssetImage image;
 
   const _EventHeader({required this.child, required this.image});
@@ -382,41 +413,48 @@ class _TitlePlanet extends StatelessWidget {
           .toUpperCase();
     }
 
-    return Row(
-      children: [
-        Image(
-          image: AssetImage(logo),
-          width: 40,
-          height: 40,
-        ),
-        const SizedBox(width: 8),
-        const Divider(
-          color: Colors.white,
-          height: 32,
-          thickness: 2,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              planet.name.toUpperCase(),
-              style: TextStyleArame(
-                fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-                decoration: TextDecoration.underline,
-                decorationThickness: 2.2,
-                decorationColor: color,
-              ),
+    return Expanded(
+      flex: 2,
+      child: Row(
+        children: [
+          Image(
+            image: AssetImage(logo),
+            width: 40,
+            height: 40,
+          ),
+          const SizedBox(width: 8),
+          const Divider(
+            color: Colors.white,
+            height: 32,
+            thickness: 2,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  planet.name.toUpperCase(),
+                  style: TextStyleArame(
+                    fontSize:
+                        Theme.of(context).textTheme.headlineSmall!.fontSize,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 2.2,
+                    decorationColor: color,
+                  ),
+                ),
+                Text(
+                  subTitle,
+                  softWrap: true,
+                  style: TextStyleArame(
+                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                    color: color,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subTitle,
-              style: TextStyleArame(
-                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                color: color,
-              ),
-            )
-          ],
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 }

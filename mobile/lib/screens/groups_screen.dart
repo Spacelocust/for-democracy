@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/enum/difficulty.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
 import 'package:mobile/states/auth_state.dart';
@@ -13,6 +15,7 @@ import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/helldivers_list_item.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
+import 'package:mobile/widgets/group/join_code_dialog.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:provider/provider.dart';
 
@@ -121,16 +124,54 @@ class _GroupsScreenState extends State<GroupsScreen> {
           final List<Widget> groupsList = [
             ListTile(
               title: Text(
-                AppLocalizations.of(context)!.groupsAllGroups,
-                style: const TextStyleArame(),
+                AppLocalizations.of(context)!.groups,
+                style: TextStyleArame(
+                  fontSize:
+                      Theme.of(context).textTheme.headlineMedium!.fontSize,
+                ),
+              ),
+              trailing: SpeedDial(
+                direction: SpeedDialDirection.down,
+                icon: Icons.add,
+                activeIcon: Icons.close,
+                backgroundColor: ThemeColors.primary,
+                foregroundColor: ThemeColors.surface,
+                children: [
+                  SpeedDialChild(
+                    child: const Icon(Icons.groups),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.createGroup,
+                    onTap: () {
+                      context.go(
+                        context.namedLocation(
+                          GroupNewScreen.routeName,
+                        ),
+                      );
+                    },
+                  ),
+                  SpeedDialChild(
+                    child: const Icon(Icons.group_add),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.groupJoinCode,
+                    onTap: () {
+                      showDialog<void>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return const JoinCodeDialog();
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 16, bottom: 16),
-              child: Divider(
-                height: 10,
-                thickness: 2,
-                color: ThemeColors.primary,
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.filters,
+                style: const TextStyleArame(),
               ),
             ),
             // Planet filter
@@ -197,40 +238,51 @@ class _GroupsScreenState extends State<GroupsScreen> {
                   });
                 },
               ),
+            ListTile(
+              title: Text(
+                "${AppLocalizations.of(context)!.results} (${groups.length})",
+                style: const TextStyleArame(),
+              ),
+            ),
             ...groups.map(
               (group) {
-                Widget subtitle;
+                Widget title;
 
                 if (group.public) {
-                  subtitle = Text(group.planet.name);
+                  title = Text(
+                    group.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  );
                 } else {
-                  subtitle = Row(
+                  title = Row(
                     children: [
-                      Text(group.name),
-                      const SizedBox(width: 5),
                       const Icon(
                         Icons.lock,
                         size: 16,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        group.name,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   );
                 }
 
                 return HelldiversListTile(
-                  title: Text(
-                    group.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  subtitle: subtitle,
+                  title: title,
+                  subtitle: Text(group.planet.name),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         "${DateFormat.MMMMd().format(group.startAt)}, ${DateFormat.Hm().format(group.startAt)}",
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                       Text(
                         "${group.groupUsers.length.toString()}/4",
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
