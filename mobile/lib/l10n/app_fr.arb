@@ -66,6 +66,8 @@
     "cancel": "Annuler",
     "filters": "Filtres",
     "results": "Résultats",
+    "formLoading": "Chargement du formulaire...",
+    "formLoadingFailed": "Impossible de charger le formulaire",
     "@ERROR": {},
     "pageNotFound": "Page non trouvée",
     "unknownError": "Une erreur inconnue s'est produite.",
@@ -100,10 +102,13 @@
     "@GROUP_SCREEN": {},
     "groupScreenLoading": "Chargement du groupe...",
     "groupScreenError": "Impossible de charger le groupe",
+    "groupScreenNewMission": "Nouvelle mission",
     "@GROUPS_NEW_SCREEN": {},
     "groupsNewScreenTitle": "Créer un groupe",
     "@GROUPS_EDIT_SCREEN": {},
     "groupsEditScreenTitle": "Modifier le groupe",
+    "@GROUPS_MISSION_NEW_SCREEN": {},
+    "groupsMissionNewScreenTitle": "Créer une mission",
     "@GALAXY_MAP": {},
     "galaxyMapLoading": "Chargement de la carte galactique...",
     "galaxyMapError": "Impossible de charger la carte galactique",
@@ -250,5 +255,23 @@
     "groupStartAt": "Date de début",
     "groupDifficulty": "Difficulté",
     "groupPlanet": "Planète",
-    "groupPlanetNotEmpty": "Veuillez sélectionner une planète."
+    "groupPlanetNotEmpty": "Veuillez sélectionner une planète.",
+    "@MISSION": {},
+    "missionCreated": "Mission créée avec succès.",
+    "missionName": "Nom",
+    "missionNameHint": "Le nom de la mission",
+    "missionNameNotEmpty": "Veuillez saisir un nom de mission.",
+    "missionNameMaxLength": "Le nom de la mission doit comporter au plus 50 caractères.",
+    "missionInstructions": "Instructions",
+    "missionInstructionsHint": "Les instructions optionnelles de la mission",
+    "missionInstructionsMaxLength": "Les instructions de la mission doivent comporter au plus 1000 caractères.",
+    "missionObjectives": "Objectifs",
+    "missionObjectiveTimeLimit": "Limite de temps de {timeLimit}",
+    "@missionObjectiveTimeLimit": {
+        "placeholders": {
+            "timeLimit": {
+                "type": "String"
+            }
+        }
+    }
 }

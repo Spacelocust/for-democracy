@@ -39,7 +39,7 @@ const (
 	DestroyCommandBunkers            ObjectiveType = "destroy_command_bunkers"
 )
 
-func GetObjectifs() []ObjectiveType {
+func GetObjectives() []ObjectiveType {
 	return []ObjectiveType{
 		TerminateIllegalBroadcast,
 		PumpFuelToICBM,

@@ -9,6 +9,7 @@ import 'package:mobile/models/statistic.dart';
 import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/groups_filters_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/countdown.dart';
@@ -103,7 +104,8 @@ class _PlanetScreenState extends State<PlanetScreen> {
               }
 
               // Success state
-              Planet planet = snapshot.data!;
+              final planet = snapshot.data!;
+              final user = context.read<AuthState>().user;
               List<Widget> planetViewChildren = [
                 Padding(
                   padding: EdgeInsets.only(
@@ -125,6 +127,7 @@ class _PlanetScreenState extends State<PlanetScreen> {
                     right: 0,
                     child: SingleChildScrollView(
                       clipBehavior: Clip.none,
+                      reverse: true,
                       padding: const EdgeInsets.only(
                         left: 36,
                       ),
@@ -134,25 +137,26 @@ class _PlanetScreenState extends State<PlanetScreen> {
                         children: [
                           OutlinedButton.icon(
                             onPressed: () {
-                              context
-                                ..pop()
-                                ..read<GroupsFiltersState>()
-                                    .setPlanet(planet.id);
+                              Navigator.of(context).pop();
 
-                              context.go(
-                                context.namedLocation(GroupsScreen.routeName),
-                              );
+                              context
+                                ..read<GroupsFiltersState>()
+                                    .setPlanet(planet.id)
+                                ..go(
+                                  context.namedLocation(GroupsScreen.routeName),
+                                );
                             },
                             label:
                                 Text(AppLocalizations.of(context)!.findGroup),
                             icon: const Icon(Icons.search),
                           ),
-                          const SizedBox(width: 5),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context
-                                ..pop()
-                                ..go(
+                          if (user != null) const SizedBox(width: 5),
+                          if (user != null)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+
+                                context.go(
                                   context.namedLocation(
                                     GroupNewScreen.routeName,
                                     queryParameters: {
@@ -160,11 +164,11 @@ class _PlanetScreenState extends State<PlanetScreen> {
                                     },
                                   ),
                                 );
-                            },
-                            label:
-                                Text(AppLocalizations.of(context)!.createGroup),
-                            icon: const Icon(Icons.add),
-                          ),
+                              },
+                              label: Text(
+                                  AppLocalizations.of(context)!.createGroup),
+                              icon: const Icon(Icons.add),
+                            ),
                         ],
                       ),
                     ),

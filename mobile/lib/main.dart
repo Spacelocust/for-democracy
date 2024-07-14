@@ -6,6 +6,7 @@ import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/error_screen.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/group_edit_screen.dart';
+import 'package:mobile/screens/group_mission_new_screen.dart';
 import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
@@ -44,6 +45,12 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
             : null,
       ),
   GroupEditScreen.routePath: (context, state) => GroupEditScreen(
+        key: UniqueKey(),
+        groupId: int.parse(
+          state.pathParameters['groupId']!,
+        ),
+      ),
+  GroupMissionNewScreen.routePath: (context, state) => GroupMissionNewScreen(
         key: UniqueKey(),
         groupId: int.parse(
           state.pathParameters['groupId']!,
@@ -112,6 +119,14 @@ GoRouter router(
                   context,
                   state,
                 ),
+                routes: [
+                  GoRoute(
+                    name: GroupMissionNewScreen.routeName,
+                    path: GroupMissionNewScreen.routePath,
+                    builder: (context, state) =>
+                        views[GroupMissionNewScreen.routePath]!(context, state),
+                  ),
+                ],
               ),
             ],
           ),

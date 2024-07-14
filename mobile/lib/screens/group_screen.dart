@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/screens/group_edit_screen.dart';
+import 'package:mobile/screens/group_mission_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
 import 'package:mobile/states/auth_state.dart';
@@ -157,6 +158,23 @@ class _GroupScreenState extends State<GroupScreen> {
                       context.go(
                         context.namedLocation(
                           GroupEditScreen.routeName,
+                          pathParameters: {
+                            'groupId': group.id.toString(),
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                if (group.isOwner(user.steamId))
+                  SpeedDialChild(
+                    child: const Icon(Icons.add),
+                    backgroundColor: ThemeColors.primary,
+                    foregroundColor: ThemeColors.surface,
+                    label: AppLocalizations.of(context)!.groupScreenNewMission,
+                    onTap: () async {
+                      context.go(
+                        context.namedLocation(
+                          GroupMissionNewScreen.routeName,
                           pathParameters: {
                             'groupId': group.id.toString(),
                           },

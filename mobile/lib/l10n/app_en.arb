@@ -74,6 +74,8 @@
     "cancel": "Cancel",
     "filters": "Filters",
     "results": "Results",
+    "formLoading": "Loading form...",
+    "formLoadingFailed": "Failed to load form",
     "@ERROR": {},
     "pageNotFound": "Page not found",
     "unknownError": "An unknown error occurred.",
@@ -108,10 +110,13 @@
     "@GROUP_SCREEN": {},
     "groupScreenLoading": "Loading group...",
     "groupScreenError": "Failed to load group",
+    "groupScreenNewMission": "New mission",
     "@GROUPS_NEW_SCREEN": {},
     "groupsNewScreenTitle": "Create a group",
     "@GROUPS_EDIT_SCREEN": {},
     "groupsEditScreenTitle": "Edit group",
+    "@GROUPS_MISSION_NEW_SCREEN": {},
+    "groupsMissionNewScreenTitle": "Create a mission",
     "@GALAXY_MAP": {},
     "galaxyMapLoading": "Loading galaxy map...",
     "galaxyMapError": "Failed to load galaxy map",
@@ -270,5 +275,25 @@
     "groupStartAt": "Start at",
     "groupDifficulty": "Difficulty",
     "groupPlanet": "Planet",
-    "groupPlanetNotEmpty": "Please select a planet."
+    "groupPlanetNotEmpty": "Please select a planet.",
+    "@MISSION": {},
+    "missionCreated": "Mission created successfully.",
+    "missionName": "Name",
+    "missionNameHint": "The name of the mission",
+    "missionNameNotEmpty": "Please enter a mission name.",
+    "missionNameMaxLength": "Mission name must be at most 50 characters long.",
+    "missionInstructions": "Instructions",
+    "missionInstructionsHint": "The optional instructions for the mission",
+    "missionInstructionsMaxLength": "Mission instructions must be at most 1000 characters long.",
+    "missionObjectives": "Objectives",
+    "missionObjectiveTimeLimit": "Time limit of {timeLimit}",
+    "@missionObjectiveTimeLimit": {
+        "placeholders": {
+            "timeLimit": {
+                "type": "String",
+                "example": "1 hour",
+                "description": "The time limit for the mission."
+            }
+        }
+    }
 }

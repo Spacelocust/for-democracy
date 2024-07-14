@@ -58,7 +58,7 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
             return Spinner(
-              semanticsLabel: AppLocalizations.of(context)!.groupsScreenLoading,
+              semanticsLabel: AppLocalizations.of(context)!.formLoading,
             );
           }
 
@@ -66,7 +66,7 @@ class _GroupNewScreenState extends State<GroupNewScreen> {
           if (snapshot.hasError || !snapshot.hasData) {
             return ErrorMessage(
               onPressed: fetchPlanets,
-              errorMessage: AppLocalizations.of(context)!.groupsScreenError,
+              errorMessage: AppLocalizations.of(context)!.formLoadingFailed,
             );
           }
 

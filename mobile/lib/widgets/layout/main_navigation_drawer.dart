@@ -150,9 +150,7 @@ class AuthButton extends StatelessWidget {
           context.read<AuthState>().setUser(null);
           SecureStorageService().deleteSecureData("token");
 
-          context.go(
-            context.namedLocation(PlanetsScreen.routePath),
-          );
+          context.pop();
         },
         child: Text(
           AppLocalizations.of(context)!.logout,

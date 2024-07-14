@@ -178,7 +178,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
             DropdownMenu<int?>(
               label: Text(AppLocalizations.of(context)!.planet),
               expandedInsets: EdgeInsets.zero,
-              initialSelection: null,
+              initialSelection: context.read<GroupsFiltersState>().planet,
               onSelected: (int? value) {
                 setState(() {
                   context.read<GroupsFiltersState>().setPlanet(value);
@@ -201,7 +201,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
             DropdownMenu<Difficulty?>(
               label: Text(AppLocalizations.of(context)!.difficulty),
               expandedInsets: EdgeInsets.zero,
-              initialSelection: null,
+              initialSelection: context.read<GroupsFiltersState>().difficulty,
               onSelected: (Difficulty? value) {
                 setState(() {
                   context.read<GroupsFiltersState>().setDifficulty(value);

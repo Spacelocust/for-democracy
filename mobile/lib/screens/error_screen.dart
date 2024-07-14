@@ -6,7 +6,10 @@ import 'package:mobile/screens/planets_screen.dart';
 class ErrorScreen extends StatefulWidget {
   final GoException? error;
 
-  const ErrorScreen({this.error, super.key});
+  const ErrorScreen({
+    this.error,
+    super.key,
+  });
 
   @override
   State<ErrorScreen> createState() => _ErrorScreenState();
@@ -30,15 +33,12 @@ class _ErrorScreenState extends State<ErrorScreen> {
                   AppLocalizations.of(context)!.unknownError,
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () => context.go(
+            ElevatedButton(
+              onPressed: () => context.go(
                 context.namedLocation(PlanetsScreen.routeName),
               ),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  AppLocalizations.of(context)!.goHome,
-                ),
+              child: Text(
+                AppLocalizations.of(context)!.goHome,
               ),
             ),
           ],

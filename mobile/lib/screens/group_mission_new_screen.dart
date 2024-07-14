@@ -1,43 +1,43 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/groups_service.dart';
+import 'package:mobile/services/missions_service.dart';
 import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
-import 'package:mobile/widgets/forms/group_form.dart';
+import 'package:mobile/widgets/forms/group_mission_form.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class GroupEditScreen extends StatefulWidget {
-  static const String routePath = 'edit/:groupId';
+class GroupMissionNewScreen extends StatefulWidget {
+  static const String routePath = 'mission/new';
 
-  static const String routeName = 'groupEdit';
+  static const String routeName = 'missionNew';
 
   final int groupId;
 
-  const GroupEditScreen({
+  const GroupMissionNewScreen({
     super.key,
     required this.groupId,
   });
 
   @override
-  State<GroupEditScreen> createState() => _GroupEditScreenState();
+  State<GroupMissionNewScreen> createState() => _GroupMissionNewScreenState();
 }
 
-class _GroupEditScreenState extends State<GroupEditScreen> {
+class _GroupMissionNewScreenState extends State<GroupMissionNewScreen> {
   Future<Group>? _groupFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchPlanets();
+    fetchGroup();
   }
 
-  void fetchPlanets() {
+  void fetchGroup() {
     setState(() {
       _groupFuture = GroupsService.getGroup(widget.groupId);
     });
@@ -57,11 +57,11 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
             );
           }
 
-          // Error state
           if (snapshot.hasError || !snapshot.hasData) {
+            // Error state
             return ErrorMessage(
-              onPressed: fetchPlanets,
               errorMessage: AppLocalizations.of(context)!.formLoadingFailed,
+              onPressed: fetchGroup,
             );
           }
 
@@ -72,7 +72,7 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
             children: [
               ListTile(
                 title: Text(
-                  AppLocalizations.of(context)!.groupsEditScreenTitle,
+                  AppLocalizations.of(context)!.groupsMissionNewScreenTitle,
                   style: TextStyleArame(
                     fontSize:
                         Theme.of(context).textTheme.headlineMedium!.fontSize,
@@ -80,16 +80,8 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              GroupForm(
-                editing: true,
-                initialData: GroupDTO(
-                  name: group.name,
-                  description: group.description,
-                  private: !group.public,
-                  planet: group.planet,
-                  difficulty: group.difficulty,
-                  startAt: DateTime.now(),
-                ),
+              GroupMissionForm(
+                group: group,
                 onBackPress: () {
                   context.go(
                     context.namedLocation(
@@ -102,19 +94,22 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
                 },
                 onSubmit: (formData) async {
                   try {
-                    await GroupsService.editGroup(widget.groupId, formData);
+                    final newGroup = await MissionsService.createMission(
+                      group.id,
+                      formData,
+                    );
 
                     if (context.mounted) {
                       showSnackBar(
                         context,
-                        AppLocalizations.of(context)!.groupUpdated,
+                        AppLocalizations.of(context)!.missionCreated,
                       );
 
                       context.go(
                         context.namedLocation(
                           GroupScreen.routeName,
                           pathParameters: {
-                            'groupId': widget.groupId.toString(),
+                            'groupId': newGroup.id.toString(),
                           },
                         ),
                       );
