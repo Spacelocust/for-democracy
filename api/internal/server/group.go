@@ -26,6 +26,9 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route.POST("/:id/leave", s.OAuthMiddleware, s.LeaveGroup)
 }
 
+// GroupFieldsDistinct is a constant that contains the fields that are distinct in the groups table
+const GroupFieldsDistinct = "groups.id, groups.created_at, groups.updated_at, groups.code, groups.name, groups.description, groups.public, groups.start_at, groups.difficulty, groups.planet_id"
+
 // @Summary Create a new group
 // @Description Create a new group
 // @Tags    groups
@@ -165,7 +168,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
-		Distinct("groups.id, groups.public, groups.difficulty, groups.name, groups.description, groups.code, groups.planet_id").
+		Distinct(GroupFieldsDistinct).
 		Find(&groups).Error
 
 	if err != nil {
@@ -221,7 +224,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
-		Distinct("groups.id, groups.public, groups.difficulty, groups.name, groups.description, groups.code, groups.planet_id").
+		Distinct(GroupFieldsDistinct).
 		First(&group, "groups.id = ?", groupID).Error
 
 	if err != nil {
