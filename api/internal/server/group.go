@@ -165,7 +165,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
-		Distinct("groups.id").
+		Distinct("groups.id, groups.public, groups.difficulty, groups.name, groups.description, groups.code, groups.planet_id").
 		Find(&groups).Error
 
 	if err != nil {
@@ -221,7 +221,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
-		Distinct("groups.id").
+		Distinct("groups.id, groups.public, groups.difficulty, groups.name, groups.description, groups.code, groups.planet_id").
 		First(&group, "groups.id = ?", groupID).Error
 
 	if err != nil {
