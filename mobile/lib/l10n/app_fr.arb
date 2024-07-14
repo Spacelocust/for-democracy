@@ -267,6 +267,7 @@
     "missionInstructionsMaxLength": "Les instructions de la mission doivent comporter au plus 1000 caractères.",
     "missionObjectives": "Objectifs",
     "missionObjectiveTimeLimit": "Limite de temps de {timeLimit}",
+    "missionObjectivesNotEmpty": "Au moins un objectif est requis.",
     "@missionObjectiveTimeLimit": {
         "placeholders": {
             "timeLimit": {

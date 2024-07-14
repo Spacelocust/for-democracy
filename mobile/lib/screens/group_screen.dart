@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/group.dart';
+import 'package:mobile/models/mission.dart';
 import 'package:mobile/screens/group_edit_screen.dart';
 import 'package:mobile/screens/group_mission_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
@@ -492,6 +495,111 @@ class _GroupMember extends StatelessWidget {
               color: ThemeColors.primary,
             )
           : null,
+    );
+  }
+}
+
+class _MissionListItem extends StatelessWidget {
+  final Mission mission;
+
+  const _MissionListItem({
+    required this.mission,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              mission.name,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            subtitle: Text('Temps estimé:'),
+            trailing: Text('TODO'),
+          ),
+          ListTile(
+            title: Text(
+              'Objectives',
+              style: const TextStyleArame(),
+            ),
+          ),
+          ...mission.objectiveTypes.map(
+            (objective) => ListTile(
+              trailing: Image(
+                image: AssetImage(objective.logo),
+                width: 30,
+                height: 30,
+              ),
+              title: Text(objective.translatedName(context)),
+              subtitle: Text(
+                AppLocalizations.of(context)!.missionObjectiveTimeLimit(
+                  prettyDuration(
+                    objective.duration,
+                    locale: DurationLocale.fromLanguageCode(
+                      Localizations.localeOf(context).languageCode,
+                    )!,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text(
+              'Members',
+              style: const TextStyleArame(),
+            ),
+          ),
+          ...mission.groupUserMissions.map(
+            (groupUserMission) => ListTile(
+              trailing: CachedNetworkImage(
+                imageUrl: groupUserMission.user!.user!.avatarUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey.shade200,
+                    highlightColor: ThemeColors.primary,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: ThemeColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+                imageBuilder: (context, imageProvider) => CircleAvatar(
+                  backgroundImage: imageProvider,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+              title: Text(groupUserMission.user!.user!.username),
+              subtitle: Wrap(
+                direction: Axis.horizontal,
+                spacing: 8,
+                children: groupUserMission.stratagems!
+                    .map(
+                      (stratagem) => CachedNetworkImage(
+                        width: 20,
+                        height: 20,
+                        imageUrl: stratagem.imageURL,
+                        placeholder: (context, url) => const SizedBox(
+                          width: 20,
+                          height: 20,
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
