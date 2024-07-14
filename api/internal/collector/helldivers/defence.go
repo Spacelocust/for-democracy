@@ -103,7 +103,7 @@ func storeDefences(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			}
 		} else {
 			// Delete all defences not in the new defences (remove old defences)
-			err = tx.Clauses(clause.NotConditions{
+			err = tx.Unscoped().Clauses(clause.NotConditions{
 				Exprs: []clause.Expression{
 					clause.IN{
 						Column: clause.Column{Name: "helldivers_id"},
