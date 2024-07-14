@@ -88,7 +88,7 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
                   private: !group.public,
                   planet: group.planet,
                   difficulty: group.difficulty,
-                  startAt: DateTime.now(),
+                  startAt: group.startAt,
                 ),
                 onBackPress: () {
                   context.go(

@@ -16,7 +16,7 @@ abstract class MissionsService {
       'groupID': groupId,
       'name': data.name,
       'instructions': data.instructions,
-      'objectives': data.objectives.map((e) => e.code).toList(),
+      'objectiveTypes': data.objectives.map((e) => e.code).toList(),
     });
 
     return Mission.fromJson(group.data);
@@ -32,7 +32,7 @@ abstract class MissionsService {
       'groupID': groupId,
       'name': data.name,
       'instructions': data.instructions,
-      'objectives': data.objectives.map((e) => e.code).toList(),
+      'objectiveTypes': data.objectives.map((e) => e.code).toList(),
     });
 
     return Mission.fromJson(group.data);
