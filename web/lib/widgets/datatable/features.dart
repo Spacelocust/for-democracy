@@ -31,7 +31,7 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
 
     final columns = [
       l10n.code,
-      l10n.state,
+      l10n.enabled,
     ];
 
     return FutureBuilder<List<Feature>>(

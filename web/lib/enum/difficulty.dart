@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 enum Difficulty {
   @JsonValue('trivial')
@@ -54,8 +54,6 @@ enum Difficulty {
 
   /// The untranslated name of the difficulty. Use [translatedName] to get the translated name.
   final String name;
-
-  String get logo => 'assets/images/difficulties/${name.toLowerCase()}.png';
 
   String translatedName(BuildContext context) {
     switch (this) {

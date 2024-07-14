@@ -14,6 +14,7 @@
     "description": "Description",
     "difficulty": "Difficulty",
     "disabled": "Disabled",
+    "enabled": "Enabled",
     "endAt": "End at",
     "enemyFaction": "Enemy faction",
     "friendlyKills": "Friendly Kills",
