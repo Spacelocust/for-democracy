@@ -165,6 +165,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
+		Distinct("groups.id").
 		Find(&groups).Error
 
 	if err != nil {
@@ -220,6 +221,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
+		Distinct("groups.id").
 		First(&group, "groups.id = ?", groupID).Error
 
 	if err != nil {
@@ -412,6 +414,16 @@ func (s *Server) JoinGroup(c *gin.Context) {
 		return
 	}
 
+	if err := db.Preload("User").First(&newUserGroup, "id = ?", newUserGroup.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group user")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
 	c.JSON(http.StatusCreated, newUserGroup)
 }
 
@@ -496,6 +508,16 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 	}
 
 	if err := db.Create(&newUserGroup).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	if err := db.Preload("User").First(&newUserGroup, "id = ?", newUserGroup.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group user")
+			return
+		}
+
 		s.InternalErrorResponse(c, err)
 		return
 	}
