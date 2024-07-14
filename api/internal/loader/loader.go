@@ -68,6 +68,7 @@ func loadModels(sb *strings.Builder) {
 		&model.Stratagem{},
 		&model.User{},
 		&model.Token{},
+		&model.TokenFcm{},
 		&model.LiberationHealthHistory{},
 		&model.DefenceHealthHistory{},
 	}

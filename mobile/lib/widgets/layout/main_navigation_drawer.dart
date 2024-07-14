@@ -73,7 +73,7 @@ class MainNavigationDrawer extends StatelessWidget {
               body: "bob",
             );
           },
-          child: Text('Test'),
+          child: const Text('Test'),
         ),
         const DrawerItem(
           child: Divider(),

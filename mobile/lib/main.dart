@@ -15,6 +15,7 @@ import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/firebase_service.dart';
 import 'package:mobile/services/local_notification_service.dart';
 import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/services/token_fcm_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/galaxy_map_zoom_state.dart';
 import 'package:mobile/states/groups_filters_state.dart';
@@ -161,6 +162,16 @@ Future main() async {
     user = await OAuthService.getMe();
   } catch (e) {
     user = null;
+  }
+
+  if (user != null) {
+    var token = await FirebaseMessagingService.firebaseMessaging.getToken();
+
+    if (token == null) {
+      throw Exception('Something went wrong, please try again later');
+    }
+
+    await TokenFcmService.persistTokenFcm(token);
   }
 
   runApp(

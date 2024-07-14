@@ -7,14 +7,11 @@ import 'package:mobile/services/local_notification_service.dart';
 abstract class FirebaseMessagingService {
   static final _firebaseMessaging = FirebaseMessaging.instance;
 
+  static FirebaseMessaging get firebaseMessaging => _firebaseMessaging;
+
   static Future<void> init() async {
     // Request permission
     await _firebaseMessaging.requestPermission();
-
-    // Get the token
-    var token = await _firebaseMessaging.getToken();
-
-    log('token: $token');
 
     // Set the foreground notification presentation options
     await FirebaseMessaging.instance
