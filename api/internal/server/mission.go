@@ -17,6 +17,7 @@ func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route.Use(s.OAuthMiddleware)
 
 	route.POST("", s.CreateMission)
+	route.GET("/:id", s.GetMission)
 	route.PUT("/:id", s.UpdateMission)
 	route.DELETE("/:id", s.DeleteMission)
 	route.POST("/:id/join", s.JoinMission)
@@ -111,7 +112,48 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
+	if err := db.Preload("GroupUserMissions.Stratagems").First(&newMission, "id = ?", newMission.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
 	c.JSON(http.StatusCreated, newMission)
+}
+
+// @Summary Get mission by ID
+// @Description Get mission by ID
+// @Tags    missions
+// @Produce  json
+// @Param id path int true "Mission ID"
+// @Success 200 {object} model.Mission
+// @Failure      500  {object}  server.ErrorResponse
+// @Failure      404  {object}  server.ErrorResponse
+// @Failure      400  {object}  server.ErrorResponse
+// @Failure      401  {object}  server.ErrorResponse
+// @Router /missions/{id} [get]
+func (s *Server) GetMission(c *gin.Context) {
+	db := s.db.GetDB()
+
+	missionID := c.Param("id")
+
+	var mission model.Mission
+
+	if err := db.Preload("GroupUserMissions.Stratagems").First(&mission, "id = ?", missionID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, mission)
 }
 
 // @Summary Update a mission
