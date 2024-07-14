@@ -32,16 +32,19 @@ final Map<String, Function(BuildContext context, GoRouterState state)> _views =
         key: UniqueKey(),
       ),
   GroupScreen.routePath: (context, state) => GroupScreen(
+        key: UniqueKey(),
         groupId: int.parse(
           state.pathParameters['groupId']!,
         ),
       ),
   GroupNewScreen.routePath: (context, state) => GroupNewScreen(
+        key: UniqueKey(),
         initialPlanetId: state.uri.queryParameters['planetId'] != null
             ? int.parse(state.uri.queryParameters['planetId']!)
             : null,
       ),
   GroupEditScreen.routePath: (context, state) => GroupEditScreen(
+        key: UniqueKey(),
         groupId: int.parse(
           state.pathParameters['groupId']!,
         ),

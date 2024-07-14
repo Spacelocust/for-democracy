@@ -1,6 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/models/group.dart';
+import 'package:mobile/models/group_user.dart';
 import 'package:mobile/services/api_service.dart';
 
 abstract class GroupsService {
@@ -51,16 +52,18 @@ abstract class GroupsService {
     return Group.fromJson(group.data);
   }
 
-  static Future<void> deleteGroup(int groupId) async {
+  static Future<GroupUser> deleteGroup(int groupId) async {
     var dio = APIService.getDio();
+    var groupUser = await dio.delete("$groupsUrl/$groupId");
 
-    await dio.delete("$groupsUrl/$groupId");
+    return GroupUser.fromJson(groupUser.data);
   }
 
-  static Future<void> joinGroup(int groupId) async {
+  static Future<GroupUser> joinGroup(int groupId) async {
     var dio = APIService.getDio();
+    var groupUser = await dio.post("$groupsUrl/$groupId/join");
 
-    await dio.post("$groupsUrl/$groupId/join");
+    return GroupUser.fromJson(groupUser.data);
   }
 
   static Future<void> leaveGroup(int groupId) async {
@@ -69,12 +72,12 @@ abstract class GroupsService {
     await dio.post("$groupsUrl/$groupId/leave");
   }
 
-  static Future<Group> joinGroupWithCode(String code) async {
+  static Future<GroupUser> joinGroupWithCode(String code) async {
     var dio = APIService.getDio();
-    var group = await dio.post('$groupsUrl/join', data: {
+    var groupUser = await dio.post('$groupsUrl/join', data: {
       'code': code,
     });
 
-    return Group.fromJson(group.data);
+    return GroupUser.fromJson(groupUser.data);
   }
 }

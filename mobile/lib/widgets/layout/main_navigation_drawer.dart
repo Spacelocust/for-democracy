@@ -145,10 +145,14 @@ class AuthButton extends StatelessWidget {
     }
 
     if (context.watch<AuthState>().user != null) {
-      return ElevatedButton(
+      return OutlinedButton(
         onPressed: () {
           context.read<AuthState>().setUser(null);
           SecureStorageService().deleteSecureData("token");
+
+          context.go(
+            context.namedLocation(PlanetsScreen.routePath),
+          );
         },
         child: Text(
           AppLocalizations.of(context)!.logout,

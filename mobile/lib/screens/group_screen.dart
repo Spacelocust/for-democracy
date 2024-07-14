@@ -121,13 +121,11 @@ class _GroupScreenState extends State<GroupScreen> {
                                   AppLocalizations.of(context)!.groupDeleted,
                                 );
 
-                                GoRouter.of(context)
-                                  ..go(
-                                    context.namedLocation(
-                                      GroupsScreen.routeName,
-                                    ),
-                                  )
-                                  ..refresh();
+                                context.go(
+                                  context.namedLocation(
+                                    GroupsScreen.routeName,
+                                  ),
+                                );
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;
@@ -197,7 +195,14 @@ class _GroupScreenState extends State<GroupScreen> {
                                   AppLocalizations.of(context)!.groupLeft,
                                 );
 
-                                GoRouter.of(context).refresh();
+                                context.replace(
+                                  context.namedLocation(
+                                    GroupScreen.routeName,
+                                    pathParameters: {
+                                      'groupId': group.id.toString(),
+                                    },
+                                  ),
+                                );
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;
@@ -250,7 +255,14 @@ class _GroupScreenState extends State<GroupScreen> {
                                   AppLocalizations.of(context)!.groupJoined,
                                 );
 
-                                GoRouter.of(context).refresh();
+                                context.replace(
+                                  context.namedLocation(
+                                    GroupScreen.routeName,
+                                    pathParameters: {
+                                      'groupId': group.id.toString(),
+                                    },
+                                  ),
+                                );
                               } catch (e) {
                                 if (!context.mounted) {
                                   return;

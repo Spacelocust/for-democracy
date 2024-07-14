@@ -248,6 +248,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
               (group) {
                 return HelldiversListTile(
                   title: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (!group.public)
                         const Icon(

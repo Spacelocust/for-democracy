@@ -86,7 +86,7 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
                     );
 
                     try {
-                      final group = await GroupsService.joinGroupWithCode(
+                      final groupUser = await GroupsService.joinGroupWithCode(
                         _codeController.text,
                       );
 
@@ -99,16 +99,16 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
                         AppLocalizations.of(context)!.groupJoined,
                       );
 
-                      context
-                        ..pop()
-                        ..go(
-                          context.namedLocation(
-                            GroupScreen.routeName,
-                            pathParameters: {
-                              'groupId': group.id.toString(),
-                            },
-                          ),
-                        );
+                      Navigator.of(context).pop();
+
+                      context.go(
+                        context.namedLocation(
+                          GroupScreen.routeName,
+                          pathParameters: {
+                            'groupId': groupUser.groupId.toString(),
+                          },
+                        ),
+                      );
                     } on DioException catch (e) {
                       if (!context.mounted) {
                         return;

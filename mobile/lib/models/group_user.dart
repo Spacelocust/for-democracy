@@ -12,8 +12,14 @@ class GroupUser {
   @JsonKey(name: 'Group')
   final Group? group;
 
+  @JsonKey(required: true, name: 'GroupID')
+  final int groupId;
+
   @JsonKey(name: 'User')
   final User? user;
+
+  @JsonKey(required: true, name: 'UserID')
+  final int userId;
 
   @JsonKey(required: true, name: 'Owner')
   final bool owner;
@@ -21,7 +27,9 @@ class GroupUser {
   GroupUser({
     required this.id,
     this.group,
+    required this.groupId,
     this.user,
+    required this.userId,
     required this.owner,
   });
 
