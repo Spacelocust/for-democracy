@@ -241,7 +241,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "Group ID"
-// @Param data body validators.Group true "Properties to update"
+// @Param data body validators.GroupUpdate true "Properties to update"
 // @Success 200 {object} model.Group
 // @Failure      500  {object}  server.ErrorResponse
 // @Failure      404  {object}  server.ErrorResponse
@@ -258,7 +258,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	groupID := c.Param("id")
 
 	// Get data from request body and validate
-	var groupData validators.Group
+	var groupData validators.GroupUpdate
 
 	// Bind JSON request to Group struct
 	if err := c.ShouldBindJSON(&groupData); err != nil {
@@ -314,17 +314,22 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		Description: groupData.Description,
 		Public:      *groupData.Public,
 		Difficulty:  groupData.Difficulty,
-		PlanetID:    groupData.PlanetID,
+		PlanetID:    group.PlanetID,
 		StartAt:     startAt,
 	}
 
 	// Update group
+	if err := db.Save(&updatedGroup).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
 	err = db.
 		Preload("Missions").
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
-		Save(&updatedGroup).Error
+		First(&updatedGroup, "id = ?", group.ID).Error
 
 	if err != nil {
 		s.InternalErrorResponse(c, err)

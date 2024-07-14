@@ -293,7 +293,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/validators.Group"
+                            "$ref": "#/definitions/validators.GroupUpdate"
                         }
                     }
                 ],
@@ -2274,6 +2274,33 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
+                }
+            }
+        },
+        "validators.GroupUpdate": {
+            "type": "object",
+            "required": [
+                "difficulty",
+                "name",
+                "public",
+                "startAt"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "difficulty": {
+                    "$ref": "#/definitions/enum.Difficulty"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "startAt": {
+                    "type": "string",
+                    "default": "2024-08-02 15:04:05"
                 }
             }
         },
