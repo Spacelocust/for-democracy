@@ -1,10 +1,6 @@
 package model
 
 import (
-	"slices"
-	"sort"
-	"time"
-
 	"github.com/Spacelocust/for-democracy/internal/datatype"
 	"github.com/Spacelocust/for-democracy/internal/enum"
 	"gorm.io/gorm"
@@ -15,7 +11,6 @@ type Mission struct {
 	Name              string                                 `gorm:"not null"`
 	Instructions      *string                                `gorm:"type:text"`
 	ObjectiveTypes    datatype.EnumArray[enum.ObjectiveType] `gorm:"not null;type:text[]"`
-	EstimatedTime     time.Duration                          `gorm:"not null"`
 	GroupID           uint
 	GroupUserMissions []GroupUserMission `gorm:"constraint:OnDelete:CASCADE"`
 }
@@ -40,37 +35,4 @@ func (m *Mission) GetObjectives() (map[enum.ObjectiveType]Objective, error) {
 	}
 
 	return objectives, nil
-}
-
-// Calculates the estimated time of the mission based on the objectives
-func (m *Mission) CalulateEstimatedTime() time.Duration {
-	type durationCount struct {
-		duration time.Duration
-		count    int
-	}
-
-	durations := []durationCount{}
-	objectives, err := m.GetObjectives()
-
-	if err != nil || len(objectives) == 0 {
-		return 0
-	}
-
-	for _, objective := range objectives {
-		existingDuration := slices.IndexFunc(durations, func(durationCount durationCount) bool {
-			return durationCount.duration == objective.MissionTime
-		})
-
-		if existingDuration != -1 {
-			durations[existingDuration].count++
-		} else {
-			durations = append(durations, durationCount{duration: objective.MissionTime, count: 1})
-		}
-	}
-
-	sort.SliceStable(durations, func(i, j int) bool {
-		return durations[i].count < durations[j].count
-	})
-
-	return durations[0].duration
 }
