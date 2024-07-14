@@ -114,9 +114,9 @@ func (s *Server) CreateGroup(c *gin.Context) {
 
 	// BUG: Need to query the group again to preoload the sub-relations (GroupUsers.User) because the Create method doesn't return the sub-relations
 	err = db.
-		Preload("Missions").
+		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
-		Preload("GroupUsers.GroupUserMissions").
+		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		First(&newGroup, "id = ?", newGroup.ID).Error
 
@@ -145,9 +145,9 @@ func (s *Server) GetGroups(c *gin.Context) {
 	if !ok {
 		// Get public groups
 		err := db.
-			Preload("Missions").
+			Preload("Missions.GroupUserMissions.Stratagems").
 			Preload("GroupUsers.User").
-			Preload("GroupUsers.GroupUserMissions").
+			Preload("GroupUsers.GroupUserMissions.Stratagems").
 			Preload("Planet").
 			Find(&groups, "public = ?", true).Error
 
@@ -164,9 +164,9 @@ func (s *Server) GetGroups(c *gin.Context) {
 	err := db.
 		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
-		Preload("Missions").
+		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
-		Preload("GroupUsers.GroupUserMissions").
+		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		Distinct(GroupFieldsDistinct).
 		Find(&groups).Error
@@ -200,9 +200,9 @@ func (s *Server) GetGroup(c *gin.Context) {
 
 	if !ok {
 		if err := db.
-			Preload("Missions").
+			Preload("Missions.GroupUserMissions.Stratagems").
 			Preload("GroupUsers.User").
-			Preload("GroupUsers.GroupUserMissions").
+			Preload("GroupUsers.GroupUserMissions.Stratagems").
 			Preload("Planet").
 			First(&group, "id = ? AND public = ?", groupID, true).
 			Error; err != nil {
@@ -220,9 +220,9 @@ func (s *Server) GetGroup(c *gin.Context) {
 	err := db.
 		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
-		Preload("Missions").
+		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
-		Preload("GroupUsers.GroupUserMissions").
+		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		Distinct(GroupFieldsDistinct).
 		First(&group, "groups.id = ?", groupID).Error
@@ -330,9 +330,9 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	}
 
 	err = db.
-		Preload("Missions").
+		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
-		Preload("GroupUsers.GroupUserMissions").
+		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		First(&updatedGroup, "id = ?", group.ID).Error
 
