@@ -5,30 +5,30 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 enum StratagemType {
   @JsonValue('supply')
   supply(
-    'Supply',
+    'supply',
   ),
 
   @JsonValue('mission')
   mission(
-    'Mission',
+    'mission',
   ),
 
   @JsonValue('defensive')
   defensive(
-    'Defensive',
+    'defensive',
   ),
 
   @JsonValue('offensive')
   offensive(
-    'Offensive',
+    'offensive',
   );
 
   const StratagemType(
-    this.name,
+    this.code,
   );
 
-  /// The untranslated name of the difficulty. Use [translatedName] to get the translated name.
-  final String name;
+  /// The code of the difficulty. Use [translatedName] to get the translated name.
+  final String code;
 
   String translatedName(BuildContext context) {
     switch (this) {

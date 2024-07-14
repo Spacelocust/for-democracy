@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/screens/planet_screen.dart';
@@ -108,38 +107,33 @@ class PlanetListItem extends ListItem {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 8,
-        ),
-        ListTile(
-          leading: Container(
-            clipBehavior: Clip.hardEdge,
-            decoration: decoration,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: CachedNetworkImage(
-                width: 55,
-                height: 55,
-                imageUrl: planet.imageUrl,
-                placeholder: (context, url) => const SizedBox(
-                  width: 55,
-                  height: 55,
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
+    return ListTile(
+      leading: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: decoration,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: CachedNetworkImage(
+            width: 55,
+            height: 55,
+            imageUrl: planet.imageUrl,
+            placeholder: (context, url) => const SizedBox(
+              width: 55,
+              height: 55,
             ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
-          title: getTitle(context),
-          trailing: getTrailing(context),
-          subtitle: getSubtitle(context),
-          onTap: () => context.go(context.namedLocation(
-            PlanetScreen.routeName,
-            pathParameters: {'planetId': planet.id.toString()},
-          )),
         ),
-      ],
+      ),
+      title: getTitle(context),
+      trailing: getTrailing(context),
+      subtitle: getSubtitle(context),
+      onTap: () {
+        PlanetScreen.show(
+          context,
+          planet.id,
+        );
+      },
     );
   }
 }

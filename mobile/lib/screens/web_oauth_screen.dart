@@ -1,16 +1,18 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/services/oauth_service.dart';
 import 'package:mobile/services/token_service.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/utils/snackbar.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WebOAuthScreen extends StatefulWidget {
   static const String steamOauthUrl = '/oauth/steam';
@@ -47,17 +49,15 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
         NavigationDelegate(
           onPageFinished: finishAuthentication,
           onHttpError: (HttpResponseError error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.toString()),
-              ),
+            showSnackBar(
+              context,
+              error.toString(),
             );
           },
           onWebResourceError: (WebResourceError error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.toString()),
-              ),
+            showSnackBar(
+              context,
+              error.toString(),
             );
           },
         ),
@@ -93,15 +93,16 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
 
           if (mounted) {
             // Set the user to the AuthState
-            context.read<AuthState>().setUser(user);
+            context
+              ..read<AuthState>().setUser(user)
+              ..pop();
           }
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Failed to authenticate"),
-            ),
+          showSnackBar(
+            context,
+            AppLocalizations.of(context)!.authFailed,
           );
         }
       }

@@ -25,6 +25,10 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     final GoRouterState routerState = GoRouterState.of(context);
+    final selectedKey = routeIndexMapping.keys.firstWhere(
+      (key) => routerState.matchedLocation.startsWith(key),
+      orElse: () => routeIndexMapping.keys.first,
+    );
 
     return NavigationBar(
       onDestinationSelected: (int index) {
@@ -35,8 +39,7 @@ class _MainBottomNavigationBarState extends State<MainBottomNavigationBar> {
 
         context.go(route);
       },
-      selectedIndex: routeIndexMapping[routerState.matchedLocation] ??
-          routeIndexMapping.values.first,
+      selectedIndex: routeIndexMapping[selectedKey]!,
       destinations: <Widget>[
         NavigationDestination(
           icon: const Icon(Icons.home_outlined),

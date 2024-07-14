@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
-import 'package:mobile/screens/planet_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +17,6 @@ void main() {
       final Map<String, Function(BuildContext context, GoRouterState state)>
           views = {
         PlanetsScreen.routePath: (context, state) => const Text('Planets page'),
-        PlanetScreen.routePath: (context, state) => const Text('Planet page'),
         EventsScreen.routePath: (context, state) => const Text('Events page'),
         GroupsScreen.routePath: (context, state) => const Text('Groups page'),
       };

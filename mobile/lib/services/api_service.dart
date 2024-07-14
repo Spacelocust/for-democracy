@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/services/token_service.dart';
@@ -14,6 +12,10 @@ abstract class APIService {
       baseUrl: dotenv.get(baseUrlEnv),
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 60),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.acceptHeader: 'application/json',
+      },
     ),
   )..interceptors.add(interceptorCookie());
 

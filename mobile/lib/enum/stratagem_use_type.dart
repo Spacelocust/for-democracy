@@ -5,25 +5,25 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 enum StratagemUseType {
   @JsonValue('self')
   self(
-    'Self',
+    'self',
   ),
 
   @JsonValue('team')
   team(
-    'Team',
+    'team',
   ),
 
   @JsonValue('shared')
   shared(
-    'Shared',
+    'shared',
   );
 
   const StratagemUseType(
-    this.name,
+    this.code,
   );
 
-  /// The untranslated name of the difficulty. Use [translatedName] to get the translated name.
-  final String name;
+  /// The code of the stratagem use type. Use [translatedName] to get the translated name.
+  final String code;
 
   String translatedName(BuildContext context) {
     switch (this) {

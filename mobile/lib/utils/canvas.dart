@@ -7,7 +7,7 @@ TransformationController getTransformationControllerForSize(
   double zoomFactor = 1.0,
   double margin = 0.0,
 }) {
-  double xTranslate = margin + ((size.width / 2 - margin * 2) / 2);
+  double xTranslate = margin + ((size.width / 2 - margin * 2) / 2) + margin;
   double yTranslate = margin + ((size.height / 4 - margin * 2) / 2);
 
   var transformationController = TransformationController();

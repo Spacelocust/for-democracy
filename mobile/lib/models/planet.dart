@@ -33,19 +33,19 @@ class Planet {
   @JsonKey(required: true, name: 'HelldiversID')
   final int helldiversID;
 
-  @JsonKey(name: 'Owner')
+  @JsonKey(required: true, name: 'Owner')
   final Faction owner;
 
-  @JsonKey(name: 'InitialOwner')
+  @JsonKey(required: true, name: 'InitialOwner')
   final Faction initialOwner;
 
-  @JsonKey(name: 'ImageURL')
+  @JsonKey(required: true, name: 'ImageURL')
   final String imageUrl;
 
-  @JsonKey(name: 'BackgroundURL')
+  @JsonKey(required: true, name: 'BackgroundURL')
   final String backgroundUrl;
 
-  @JsonKey(name: 'Waypoints')
+  @JsonKey(required: true, name: 'Waypoints')
   final List<Waypoint> waypoints;
 
   @JsonKey(required: true, name: 'Statistic')
@@ -57,8 +57,8 @@ class Planet {
   @JsonKey(name: 'Defence')
   final Defence? defence;
 
-  @JsonKey(required: true, name: 'Effects')
-  final List<Effect> effects;
+  @JsonKey(name: 'Effects')
+  final List<Effect>? effects;
 
   @JsonKey(required: true, name: 'Sector')
   final Sector sector;

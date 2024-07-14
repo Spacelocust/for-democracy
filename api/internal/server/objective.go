@@ -25,7 +25,7 @@ func (s *Server) RegisterObjectiveRoutes(r *gin.Engine) {
 func (s *Server) GetObjectifs(c *gin.Context) {
 	var objectifs []model.Objective
 
-	for _, obj := range enum.GetObjectifs() {
+	for _, obj := range enum.GetObjectives() {
 		objectif, err := model.GetObjective(obj)
 		if err != nil {
 			s.NotFoundResponse(c, "objectif")

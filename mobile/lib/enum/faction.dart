@@ -5,46 +5,46 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 enum Faction {
   @JsonValue('humans')
   humans(
-    'Humans',
+    'humans',
     Color(0xff6bb7ea),
     Color(0xff219ffb),
   ),
 
   @JsonValue('terminids')
   terminids(
-    'Terminids',
+    'terminids',
     Color(0xffffc000),
     Color(0xffc18700),
   ),
 
   @JsonValue('illuminates')
   illuminates(
-    'Illuminates',
+    'illuminates',
     Color(0xff8300ff),
     Color(0xffb400ff),
   ),
 
   @JsonValue('automatons')
   automatons(
-    'Automatons',
+    'automatons',
     Color(0xfffe6d6a),
     Color(0xffcb4745),
   );
 
   const Faction(
-    this.name,
+    this.code,
     this.color,
     this.secondaryColor,
   );
 
-  /// The untranslated name of the faction. Use [translatedName] to get the translated name.
-  final String name;
+  /// The code of the faction. Use [translatedName] to get the translated name.
+  final String code;
 
   final Color color;
 
   final Color secondaryColor;
 
-  String get logo => 'assets/images/factions/${name.toLowerCase()}.png';
+  String get logo => 'assets/images/factions/${code.toLowerCase()}.png';
 
   String translatedName(BuildContext context) {
     switch (this) {

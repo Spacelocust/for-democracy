@@ -14,18 +14,21 @@ class ErrorMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          Text(
-            errorMessage,
-            style: const TextStyle(color: Colors.red),
-          ),
-          TextButton(
-            onPressed: onPressed,
-            child: Text(AppLocalizations.of(context)!.retry),
-          ),
-        ],
+    return SafeArea(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.red),
+            ),
+            TextButton(
+              onPressed: onPressed,
+              child: Text(AppLocalizations.of(context)!.retry),
+            ),
+          ],
+        ),
       ),
     );
   }

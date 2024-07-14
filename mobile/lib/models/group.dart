@@ -54,6 +54,12 @@ class Group {
 
   GroupUser? get owner => groupUsers.firstWhere((element) => element.owner);
 
+  bool isOwner(String userSteamId) => groupUsers.any(
+      (groupUser) => groupUser.owner && groupUser.user?.steamId == userSteamId);
+
+  bool isMember(String userSteamId) =>
+      groupUsers.any((groupUser) => groupUser.user?.steamId == userSteamId);
+
   factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
 
   Map<String, dynamic> toJson() => _$GroupToJson(this);

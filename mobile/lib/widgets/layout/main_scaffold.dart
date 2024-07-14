@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/layout/main_bottom_navigation_bar.dart';
 import 'package:mobile/widgets/layout/main_navigation_drawer.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,10 @@ import 'package:provider/provider.dart';
 class MainScaffold extends StatelessWidget {
   final Widget body;
 
-  const MainScaffold({super.key, required this.body});
+  const MainScaffold({
+    super.key,
+    required this.body,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +27,7 @@ class MainScaffold extends StatelessWidget {
             SizedBox(width: 10.0),
             Text(
               'For Democracy',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: "Arame",
-              ),
+              style: TextStyleArame(),
             )
           ],
         ),

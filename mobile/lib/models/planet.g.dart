@@ -16,8 +16,12 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
       'PositionX',
       'PositionY',
       'HelldiversID',
+      'Owner',
+      'InitialOwner',
+      'ImageURL',
+      'BackgroundURL',
+      'Waypoints',
       'Statistic',
-      'Effects',
       'Sector'
     ],
   );
@@ -43,8 +47,8 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
     defence: json['Defence'] == null
         ? null
         : Defence.fromJson(json['Defence'] as Map<String, dynamic>),
-    effects: (json['Effects'] as List<dynamic>)
-        .map((e) => Effect.fromJson(e as Map<String, dynamic>))
+    effects: (json['Effects'] as List<dynamic>?)
+        ?.map((e) => Effect.fromJson(e as Map<String, dynamic>))
         .toList(),
     sector: Sector.fromJson(json['Sector'] as Map<String, dynamic>),
   );

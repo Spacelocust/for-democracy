@@ -6,26 +6,45 @@ import 'package:intl/intl.dart';
 import 'package:mobile/enum/faction.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/models/statistic.dart';
+import 'package:mobile/screens/group_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/planets_service.dart';
+import 'package:mobile/states/auth_state.dart';
+import 'package:mobile/states/groups_filters_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/countdown.dart';
 import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/components/spinner.dart';
+import 'package:mobile/widgets/components/text_style_arame.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Note : This screen is not directly used in the GoRouter configuration. It is displayed using the [PlanetScreen.show] method.
 class PlanetScreen extends StatefulWidget {
-  static const String routePath = ":planetId";
-
-  static const String routeName = 'planet';
-
   final int planetId;
 
-  const PlanetScreen({super.key, required this.planetId});
+  const PlanetScreen({
+    super.key,
+    required this.planetId,
+  });
 
   @override
   State<PlanetScreen> createState() => _PlanetScreenState();
+
+  static void show(BuildContext context, int planetId) {
+    showModalBottomSheet(
+      context: context,
+      enableDrag: true,
+      isDismissible: true,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useRootNavigator: true,
+      builder: (context) {
+        return PlanetScreen(planetId: planetId);
+      },
+    );
+  }
 }
 
 /// Planet screen
@@ -85,7 +104,8 @@ class _PlanetScreenState extends State<PlanetScreen> {
               }
 
               // Success state
-              Planet planet = snapshot.data!;
+              final planet = snapshot.data!;
+              final user = context.read<AuthState>().user;
               List<Widget> planetViewChildren = [
                 Padding(
                   padding: EdgeInsets.only(
@@ -102,29 +122,55 @@ class _PlanetScreenState extends State<PlanetScreen> {
                 planetViewChildren = [
                   ...planetViewChildren,
                   Positioned(
+                    width: MediaQuery.of(context).size.width,
                     bottom: 5,
-                    right: 5,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // TODO: Proper links
-                        OutlinedButton.icon(
-                          onPressed: () => context.go(
-                            context.namedLocation(GroupsScreen.routeName),
+                    right: 0,
+                    child: SingleChildScrollView(
+                      clipBehavior: Clip.none,
+                      reverse: true,
+                      padding: const EdgeInsets.only(
+                        left: 36,
+                      ),
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+
+                              context
+                                ..read<GroupsFiltersState>()
+                                    .setPlanet(planet.id)
+                                ..go(
+                                  context.namedLocation(GroupsScreen.routeName),
+                                );
+                            },
+                            label:
+                                Text(AppLocalizations.of(context)!.findGroup),
+                            icon: const Icon(Icons.search),
                           ),
-                          label: Text(AppLocalizations.of(context)!.findGroup),
-                          icon: const Icon(Icons.search),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: () => context.go(
-                            context.namedLocation(GroupsScreen.routeName),
-                          ),
-                          label:
-                              Text(AppLocalizations.of(context)!.createGroup),
-                          icon: const Icon(Icons.add),
-                        ),
-                      ],
+                          if (user != null) const SizedBox(width: 5),
+                          if (user != null)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+
+                                context.go(
+                                  context.namedLocation(
+                                    GroupNewScreen.routeName,
+                                    queryParameters: {
+                                      "planetId": planet.id.toString(),
+                                    },
+                                  ),
+                                );
+                              },
+                              label: Text(
+                                  AppLocalizations.of(context)!.createGroup),
+                              icon: const Icon(Icons.add),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ];
@@ -173,18 +219,12 @@ class _PlanetScreenView extends StatelessWidget {
                 planet.hasLiberation
                     ? AppLocalizations.of(context)!.liberation
                     : AppLocalizations.of(context)!.defence,
-                style: const TextStyle(
-                  fontFamily: "Arame",
-                  fontSize: 20,
-                ),
+                style: const TextStyleArame(),
               ),
               if (planet.hasDefence)
                 Countdown(
                   dateStart: planet.defence!.endAt,
-                  style: TextStyle(
-                    fontFamily: "Arame",
-                    fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
-                  ),
+                  style: const TextStyleArame(),
                 ),
             ],
           ),
@@ -200,7 +240,7 @@ class _PlanetScreenView extends StatelessWidget {
     ];
 
     // Display chips if the planet has effects
-    if (planet.effects.isNotEmpty) {
+    if (planet.effects!.isNotEmpty) {
       columns = [
         ...columns,
         const SizedBox(height: columnSpacing),
@@ -211,7 +251,6 @@ class _PlanetScreenView extends StatelessWidget {
 
     columns = [
       ...columns,
-
       // Background image of the planet
       _BoxDecoration(
         borderColor: Colors.grey,
@@ -224,7 +263,7 @@ class _PlanetScreenView extends StatelessWidget {
               height: 110,
               child: Shimmer.fromColors(
                 baseColor: Colors.grey.shade200,
-                highlightColor: Colors.yellow,
+                highlightColor: ThemeColors.primary,
                 child: Container(
                   color: Colors.white,
                 ),
@@ -235,10 +274,8 @@ class _PlanetScreenView extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 5),
-
       // Planet progress bar for defence
       if (planet.hasDefence) _ProgressDefence(planet: planet),
-
       // Planet progress bar for liberation
       if (planet.hasLiberation) _ProgressLiberation(planet: planet),
     ];
@@ -268,38 +305,42 @@ class _PlanetViewTitle extends StatelessWidget {
 
     titleRow = [
       ...titleRow,
-      Row(
-        children: [
-          if (planet.players != null)
-            Row(
-              children: [
-                Text(
-                  NumberFormat.compact().format(planet.players!),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(width: 10),
-                const Image(
-                  image: AssetImage("assets/images/helldivers-player.png"),
-                  width: 20,
-                  height: 20,
-                ),
-              ],
-            ),
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => _PlanetEventDialog(
-                  planet: planet,
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.insert_chart_outlined,
-              size: 30,
-            ),
-          )
-        ],
+      SizedBox(
+        width: MediaQuery.of(context).size.width / 3,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (planet.players != null)
+              Row(
+                children: [
+                  Text(
+                    NumberFormat.compact().format(planet.players!),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(width: 10),
+                  const Image(
+                    image: AssetImage("assets/images/helldivers-player.png"),
+                    width: 20,
+                    height: 20,
+                  ),
+                ],
+              ),
+            IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => _PlanetEventDialog(
+                    planet: planet,
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.insert_chart_outlined,
+                size: 30,
+              ),
+            )
+          ],
+        ),
       ),
     ];
 
@@ -312,6 +353,7 @@ class _PlanetViewTitle extends StatelessWidget {
 
 class _EventHeader extends StatelessWidget {
   final Widget child;
+
   final AssetImage image;
 
   const _EventHeader({required this.child, required this.image});
@@ -376,45 +418,48 @@ class _TitlePlanet extends StatelessWidget {
           .toUpperCase();
     }
 
-    return Row(
-      children: [
-        Image(
-          image: AssetImage(logo),
-          width: 40,
-          height: 40,
-        ),
-        const SizedBox(width: 8),
-        const Divider(
-          color: Colors.white,
-          height: 32,
-          thickness: 2,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              planet.name.toUpperCase(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: "Arame",
-                fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-                decoration: TextDecoration.underline,
-                decorationThickness: 2.2,
-                decorationColor: color,
-              ),
+    return Expanded(
+      flex: 2,
+      child: Row(
+        children: [
+          Image(
+            image: AssetImage(logo),
+            width: 40,
+            height: 40,
+          ),
+          const SizedBox(width: 8),
+          const Divider(
+            color: Colors.white,
+            height: 32,
+            thickness: 2,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  planet.name.toUpperCase(),
+                  style: TextStyleArame(
+                    fontSize:
+                        Theme.of(context).textTheme.headlineSmall!.fontSize,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 2.2,
+                    decorationColor: color,
+                  ),
+                ),
+                Text(
+                  subTitle,
+                  softWrap: true,
+                  style: TextStyleArame(
+                    fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
+                    color: color,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              subTitle,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: "Arame",
-                fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
-                color: color,
-              ),
-            )
-          ],
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -429,7 +474,7 @@ class _PlanetViewChips extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: planet.effects.fold(
+      children: planet.effects!.fold(
         [],
         (previousValue, effect) {
           if (effect.name != "None") {
@@ -541,18 +586,23 @@ class _ProgressDefence extends StatelessWidget {
                       AppLocalizations.of(context)!.planetDefenceInProgress,
                   child: Row(
                     children: [
-                      _TextArame(
-                        text:
-                            "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
-                        size: "medium",
+                      Text(
+                        "${(planet.defence!.getHealthPercentage() * 100).toStringAsFixed(3)}%",
+                        style: TextStyleArame(
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                        ),
                       ),
                       const SizedBox(
                         width: 5,
                       ),
-                      _TextArame(
-                        text: AppLocalizations.of(context)!.defended,
-                        size: "medium",
-                        letterSpacing: 0,
+                      Text(
+                        AppLocalizations.of(context)!.defended,
+                        style: TextStyleArame(
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                          letterSpacing: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -571,17 +621,19 @@ class _ProgressDefence extends StatelessWidget {
                       ? Colors.green
                       : Colors.red,
                 ),
-                _TextArame(
-                  text: planet.defence!.getHealthPercentage() >
+                Text(
+                  planet.defence!.getHealthPercentage() >
                           planet.defence!.getEnemyHealthPercentage()
                       ? AppLocalizations.of(context)!.winning
                       : AppLocalizations.of(context)!.losing,
-                  size: "medium",
-                  color: planet.defence!.getHealthPercentage() >
-                          planet.defence!.getEnemyHealthPercentage()
-                      ? Colors.green
-                      : Colors.red,
-                  letterSpacing: 0,
+                  style: TextStyleArame(
+                    fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+                    color: planet.defence!.getHealthPercentage() >
+                            planet.defence!.getEnemyHealthPercentage()
+                        ? Colors.green
+                        : Colors.red,
+                    letterSpacing: 0,
+                  ),
                 ),
               ],
             ),
@@ -606,11 +658,14 @@ class _ProgressDefence extends StatelessWidget {
                       const SizedBox(
                         width: 5,
                       ),
-                      _TextArame(
-                        color: planet.owner.color,
-                        text: AppLocalizations.of(context)!.required,
-                        size: "medium",
-                        letterSpacing: 0,
+                      Text(
+                        AppLocalizations.of(context)!.required,
+                        style: TextStyleArame(
+                          fontSize:
+                              Theme.of(context).textTheme.titleMedium!.fontSize,
+                          color: planet.owner.color,
+                          letterSpacing: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -663,18 +718,27 @@ class _ProgressLiberation extends StatelessWidget {
                           .planetLiberationInProgress,
                       child: Row(
                         children: [
-                          _TextArame(
-                            text:
-                                "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
-                            size: "medium",
+                          Text(
+                            "${(planet.getLiberationPercentage() * 100).toStringAsFixed(3)}%",
+                            style: TextStyleArame(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .fontSize,
+                            ),
                           ),
                           const SizedBox(
                             width: 5,
                           ),
-                          _TextArame(
-                            text: AppLocalizations.of(context)!.liberated,
-                            size: "medium",
-                            letterSpacing: 0,
+                          Text(
+                            AppLocalizations.of(context)!.liberated,
+                            style: TextStyleArame(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .fontSize,
+                              letterSpacing: 0,
+                            ),
                           ),
                         ],
                       ),
@@ -753,10 +817,12 @@ class _FactionImpactPercentage extends StatelessWidget {
           height: 25,
         ),
         const SizedBox(width: 5),
-        _TextArame(
-          text: "${value.toStringAsFixed(precision)}%",
-          color: faction.color,
-          size: "medium",
+        Text(
+          "${value.toStringAsFixed(precision)}%",
+          style: TextStyleArame(
+            fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+            color: faction.color,
+          ),
         ),
         Text(
           "/h",
@@ -791,11 +857,8 @@ class _ImpactPerHour extends StatelessWidget {
     status = [
       Text(
         "$value%",
-        style: TextStyle(
+        style: TextStyleArame(
           color: color,
-          fontWeight: FontWeight.bold,
-          fontFamily: "Arame",
-          letterSpacing: 1.5,
           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
         ),
       ),
@@ -817,10 +880,8 @@ class _ImpactPerHour extends StatelessWidget {
       status = [
         Text(
           AppLocalizations.of(context)!.holding,
-          style: TextStyle(
+          style: TextStyleArame(
             color: color,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Arame",
             fontSize: Theme.of(context).textTheme.titleSmall!.fontSize,
           ),
         ),
@@ -852,8 +913,9 @@ class _PlanetEventDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: _TextArame(
-        text: AppLocalizations.of(context)!.planetStatistics,
+      title: Text(
+        AppLocalizations.of(context)!.planetStatistics,
+        style: const TextStyleArame(),
       ),
       content: _PlanetViewStatistic(
         statistic: planet.statistic,
@@ -1034,46 +1096,6 @@ class _ProgressBar extends StatelessWidget {
             reverse ? ThemeColors.darken(secondaryColor, 20) : secondaryColor,
         angle: angle,
         reverse: reverse,
-      ),
-    );
-  }
-}
-
-class _TextArame extends StatelessWidget {
-  final String text;
-
-  final Color color;
-
-  final String size;
-
-  final double letterSpacing;
-
-  const _TextArame(
-      {required this.text,
-      this.color = Colors.white,
-      this.size = "large",
-      this.letterSpacing = 1.5});
-
-  @override
-  Widget build(BuildContext context) {
-    double? fontSize = Theme.of(context).textTheme.titleLarge!.fontSize ?? 20;
-
-    if (size == "medium") {
-      fontSize = Theme.of(context).textTheme.titleMedium!.fontSize ?? 16;
-    }
-
-    if (size == "small") {
-      fontSize = Theme.of(context).textTheme.titleSmall!.fontSize ?? 14;
-    }
-
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontFamily: "Arame",
-        color: color,
-        letterSpacing: letterSpacing,
-        fontSize: fontSize,
       ),
     );
   }
