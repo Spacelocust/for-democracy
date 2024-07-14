@@ -1,6 +1,7 @@
 import 'package:app/widgets/datatable/events.dart';
 import 'package:app/widgets/datatable/features.dart';
-import 'package:app/widgets/datatable/user.dart';
+import 'package:app/widgets/datatable/groups.dart';
+import 'package:app/widgets/datatable/users.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -23,6 +24,11 @@ class HomeScreen extends StatelessWidget {
         'label': AppLocalizations.of(context)!.events,
         'icon': Icons.event,
         'widget': const EventsDatatable(),
+      },
+      {
+        'label': AppLocalizations.of(context)!.groups,
+        'icon': Icons.group,
+        'widget': const GroupsDatatable(),
       },
       {
         'label': AppLocalizations.of(context)!.users,

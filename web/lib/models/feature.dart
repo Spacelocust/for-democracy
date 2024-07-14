@@ -4,15 +4,15 @@ part 'feature.g.dart';
 
 @JsonSerializable()
 class Feature {
-  @JsonKey(required: true, name: 'active')
-  final bool active;
-
   @JsonKey(required: true, name: 'name')
-  final String name;
+  final String code;
+
+  @JsonKey(required: true, name: 'active')
+  final bool enabled;
 
   Feature({
-    this.active = false,
-    required this.name,
+    this.enabled = false,
+    required this.code,
   });
 
   factory Feature.fromJson(Map<String, dynamic> json) =>

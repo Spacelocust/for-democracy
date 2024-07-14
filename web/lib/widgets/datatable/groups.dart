@@ -1,27 +1,27 @@
-import 'package:app/models/feature.dart';
-import 'package:app/services/feature_service.dart';
+import 'package:app/models/group.dart';
+import 'package:app/services/groups_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class FeaturesDatatable extends StatefulWidget {
-  const FeaturesDatatable({super.key});
+class GroupsDatatable extends StatefulWidget {
+  const GroupsDatatable({super.key});
 
   @override
-  State<FeaturesDatatable> createState() => _FeaturesDatatableState();
+  State<GroupsDatatable> createState() => _GroupsDatatableState();
 }
 
-class _FeaturesDatatableState extends State<FeaturesDatatable> {
-  late Future<List<Feature>> _featuresFuture;
+class _GroupsDatatableState extends State<GroupsDatatable> {
+  late Future<List<Group>> _groupsFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchFeatures();
+    fetchUsers();
   }
 
-  void fetchFeatures() {
+  void fetchUsers() {
     setState(() {
-      _featuresFuture = FeaturesService.getFeatures();
+      _groupsFuture = GroupsService.getGroups();
     });
   }
 
@@ -30,12 +30,17 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
     final l10n = AppLocalizations.of(context)!;
 
     final columns = [
+      l10n.id,
       l10n.code,
-      l10n.state,
+      l10n.name,
+      l10n.planet,
+      l10n.difficulty,
+      l10n.public,
+      l10n.startAt,
     ];
 
-    return FutureBuilder<List<Feature>>(
-      future: _featuresFuture,
+    return FutureBuilder<List<Group>>(
+      future: _groupsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -59,18 +64,16 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
             ),
           ],
           rows: [
-            ...snapshot.data!.map((feature) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(feature.code)),
-                  DataCell(
-                    Switch(
-                      value: feature.enabled,
-                      onChanged: (bool value) {},
-                    ),
-                  ),
-                ],
-              );
+            ...snapshot.data!.map((group) {
+              return DataRow(cells: [
+                DataCell(Text(group.id.toString())),
+                DataCell(Text(group.code)),
+                DataCell(Text(group.name)),
+                DataCell(Text(group.planet.name)),
+                DataCell(Text(group.difficulty.toString())),
+                DataCell(Text(group.public.toString())),
+                DataCell(Text(group.startAt.toString())),
+              ]);
             })
           ],
         );
