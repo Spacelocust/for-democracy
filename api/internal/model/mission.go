@@ -15,6 +15,7 @@ type Mission struct {
 	Name              string                                 `gorm:"not null"`
 	Instructions      *string                                `gorm:"type:text"`
 	ObjectiveTypes    datatype.EnumArray[enum.ObjectiveType] `gorm:"not null;type:text[]"`
+	EstimatedTime     time.Duration                          `gorm:"not null"`
 	GroupID           uint
 	GroupUserMissions []GroupUserMission `gorm:"constraint:OnDelete:CASCADE"`
 }
@@ -41,8 +42,8 @@ func (m *Mission) GetObjectives() (map[enum.ObjectiveType]Objective, error) {
 	return objectives, nil
 }
 
-// Returns the estimated duration of the mission
-func (m *Mission) GetEstimatedTime() time.Duration {
+// Calculates the estimated time of the mission based on the objectives
+func (m *Mission) CalulateEstimatedTime() time.Duration {
 	type durationCount struct {
 		duration time.Duration
 		count    int
