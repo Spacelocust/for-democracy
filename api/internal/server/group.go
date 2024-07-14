@@ -1,11 +1,14 @@
 package server
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/Spacelocust/for-democracy/utils"
@@ -332,6 +335,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	err = db.
 		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
+		Preload("GroupUsers.User.TokenFcm").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		First(&updatedGroup, "id = ?", group.ID).Error
@@ -340,6 +344,32 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		s.InternalErrorResponse(c, err)
 		return
 	}
+
+	client := s.firebase.GetMessaging()
+
+	// Send notification to all users in the group
+	var tokenFcms []string
+
+	for _, groupUser := range updatedGroup.GroupUsers {
+		if groupUser.User.TokenFcm != nil {
+			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+		}
+	}
+
+	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+		Tokens: tokenFcms,
+		Notification: &messaging.Notification{
+			Title: "Group Updated",
+			Body:  fmt.Sprintf("Group %s has been updated", updatedGroup.Name),
+		},
+	})
+
+	if err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, updatedGroup)
 }
