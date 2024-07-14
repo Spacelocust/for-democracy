@@ -424,7 +424,11 @@ class _GroupScreenState extends State<GroupScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-              // TODO missions
+              ...group.missions.map(
+                (mission) => _MissionListItem(
+                  mission: mission,
+                ),
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -508,14 +512,16 @@ class _MissionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Card.outlined(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             title: Text(
               mission.name,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: TextStyleArame(
+                fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+              ),
             ),
             subtitle: Text('Temps estimé:'),
             trailing: Text('TODO'),
@@ -528,7 +534,7 @@ class _MissionListItem extends StatelessWidget {
           ),
           ...mission.objectiveTypes.map(
             (objective) => ListTile(
-              trailing: Image(
+              leading: Image(
                 image: AssetImage(objective.logo),
                 width: 30,
                 height: 30,
@@ -552,6 +558,14 @@ class _MissionListItem extends StatelessWidget {
               style: const TextStyleArame(),
             ),
           ),
+          if (mission.groupUserMissions.isEmpty)
+            ListTile(
+              title: Text(
+                'No members',
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ...mission.groupUserMissions.map(
             (groupUserMission) => ListTile(
               trailing: CachedNetworkImage(
