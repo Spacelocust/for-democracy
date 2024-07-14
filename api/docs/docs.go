@@ -1004,6 +1004,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/planets-event": {
+            "get": {
+                "description": "Get all planets with events",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "planets"
+                ],
+                "summary": "Get all planets with events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Planet"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/planets-stream/": {
             "get": {
                 "description": "Get planets stream",
@@ -1633,11 +1662,14 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "group": {
-                    "$ref": "#/definitions/model.Group"
-                },
                 "groupID": {
                     "type": "integer"
+                },
+                "groupUserMissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.GroupUserMission"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -1665,17 +1697,11 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "groupUser": {
-                    "$ref": "#/definitions/model.GroupUser"
-                },
                 "groupUserID": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
-                },
-                "mission": {
-                    "$ref": "#/definitions/model.Mission"
                 },
                 "missionID": {
                     "type": "integer"
@@ -1769,9 +1795,6 @@ const docTemplate = `{
                 },
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "group": {
-                    "$ref": "#/definitions/model.Group"
                 },
                 "groupID": {
                     "type": "integer"

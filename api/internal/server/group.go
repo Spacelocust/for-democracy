@@ -80,11 +80,23 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		Difficulty:  groupData.Difficulty,
 		PlanetID:    groupData.PlanetID,
 		StartAt:     startAt,
+		GroupUsers: []model.GroupUser{
+			{
+				UserID: user.ID,
+				Owner:  true,
+			},
+		},
 	}
 
-	if err := db.First(&model.Planet{}, "id = ?", newGroup.PlanetID).Error; err != nil {
+	if err := db.
+		Preload("Liberation").
+		Preload("Defence").
+		Joins("LEFT JOIN liberations ON liberations.planet_id = planets.id").
+		Joins("LEFT JOIN defences ON defences.planet_id = planets.id").
+		Where("liberations.id IS NOT NULL AND liberations.deleted_at IS NULL OR defences.id IS NOT NULL AND defences.deleted_at IS NULL").
+		First(&model.Planet{}, "planets.id = ?", newGroup.PlanetID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.NotFoundResponse(c, "planet")
+			s.ForbiddenResponse(c, "planet does not have any events")
 			return
 		}
 
@@ -97,14 +109,15 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	// Create new user group
-	newUserGroup := model.GroupUser{
-		UserID:  user.ID,
-		GroupID: newGroup.ID,
-		Owner:   true,
-	}
+	// BUG: Need to query the group again to preoload the sub-relations (GroupUsers.User) because the Create method doesn't return the sub-relations
+	err = db.
+		Preload("Missions").
+		Preload("GroupUsers.User").
+		Preload("GroupUsers.GroupUserMissions").
+		Preload("Planet").
+		First(&newGroup, "id = ?", newGroup.ID).Error
 
-	if err := db.Create(&newUserGroup).Error; err != nil {
+	if err != nil {
 		s.InternalErrorResponse(c, err)
 		return
 	}
@@ -130,10 +143,11 @@ func (s *Server) GetGroups(c *gin.Context) {
 		// Get public groups
 		err := db.
 			Preload("Missions").
-			Preload("GroupUsers").
 			Preload("GroupUsers.User").
+			Preload("GroupUsers.GroupUserMissions").
 			Preload("Planet").
 			Find(&groups, "public = ?", true).Error
+
 		if err != nil {
 			s.InternalErrorResponse(c, err)
 			return
@@ -148,8 +162,8 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
-		Preload("GroupUsers").
 		Preload("GroupUsers.User").
+		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
 		Find(&groups).Error
 
@@ -183,8 +197,8 @@ func (s *Server) GetGroup(c *gin.Context) {
 	if !ok {
 		if err := db.
 			Preload("Missions").
-			Preload("GroupUsers").
 			Preload("GroupUsers.User").
+			Preload("GroupUsers.GroupUserMissions").
 			Preload("Planet").
 			First(&group, "id = ? AND public = ?", groupID, true).
 			Error; err != nil {
@@ -199,11 +213,12 @@ func (s *Server) GetGroup(c *gin.Context) {
 	}
 
 	// Get private group where the user is a member of or public group by ID
-	err := db.Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
+	err := db.
+		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
 		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
 		Preload("Missions").
-		Preload("GroupUsers").
 		Preload("GroupUsers.User").
+		Preload("GroupUsers.GroupUserMissions").
 		Preload("Planet").
 		First(&group, "groups.id = ?", groupID).Error
 
@@ -304,7 +319,14 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	}
 
 	// Update group
-	if err := db.Save(&updatedGroup).Error; err != nil {
+	err = db.
+		Preload("Missions").
+		Preload("GroupUsers.User").
+		Preload("GroupUsers.GroupUserMissions").
+		Preload("Planet").
+		Save(&updatedGroup).Error
+
+	if err != nil {
 		s.InternalErrorResponse(c, err)
 		return
 	}

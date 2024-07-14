@@ -345,10 +345,12 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
-      group:
-        $ref: '#/definitions/model.Group'
       groupID:
         type: integer
+      groupUserMissions:
+        items:
+          $ref: '#/definitions/model.GroupUserMission'
+        type: array
       id:
         type: integer
       owner:
@@ -366,14 +368,10 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
-      groupUser:
-        $ref: '#/definitions/model.GroupUser'
       groupUserID:
         type: integer
       id:
         type: integer
-      mission:
-        $ref: '#/definitions/model.Mission'
       missionID:
         type: integer
       stratagems:
@@ -435,8 +433,6 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
-      group:
-        $ref: '#/definitions/model.Group'
       groupID:
         type: integer
       groupUserMissions:
@@ -1442,6 +1438,25 @@ paths:
           schema:
             $ref: '#/definitions/gin.Error'
       summary: Get all planets
+      tags:
+      - planets
+  /planets-event:
+    get:
+      description: Get all planets with events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Planet'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: Get all planets with events
       tags:
       - planets
   /planets-stream/:

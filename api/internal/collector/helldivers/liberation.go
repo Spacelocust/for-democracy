@@ -110,7 +110,7 @@ func storeLiberations(db *gorm.DB, merrch chan<- error, wg *sync.WaitGroup) {
 			}
 		} else {
 			// Delete all liberations not in the new liberations (remove old liberations)
-			err = tx.Clauses(clause.NotConditions{
+			err = tx.Unscoped().Clauses(clause.NotConditions{
 				Exprs: []clause.Expression{
 					clause.IN{
 						Column: clause.Column{Name: "helldivers_id"},
