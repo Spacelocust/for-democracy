@@ -755,6 +755,25 @@ definitions:
     required:
     - code
     type: object
+  validators.GroupUpdate:
+    properties:
+      description:
+        type: string
+      difficulty:
+        $ref: '#/definitions/enum.Difficulty'
+      name:
+        type: string
+      public:
+        type: boolean
+      startAt:
+        default: "2024-08-02 15:04:05"
+        type: string
+    required:
+    - difficulty
+    - name
+    - public
+    - startAt
+    type: object
   validators.Mission:
     properties:
       groupID:
@@ -961,7 +980,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/validators.Group'
+          $ref: '#/definitions/validators.GroupUpdate'
       produces:
       - application/json
       responses:
