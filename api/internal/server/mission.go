@@ -69,6 +69,21 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
+	// check if the user is the owner of the group
+	currentGroupeUserIndex := slices.IndexFunc(group.GroupUsers, func(gu model.GroupUser) bool {
+		return gu.User.ID == user.ID
+	})
+
+	if currentGroupeUserIndex == -1 {
+		s.ForbiddenResponse(c, "you are not a member of this group")
+		return
+	}
+
+	if !group.GroupUsers[currentGroupeUserIndex].Owner {
+		s.ForbiddenResponse(c, "you are not the owner of this group")
+		return
+	}
+
 	// Check if the objectives are available for the group
 	for _, objectifType := range missionData.ObjectiveTypes {
 		objectif, err := model.GetObjective(objectifType)
@@ -81,24 +96,6 @@ func (s *Server) CreateMission(c *gin.Context) {
 			s.BadRequestResponse(c, fmt.Sprintf("objective '%s' is not available for this group", objectifType))
 			return
 		}
-	}
-
-	// Check if the user is in a group
-	var groupUser model.GroupUser
-
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, missionData.GroupID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.ForbiddenResponse(c, "you are not a member of this group")
-			return
-		}
-
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	if !groupUser.Owner {
-		s.ForbiddenResponse(c, "you are not the owner of this group")
-		return
 	}
 
 	// Create the mission
@@ -124,31 +121,33 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "New mission",
+				Body:  fmt.Sprintf("A new mission has been created in the group %s", group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "New mission",
-			Body:  fmt.Sprintf("A new mission has been created in the group %s", group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusCreated, newMission)
 }
@@ -230,20 +229,17 @@ func (s *Server) UpdateMission(c *gin.Context) {
 		return
 	}
 
-	// Check if the user is in a group
-	var groupUser model.GroupUser
+	// check if the user is the owner of the group
+	currentGroupeUserIndex := slices.IndexFunc(group.GroupUsers, func(gu model.GroupUser) bool {
+		return gu.User.ID == user.ID
+	})
 
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, mission.GroupID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.ForbiddenResponse(c, "you are not a member of this group")
-			return
-		}
-
-		s.InternalErrorResponse(c, err)
+	if currentGroupeUserIndex == -1 {
+		s.ForbiddenResponse(c, "you are not a member of this group")
 		return
 	}
 
-	if !groupUser.Owner {
+	if !group.GroupUsers[currentGroupeUserIndex].Owner {
 		s.ForbiddenResponse(c, "you are not the owner of this group")
 		return
 	}
@@ -266,31 +262,46 @@ func (s *Server) UpdateMission(c *gin.Context) {
 		return
 	}
 
-	client := s.firebase.GetMessaging()
-
-	// Send notification to all users in the group
-	var tokenFcms []string
-
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	// Get the updated mission with the group user missions
+	if err := db.Preload("GroupUserMissions.Stratagems").First(&updatedMission, "id = ?", missionID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
 		}
-	}
 
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Mission Updated",
-			Body:  fmt.Sprintf("The mission %s has been updated in the group %s", updatedMission.Name, group.Name),
-		},
-	})
-
-	if err != nil {
 		s.InternalErrorResponse(c, err)
 		return
 	}
 
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+	// // Send notification to all users in the group
+	var tokenFcms []string
+
+	// Send notification to all users in the group except the user
+	// The group must have at least 2 users
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
+		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Mission Updated",
+				Body:  fmt.Sprintf("The mission %s has been updated in the group %s", updatedMission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+	}
 
 	c.JSON(http.StatusOK, updatedMission)
 
@@ -469,31 +480,33 @@ func (s *Server) JoinMission(c *gin.Context) {
 		return
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player joined mission",
+				Body:  fmt.Sprintf("%s has joined the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Player joined mission",
-			Body:  fmt.Sprintf("%s has joined the mission %s in the group %s", user.Username, mission.Name, group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, newGroupUserMission)
 }
@@ -574,31 +587,33 @@ func (s *Server) LeaveMission(c *gin.Context) {
 		return
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player left mission",
+				Body:  fmt.Sprintf("%s has left the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Player left mission",
-			Body:  fmt.Sprintf("%s has left the mission %s in the group %s", user.Username, mission.Name, group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you left the mission"})
 }

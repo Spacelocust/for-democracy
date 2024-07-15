@@ -345,31 +345,33 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		return
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range updatedGroup.GroupUsers {
-		if groupUser.User.TokenFcm != nil {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(updatedGroup.GroupUsers) > 1 {
+		for _, groupUser := range updatedGroup.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Group Updated",
+				Body:  fmt.Sprintf("Group %s has been updated", updatedGroup.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Group Updated",
-			Body:  fmt.Sprintf("Group %s has been updated", updatedGroup.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, updatedGroup)
 }
@@ -466,31 +468,33 @@ func (s *Server) JoinGroup(c *gin.Context) {
 		}
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player joined",
+				Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Player joined",
-			Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusCreated, newUserGroup)
 }
@@ -600,31 +604,33 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 		}
 	}
 
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player joined",
+				Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Player joined",
-			Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusCreated, newUserGroup)
 }
@@ -691,32 +697,33 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 		return
 	}
 
-	// Get the group to send notifications
-	client := s.firebase.GetMessaging()
-
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	for _, groupUser := range group.GroupUsers {
-		if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
-			tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
 		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player left",
+				Body:  fmt.Sprintf("%s has left %s", user.Username, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
-
-	response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-		Tokens: tokenFcms,
-		Notification: &messaging.Notification{
-			Title: "Player left",
-			Body:  fmt.Sprintf("%s has left %s", user.Username, group.Name),
-		},
-	})
-
-	if err != nil {
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you have left the group"})
 }
