@@ -7,7 +7,6 @@ import 'package:mobile/screens/events_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/screens/web_oauth_screen.dart';
-import 'package:mobile/services/local_notification_service.dart';
 import 'package:mobile/services/secure_storage_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/widgets/components/square_avatar.dart';
@@ -65,15 +64,6 @@ class MainNavigationDrawer extends StatelessWidget {
         ...destinations.map(
           (DrawerDestination drawerDestination) =>
               drawerDestination.destination,
-        ),
-        ElevatedButton(
-          onPressed: () {
-            LocalNotificationService.showNotification(
-              title: "bob",
-              body: "bob",
-            );
-          },
-          child: const Text('Test'),
         ),
         const DrawerItem(
           child: Divider(),

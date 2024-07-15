@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mobile/services/local_notification_service.dart';
@@ -24,7 +23,6 @@ abstract class FirebaseMessagingService {
     // Handle messages
     FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
-    FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
     FirebaseMessaging.onMessage.listen(handleMessage);
   }
 
@@ -40,9 +38,5 @@ abstract class FirebaseMessagingService {
       body: notification.body!,
       payload: jsonEncode(message.toMap()),
     );
-  }
-
-  static Future<void> handleBackgroundMessage(RemoteMessage message) async {
-    log('handleBackgroundMessage: ${message.notification!.title!}');
   }
 }

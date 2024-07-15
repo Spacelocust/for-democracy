@@ -94,11 +94,6 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
           User user = await OAuthService.getMe();
 
           if (mounted) {
-            // Set the user to the AuthState
-            context
-              ..read<AuthState>().setUser(user)
-              ..pop();
-
             // Retrieve the FCM token
             var token =
                 await FirebaseMessagingService.firebaseMessaging.getToken();
@@ -108,6 +103,11 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
             }
 
             await TokenFcmService.persistTokenFcm(token);
+
+            // Set the user to the AuthState
+            context
+              ..read<AuthState>().setUser(user)
+              ..pop();
           }
         }
       } catch (e) {
