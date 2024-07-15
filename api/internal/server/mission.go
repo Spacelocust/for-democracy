@@ -22,6 +22,7 @@ func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route.GET("/:id", s.GetMission)
 	route.PUT("/:id", s.UpdateMission)
 	route.DELETE("/:id", s.DeleteMission)
+	route.PUT("/:id/edit", s.UpdateGroupUserMission)
 	route.POST("/:id/join", s.JoinMission)
 	route.POST("/:id/leave", s.LeaveMission)
 }
@@ -111,7 +112,11 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
-	if err := db.Preload("GroupUserMissions.Stratagems").First(&newMission, "id = ?", newMission.ID).Error; err != nil {
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&newMission, "id = ?", newMission.ID).
+		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "mission")
 			return
@@ -170,7 +175,11 @@ func (s *Server) GetMission(c *gin.Context) {
 
 	var mission model.Mission
 
-	if err := db.Preload("GroupUserMissions.Stratagems").First(&mission, "id = ?", missionID).Error; err != nil {
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&mission, "id = ?", missionID).
+		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "mission")
 			return
@@ -263,7 +272,11 @@ func (s *Server) UpdateMission(c *gin.Context) {
 	}
 
 	// Get the updated mission with the group user missions
-	if err := db.Preload("GroupUserMissions.Stratagems").First(&updatedMission, "id = ?", missionID).Error; err != nil {
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&updatedMission, "id = ?", missionID).
+		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "mission")
 			return
@@ -616,4 +629,92 @@ func (s *Server) LeaveMission(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you left the mission"})
+}
+
+// @Summary Update user mission
+// @Description Update the user mission stratagems
+// @Tags    missions
+// @Produce  json
+// @Param id path int true "Mission ID"
+// @Param data body validators.UserMission true "Mission properties that needs to be updated"
+// @Success 200 {object} model.GroupUserMission
+// @Failure      500  {object}  server.ErrorResponse
+// @Failure      404  {object}  server.ErrorResponse
+// @Failure      400  {object}  server.ErrorResponse
+// @Failure      401  {object}  server.ErrorResponse
+// @Router /missions/{id}/edit [put]
+func (s *Server) UpdateGroupUserMission(c *gin.Context) {
+	db := s.db.GetDB()
+
+	user := checkAuth(c)
+
+	missionID := c.Param("id")
+
+	// Check if the mission exists
+	var mission model.Mission
+
+	if err := db.First(&mission, "id = ?", missionID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	var missionData validators.UserMission
+
+	if err := c.ShouldBindJSON(&missionData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
+
+	// Validate Group struct
+	if err := s.validator.Validate(missionData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
+
+	// Check if the user is in a group
+	var groupUser model.GroupUser
+
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, mission.GroupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.ForbiddenResponse(c, "you are not a member of this group")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Check if the user is already in the mission
+	var groupUserMission model.GroupUserMission
+
+	if err := db.Find(&groupUserMission, "group_user_id = ? AND mission_id = ?", groupUser.ID, missionID).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	if groupUserMission.ID == 0 {
+		s.ForbiddenResponse(c, "you are not in this mission")
+		return
+	}
+
+	// Get the stratagems
+	var newStratagems []*model.Stratagem
+
+	if err := db.Find(&newStratagems, "id IN (?)", missionData.Stratagems).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Update the group user mission
+	if err := db.Model(&groupUserMission).Preload("User").Association("Stratagems").Replace(newStratagems); err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, groupUserMission)
 }

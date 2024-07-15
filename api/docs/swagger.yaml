@@ -1277,6 +1277,47 @@ paths:
       summary: Update a mission
       tags:
       - missions
+  /missions/{id}/edit:
+    put:
+      description: Update the user mission stratagems
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Mission properties that needs to be updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.UserMission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GroupUserMission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Update user mission
+      tags:
+      - missions
   /missions/{id}/join:
     post:
       description: Join a mission
