@@ -34,6 +34,38 @@ class Mission {
     required this.groupUserMissions,
   });
 
+  Duration get estimatedTime {
+    final durations = <Duration, int>{};
+
+    if (objectiveTypes.isEmpty) {
+      return Duration.zero;
+    }
+
+    for (final objective in objectiveTypes) {
+      var duration = objective.duration;
+
+      if (durations.containsKey(duration)) {
+        durations[duration] = durations[duration]! + 1;
+      } else {
+        durations[duration] = 1;
+      }
+    }
+
+    final sortedDurations = durations.entries.toList()
+      ..sort(
+        (a, b) => a.key.compareTo(b.key),
+      );
+    final mostCommonDuration = sortedDurations.last;
+
+    return mostCommonDuration.key;
+  }
+
+  bool isMember(String steamUserId) {
+    return groupUserMissions.any((groupUserMission) {
+      return groupUserMission.user?.user?.steamId == steamUserId;
+    });
+  }
+
   factory Mission.fromJson(Map<String, dynamic> json) =>
       _$MissionFromJson(json);
 

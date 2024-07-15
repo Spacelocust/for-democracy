@@ -4,20 +4,27 @@ import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/models/mission.dart';
+import 'package:mobile/models/stratagem.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/group_edit_screen.dart';
+import 'package:mobile/screens/group_mission_edit_screen.dart';
 import 'package:mobile/screens/group_mission_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
+import 'package:mobile/services/missions_service.dart';
+import 'package:mobile/services/stratagems_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/confirm_action_dialog.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
+import 'package:mobile/widgets/group/group_mission_user_dialog.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
@@ -42,17 +49,20 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  Future<Group>? _groupFuture;
+  Future<dynamic>? _groupAndStratagemsFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchGroup();
+    fetchGroupAndStratagems();
   }
 
-  void fetchGroup() {
+  void fetchGroupAndStratagems() {
     setState(() {
-      _groupFuture = GroupsService.getGroup(widget.groupId);
+      _groupAndStratagemsFuture = Future.wait([
+        GroupsService.getGroup(widget.groupId),
+        StratagemsService.getStratagems(),
+      ]);
     });
   }
 
@@ -60,8 +70,8 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: FutureBuilder<Group>(
-        future: _groupFuture,
+      child: FutureBuilder<dynamic>(
+        future: _groupAndStratagemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
@@ -74,13 +84,14 @@ class _GroupScreenState extends State<GroupScreen> {
             // Error state
             return ErrorMessage(
               errorMessage: AppLocalizations.of(context)!.groupScreenError,
-              onPressed: fetchGroup,
+              onPressed: fetchGroupAndStratagems,
             );
           }
 
           // Success state
           final user = context.watch<AuthState>().user;
-          final group = snapshot.data!;
+          final Group group = snapshot.data![0];
+          final List<Stratagem> stratagems = snapshot.data![1];
           final groupUsers = group.groupUsers;
           Widget? actions;
 
@@ -248,7 +259,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 if (!group.isOwner(user.steamId) &&
                     !group.isMember(user.steamId))
                   SpeedDialChild(
-                    child: const Icon(Icons.add),
+                    child: const Icon(Icons.login),
                     backgroundColor: ThemeColors.primary,
                     foregroundColor: ThemeColors.surface,
                     label: AppLocalizations.of(context)!.join,
@@ -427,6 +438,9 @@ class _GroupScreenState extends State<GroupScreen> {
               ...group.missions.map(
                 (mission) => _MissionListItem(
                   mission: mission,
+                  group: group,
+                  user: user,
+                  stratagems: stratagems,
                 ),
               ),
               const SizedBox(height: 16),
@@ -506,13 +520,208 @@ class _GroupMember extends StatelessWidget {
 class _MissionListItem extends StatelessWidget {
   final Mission mission;
 
+  final Group group;
+
+  final List<Stratagem> stratagems;
+
+  final User? user;
+
   const _MissionListItem({
     required this.mission,
+    required this.group,
+    required this.stratagems,
+    this.user,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card.outlined(
+    Widget? actions;
+
+    if (user != null) {
+      final isOwner = group.isOwner(user!.steamId);
+
+      actions = SpeedDial(
+        direction: SpeedDialDirection.down,
+        icon: Icons.more_vert,
+        activeIcon: Icons.close,
+        backgroundColor: ThemeColors.primary,
+        foregroundColor: ThemeColors.surface,
+        mini: true,
+        children: [
+          if (mission.isMember(user!.steamId))
+            SpeedDialChild(
+              child: const Icon(Icons.exit_to_app),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.leave,
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return ConfirmActionDialog(
+                      actionText: AppLocalizations.of(context)!.leave,
+                      content: Text(
+                        AppLocalizations.of(context)!.missionLeaveConfirmation,
+                      ),
+                      onConfirm: () async {
+                        try {
+                          await MissionsService.leaveMission(mission.id);
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.groupLeft,
+                          );
+
+                          context.replace(
+                            context.namedLocation(
+                              GroupScreen.routeName,
+                              pathParameters: {
+                                'groupId': group.id.toString(),
+                              },
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.somethingWentWrong,
+                          );
+                        } finally {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          if (!mission.isMember(user!.steamId))
+            SpeedDialChild(
+              child: const Icon(Icons.login),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.join,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return GroupMissionUserDialog(
+                      group: group,
+                      mission: mission,
+                      stratagems: stratagems,
+                    );
+                  },
+                );
+              },
+            ),
+          if (isOwner)
+            SpeedDialChild(
+              child: const Icon(Icons.edit),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.edit,
+              onTap: () {
+                context.go(
+                  context.namedLocation(
+                    GroupMissionEditScreen.routeName,
+                    pathParameters: {
+                      'groupId': group.id.toString(),
+                      'missionId': mission.id.toString(),
+                    },
+                  ),
+                );
+              },
+            ),
+          if (isOwner)
+            SpeedDialChild(
+              child: const Icon(Icons.delete),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.delete,
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return ConfirmActionDialog(
+                      onConfirm: () async {
+                        try {
+                          await MissionsService.deleteMission(mission.id);
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.missionDeleted,
+                          );
+
+                          context.go(
+                            context.namedLocation(
+                              GroupScreen.routeName,
+                              pathParameters: {
+                                'groupId': group.id.toString(),
+                              },
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.somethingWentWrong,
+                          );
+                        } finally {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+        ],
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.white,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ThemeColors.primary.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 4,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      margin: const EdgeInsets.only(
+        left: 8,
+        right: 8,
+        top: 12,
+        bottom: 12,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -523,12 +732,35 @@ class _MissionListItem extends StatelessWidget {
                 fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
               ),
             ),
-            subtitle: Text('Temps estimé:'),
-            trailing: Text('TODO'),
+            subtitle: Text(
+              AppLocalizations.of(context)!.missionEstimatedTime(
+                prettyDuration(
+                  mission.estimatedTime,
+                  locale: DurationLocale.fromLanguageCode(
+                    Localizations.localeOf(context).languageCode,
+                  )!,
+                ),
+              ),
+            ),
+            trailing: actions,
           ),
+          if (mission.instructions != null && mission.instructions!.isNotEmpty)
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.missionInstructions,
+                style: const TextStyleArame(),
+              ),
+            ),
+          if (mission.instructions != null && mission.instructions!.isNotEmpty)
+            ListTile(
+              title: Text(
+                mission.instructions!,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
           ListTile(
             title: Text(
-              'Objectives',
+              "${AppLocalizations.of(context)!.missionObjectives} (${mission.objectiveTypes.length})",
               style: const TextStyleArame(),
             ),
           ),
@@ -554,14 +786,14 @@ class _MissionListItem extends StatelessWidget {
           ),
           ListTile(
             title: Text(
-              'Members',
+              "${AppLocalizations.of(context)!.missionMembers} (${mission.groupUserMissions.length})",
               style: const TextStyleArame(),
             ),
           ),
           if (mission.groupUserMissions.isEmpty)
             ListTile(
               title: Text(
-                'No members',
+                AppLocalizations.of(context)!.missionNoMembers,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
@@ -596,16 +828,11 @@ class _MissionListItem extends StatelessWidget {
                 spacing: 8,
                 children: groupUserMission.stratagems!
                     .map(
-                      (stratagem) => CachedNetworkImage(
+                      (stratagem) => SvgPicture.network(
+                        stratagem.imageURL,
                         width: 20,
                         height: 20,
-                        imageUrl: stratagem.imageURL,
-                        placeholder: (context, url) => const SizedBox(
-                          width: 20,
-                          height: 20,
-                        ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
+                        semanticsLabel: stratagem.name,
                       ),
                     )
                     .toList(),

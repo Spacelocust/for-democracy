@@ -10,6 +10,13 @@ abstract class MissionsService {
 
   static String url = '${dotenv.get(APIService.baseUrlEnv)}$missionsUrl';
 
+  static Future<Mission> getMission(int missionId) async {
+    var dio = APIService.getDio();
+    var mission = await dio.get("$missionsUrl/$missionId");
+
+    return Mission.fromJson(mission.data);
+  }
+
   static Future<Mission> createMission(int groupId, MissionDTO data) async {
     var dio = APIService.getDio();
     var group = await dio.post(missionsUrl, data: {

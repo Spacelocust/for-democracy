@@ -99,6 +99,7 @@ class GroupMissionFormState extends State<GroupMissionForm> {
       objectiveTiles.add(
         CheckboxListTile(
           value: _formData.objectives.contains(objective),
+          enabled: !_submitting,
           onChanged: (bool? value) {
             setState(() {
               if (value == true) {
