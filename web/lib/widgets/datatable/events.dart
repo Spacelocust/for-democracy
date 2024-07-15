@@ -64,11 +64,12 @@ class _EventsDatatableState extends State<EventsDatatable> {
 
         return Column(
           children: [
-            const SizedBox(height: 32),
+            const SizedBox(height: 64),
             Text(
               l10n.defences,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 16),
             DataTable(
               columns: [
                 ...columns["defences"]!.map(
@@ -99,11 +100,12 @@ class _EventsDatatableState extends State<EventsDatatable> {
                 })
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 64),
             Text(
               l10n.liberations,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 16),
             DataTable(
               columns: [
                 ...columns["liberations"]!.map(

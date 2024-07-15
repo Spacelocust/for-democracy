@@ -4,10 +4,10 @@ part 'feature.g.dart';
 
 @JsonSerializable()
 class Feature {
-  @JsonKey(required: true, name: 'code')
+  @JsonKey(required: true, name: 'Code')
   final String code;
 
-  @JsonKey(required: true, name: 'active')
+  @JsonKey(required: true, name: 'Enabled')
   final bool enabled;
 
   Feature({
