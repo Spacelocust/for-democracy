@@ -123,7 +123,3 @@ example: ## Run the example commande
 
 cron: ## Run the cron job to collect events
 	$(EXECAPI) go run main.go cron
-
-##@ Ansible
-edit-vault: ## Edit the vault file
-	docker run --rm -it -v $(PWD):/app -w /app/ansible/group_vars/prod -e EDITOR=nano uhligit/ansible /bin/sh -c "apk add nano && ansible-vault edit vault.yml && chmod a+rw vault.yml"

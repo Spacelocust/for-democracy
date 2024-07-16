@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine as builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /go/src/app
 
@@ -10,10 +10,10 @@ RUN go mod download &&\
 
 COPY /api .
 
-# Build the binary
-RUN GOOS=linux GOARCH=amd64 go build -o fd-democracy main.go
+# Remove the migrations folder and build the binary
+RUN rm -rf /migrations && GOOS=linux GOARCH=amd64 go build -o fd-democracy main.go
 
-FROM debian:buster-slim as runner
+FROM debian:buster-slim AS runner
 
 RUN apt-get update && apt-get install -y \
   curl \
@@ -25,6 +25,5 @@ COPY --from=builder /go/src/app/fd-democracy /go/bin/fd-democracy
 
 ENV PATH="/go/bin:${PATH}"
 
-EXPOSE 5000
+ENTRYPOINT ["fd-democracy", "gin-server"]
 
-CMD fd-democracy gin-server
