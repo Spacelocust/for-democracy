@@ -495,7 +495,7 @@ func (s *Server) JoinMission(c *gin.Context) {
 
 	if err := db.
 		Preload("Stratagems").
-		Preload("User").
+		Preload("GroupUser.User").
 		First(&newGroupUserMission, "id = ?", newGroupUserMission.ID).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -725,7 +725,21 @@ func (s *Server) UpdateGroupUserMission(c *gin.Context) {
 	}
 
 	// Update the group user mission
-	if err := db.Model(&groupUserMission).Preload("GroupUser.User").Association("Stratagems").Replace(newStratagems); err != nil {
+	if err := db.Model(&groupUserMission).Association("Stratagems").Replace(newStratagems); err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	if err := db.
+		Preload("Stratagems").
+		Preload("GroupUser.User").
+		First(&groupUserMission, "id = ?", groupUserMission.ID).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group user mission")
+			return
+		}
+
 		s.InternalErrorResponse(c, err)
 		return
 	}
