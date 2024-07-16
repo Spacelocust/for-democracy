@@ -120,6 +120,7 @@ func (s *Server) CreateGroup(c *gin.Context) {
 		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
+		Preload("GroupUsers.GroupUserMissions.User").
 		Preload("Planet").
 		First(&newGroup, "id = ?", newGroup.ID).Error
 
@@ -151,6 +152,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 			Preload("Missions.GroupUserMissions.Stratagems").
 			Preload("GroupUsers.User").
 			Preload("GroupUsers.GroupUserMissions.Stratagems").
+			Preload("GroupUsers.GroupUserMissions.User").
 			Preload("Planet").
 			Find(&groups, "public = ?", true).Error
 
@@ -170,6 +172,7 @@ func (s *Server) GetGroups(c *gin.Context) {
 		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
+		Preload("GroupUsers.GroupUserMissions.User").
 		Preload("Planet").
 		Distinct(GroupFieldsDistinct).
 		Find(&groups).Error
@@ -206,6 +209,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 			Preload("Missions.GroupUserMissions.Stratagems").
 			Preload("GroupUsers.User").
 			Preload("GroupUsers.GroupUserMissions.Stratagems").
+			Preload("GroupUsers.GroupUserMissions.User").
 			Preload("Planet").
 			First(&group, "id = ? AND public = ?", groupID, true).
 			Error; err != nil {
@@ -226,6 +230,7 @@ func (s *Server) GetGroup(c *gin.Context) {
 		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
+		Preload("GroupUsers.GroupUserMissions.User").
 		Preload("Planet").
 		Distinct(GroupFieldsDistinct).
 		First(&group, "groups.id = ?", groupID).Error
@@ -337,6 +342,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.User.TokenFcm").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
+		Preload("GroupUsers.GroupUserMissions.User").
 		Preload("Planet").
 		First(&updatedGroup, "id = ?", group.ID).Error
 

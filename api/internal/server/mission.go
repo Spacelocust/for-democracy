@@ -493,6 +493,20 @@ func (s *Server) JoinMission(c *gin.Context) {
 		return
 	}
 
+	if err := db.
+		Preload("Stratagems").
+		Preload("User").
+		First(&newGroupUserMission, "id = ?", newGroupUserMission.ID).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group user mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
 	// Send notification to all users in the group
 	var tokenFcms []string
 
