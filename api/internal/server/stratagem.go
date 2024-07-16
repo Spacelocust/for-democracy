@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Spacelocust/for-democracy/internal/enum"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -28,7 +29,7 @@ func (s *Server) GetStratagems(c *gin.Context) {
 
 	var stratagems []model.Stratagem
 
-	if err := db.Find(&stratagems).Error; err != nil {
+	if err := db.Not("use_type = ?", enum.Shared).Find(&stratagems).Error; err != nil {
 		s.InternalErrorResponse(c, err)
 		return
 	}
