@@ -10,6 +10,7 @@ type GroupUserMission struct {
 	gorm.Model
 	MissionID   uint
 	GroupUserID uint
+	GroupUser   GroupUser
 	Stratagems  []*Stratagem `gorm:"many2many:group_user_mission_stratagems;constraint:OnDelete:CASCADE"`
 }
 
