@@ -726,6 +726,13 @@ definitions:
     - Second
     - Minute
     - Hour
+  validators.FeatureEnabled:
+    properties:
+      enabled:
+        type: boolean
+    required:
+    - enabled
+    type: object
   validators.Group:
     properties:
       description:
@@ -868,6 +875,51 @@ paths:
           schema:
             $ref: '#/definitions/server.ErrorResponse'
       summary: Get features
+      tags:
+      - features
+  /features/{code}:
+    patch:
+      description: Toggle feature using code
+      parameters:
+      - description: Feature code
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: Properties to update
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.FeatureEnabled'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Feature'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Toggle feature
       tags:
       - features
   /groups:

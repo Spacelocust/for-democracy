@@ -96,9 +96,11 @@ class HomeScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             ...tabs.map(
-              (tab) => SingleChildScrollView(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(child: tab['widget'] as Widget),
+              (tab) => Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: SingleChildScrollView(
+                  child: Center(child: tab['widget'] as Widget),
+                ),
               ),
             ),
           ],

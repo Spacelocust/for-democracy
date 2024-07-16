@@ -64,7 +64,6 @@ class _EventsDatatableState extends State<EventsDatatable> {
 
         return Column(
           children: [
-            const SizedBox(height: 64),
             Text(
               l10n.defences,
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
@@ -100,7 +99,7 @@ class _EventsDatatableState extends State<EventsDatatable> {
                 })
               ],
             ),
-            const SizedBox(height: 64),
+            const SizedBox(height: 32),
             Text(
               l10n.liberations,
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),

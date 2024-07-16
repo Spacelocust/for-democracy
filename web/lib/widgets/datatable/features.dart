@@ -1,7 +1,9 @@
 import 'package:app/models/feature.dart';
+import 'package:app/screens/edit_feature.dart';
 import 'package:app/services/feature_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class FeaturesDatatable extends StatefulWidget {
   const FeaturesDatatable({super.key});
@@ -32,6 +34,7 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
     final columns = [
       l10n.code,
       l10n.enabled,
+      '',
     ];
 
     return FutureBuilder<List<Feature>>(
@@ -66,9 +69,24 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
                   DataCell(
                     Switch(
                       value: feature.enabled,
-                      onChanged: (bool value) {},
+                      onChanged: (value) {
+                        FeaturesService.toggleFeature(feature).then(
+                          (value) => fetchFeatures(),
+                        );
+                      },
                     ),
                   ),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        context.goNamed(EditFeatureScreen.routeName,
+                            pathParameters: {
+                              'featureCode': feature.code,
+                            });
+                      },
+                    ),
+                  )
                 ],
               );
             })

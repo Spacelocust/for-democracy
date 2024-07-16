@@ -14,4 +14,12 @@ abstract class FeaturesService {
 
     return [...featuresData.map((feature) => Feature.fromJson(feature))];
   }
+
+  static Future<void> toggleFeature(Feature feature) async {
+    var dio = APIService.getDio();
+
+    await dio.patch('$featuresUrl/${feature.code}', data: {
+      'enabled': !feature.enabled,
+    });
+  }
 }
