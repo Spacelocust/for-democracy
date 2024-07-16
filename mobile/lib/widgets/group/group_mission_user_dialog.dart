@@ -65,14 +65,18 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
     for (final stratagem in widget.stratagems) {
       bool isEnabled = !_submitting;
 
-      if (!_formData.stratagems.contains(stratagem) && isEnabled) {
+      if (!_formData.stratagems.any(
+              (selectedStratagem) => selectedStratagem.id == stratagem.id) &&
+          isEnabled) {
         isEnabled =
             _formData.stratagems.length < GroupMissionUserDialog.maxStratagems;
       }
 
       stratagemTiles.add(
         CheckboxListTile(
-          value: _formData.stratagems.contains(stratagem),
+          value: _formData.stratagems.any(
+            (selectedStratagem) => selectedStratagem.id == stratagem.id,
+          ),
           enabled: isEnabled,
           onChanged: (bool? value) {
             setState(() {
@@ -88,6 +92,10 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
             width: 20,
             height: 20,
             semanticsLabel: stratagem.name,
+            colorFilter: const ColorFilter.mode(
+              Colors.white,
+              BlendMode.srcIn,
+            ),
           ),
           title: Text(stratagem.name),
           subtitle: Text(
@@ -170,7 +178,10 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
 
                     try {
                       if (widget.editing) {
-                        // TODO: Implement editing ?
+                        await MissionsService.editMissionParticipation(
+                          widget.mission.id,
+                          _formData,
+                        );
                       } else {
                         await MissionsService.joinMission(
                           widget.mission.id,

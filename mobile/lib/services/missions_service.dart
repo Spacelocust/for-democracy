@@ -63,6 +63,18 @@ abstract class MissionsService {
     return GroupUserMission.fromJson(mission.data);
   }
 
+  static Future<GroupUserMission> editMissionParticipation(
+    int missionId,
+    MissionUserDTO data,
+  ) async {
+    var dio = APIService.getDio();
+    var mission = await dio.put("$missionsUrl/$missionId/edit", data: {
+      'stratagems': data.stratagems.map((e) => e.id).toList(),
+    });
+
+    return GroupUserMission.fromJson(mission.data);
+  }
+
   static Future<void> leaveMission(int missionId) async {
     var dio = APIService.getDio();
 

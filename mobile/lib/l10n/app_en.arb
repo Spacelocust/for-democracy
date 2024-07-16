@@ -313,6 +313,7 @@
     },
     "missionMembers": "Participants",
     "missionNoMembers": "No participants yet",
+    "missionEditParticipation": "Edit participation",
     "missionStratagems": "Stratagems",
     "missionJoin": "Join mission",
     "missionUpdateParticipation": "Update misson participation",

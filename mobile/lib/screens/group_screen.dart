@@ -7,7 +7,9 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/dto/mission_user_dto.dart';
 import 'package:mobile/models/group.dart';
+import 'package:mobile/models/group_user_mission.dart';
 import 'package:mobile/models/mission.dart';
 import 'package:mobile/models/stratagem.dart';
 import 'package:mobile/models/user.dart';
@@ -539,6 +541,12 @@ class _MissionListItem extends StatelessWidget {
 
     if (user != null) {
       final isOwner = group.isOwner(user!.steamId);
+      final GroupUserMission? groupUserMission = mission.groupUserMissions
+          .cast<GroupUserMission?>()
+          .firstWhere(
+              (groupUserMission) =>
+                  groupUserMission!.groupUser?.user?.steamId == user!.steamId,
+              orElse: () => null);
 
       actions = SpeedDial(
         direction: SpeedDialDirection.down,
@@ -600,6 +608,30 @@ class _MissionListItem extends StatelessWidget {
                           }
                         }
                       },
+                    );
+                  },
+                );
+              },
+            ),
+          if (mission.isMember(user!.steamId) && groupUserMission != null)
+            SpeedDialChild(
+              child: const Icon(Icons.edit_document),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.missionEditParticipation,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return GroupMissionUserDialog(
+                      group: group,
+                      mission: mission,
+                      stratagems: stratagems,
+                      editing: true,
+                      initialData: MissionUserDTO(
+                        stratagems: groupUserMission.stratagems!,
+                      ),
                     );
                   },
                 );
@@ -800,7 +832,7 @@ class _MissionListItem extends StatelessWidget {
             ),
           ...mission.groupUserMissions.map(
             (groupUserMission) => ListTile(
-              trailing: CachedNetworkImage(
+              leading: CachedNetworkImage(
                 imageUrl: groupUserMission.groupUser!.user!.avatarUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => SizedBox(
@@ -833,6 +865,10 @@ class _MissionListItem extends StatelessWidget {
                         width: 20,
                         height: 20,
                         semanticsLabel: stratagem.name,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     )
                     .toList(),
