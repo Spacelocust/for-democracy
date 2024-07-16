@@ -25,7 +25,6 @@ import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:provider/provider.dart';
-
 import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -168,7 +167,7 @@ Future main() async {
     var token = await FirebaseMessagingService.firebaseMessaging.getToken();
 
     if (token == null) {
-      throw Exception('Something went wrong, please try again later');
+      throw Exception('FCM token is null');
     }
 
     await TokenFcmService.persistTokenFcm(token);

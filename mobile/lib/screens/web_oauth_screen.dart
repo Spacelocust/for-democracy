@@ -99,7 +99,7 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
                 await FirebaseMessagingService.firebaseMessaging.getToken();
 
             if (token == null) {
-              throw Exception('Something went wrong, please try again later');
+              throw Exception('FCM token is null');
             }
 
             await TokenFcmService.persistTokenFcm(token);
