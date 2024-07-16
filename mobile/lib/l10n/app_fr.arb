@@ -33,9 +33,9 @@
     "liberated": "Libérée",
     "defence": "Défense",
     "defended": "Défendue",
-    "losing": "Perdre",
-    "winning": "Gagner",
-    "holding": "Tenir",
+    "losing": "Perdant",
+    "winning": "Gagnant",
+    "holding": "Tenant",
     "attack": "Attaque",
     "required": "Requis",
     "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
@@ -104,11 +104,13 @@
     "groupScreenError": "Impossible de charger le groupe",
     "groupScreenNewMission": "Nouvelle mission",
     "@GROUPS_NEW_SCREEN": {},
-    "groupsNewScreenTitle": "Créer un groupe",
+    "groupsNewScreenTitle": "Nouveau groupe",
     "@GROUPS_EDIT_SCREEN": {},
     "groupsEditScreenTitle": "Modifier le groupe",
     "@GROUPS_MISSION_NEW_SCREEN": {},
-    "groupsMissionNewScreenTitle": "Créer une mission",
+    "groupsMissionNewScreenTitle": "Nouvelle mission",
+    "@GROUPS_MISSION_EDIT_SCREEN": {},
+    "groupsMissionEditScreenTitle": "Modifier la mission",
     "@GALAXY_MAP": {},
     "galaxyMapLoading": "Chargement de la carte galactique...",
     "galaxyMapError": "Impossible de charger la carte galactique",
@@ -132,7 +134,7 @@
             }
         }
     },
-    "planetUnderAttack": "Attaque des {enemyFaction}.",
+    "planetUnderAttack": "Attaque des {enemyFaction}",
     "@planetUnderAttack": {
         "placeholders": {
             "enemyFaction": {
@@ -140,7 +142,7 @@
             }
         }
     },
-    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}.",
+    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}",
     "@planetBeingLiberated": {
         "placeholders": {
             "ownerFaction": {
@@ -258,6 +260,8 @@
     "groupPlanetNotEmpty": "Veuillez sélectionner une planète.",
     "@MISSION": {},
     "missionCreated": "Mission créée avec succès.",
+    "missionUpdated": "Mission mise à jour avec succès.",
+    "missionDeleted": "Mission supprimée avec succès.",
     "missionName": "Nom",
     "missionNameHint": "Le nom de la mission",
     "missionNameNotEmpty": "Veuillez saisir un nom de mission.",
@@ -265,11 +269,64 @@
     "missionInstructions": "Instructions",
     "missionInstructionsHint": "Les instructions optionnelles de la mission",
     "missionInstructionsMaxLength": "Les instructions de la mission doivent comporter au plus 1000 caractères.",
-    "missionObjectives": "Objectifs",
+    "missionObjectives": "Objectifs possibles",
     "missionObjectiveTimeLimit": "Limite de temps de {timeLimit}",
+    "missionObjectivesNotEmpty": "Au moins un objectif est requis.",
     "@missionObjectiveTimeLimit": {
         "placeholders": {
             "timeLimit": {
+                "type": "String"
+            }
+        }
+    },
+    "missionEstimatedTime": "Temps de mission estimé : {time}",
+    "@missionEstimatedTime": {
+        "placeholders": {
+            "time": {
+                "type": "String"
+            }
+        }
+    },
+    "missionMembers": "Participants",
+    "missionNoMembers": "Aucun participant pour le moment",
+    "missionEditParticipation": "Modifier la participation",
+    "missionJoin": "Rejoindre la mission",
+    "missionUpdateParticipation": "Mettre à jour la participation à la mission",
+    "missionJoining": "En train de rejoindre la mission...",
+    "missionUpdatingParticipation": "En train de mettre à jour de la participation à la mission...",
+    "missionJoined": "Vous avez rejoint la mission.",
+    "missionUpdatedParticipation": "Participation à la mission mise à jour avec succès.",
+    "missionLeaveConfirmation": "Êtes-vous sûr de vouloir quitter cette mission ?",
+    "missionLeft": "Vous avez quitté la mission.",
+    "missionStratagems": "Stratagèmes",
+    "missionStratagemUseType": "Type d'utilisation : {useType}",
+    "@missionStratagemUseType": {
+        "placeholders": {
+            "useType": {
+                "type": "String"
+            }
+        }
+    },
+    "missionStratagemUseCount": "Nombre d'utilisations : {useCount}",
+    "@missionStratagemUseCount": {
+        "placeholders": {
+            "useCount": {
+                "type": "int"
+            }
+        }
+    },
+    "missionStratagemCooldown": "Temps de recharge : {cooldown}",
+    "@missionStratagemCooldown": {
+        "placeholders": {
+            "cooldown": {
+                "type": "String"
+            }
+        }
+    },
+    "missionStratagemType": "Type : {type}",
+    "@missionStratagemType": {
+        "placeholders": {
+            "type": {
                 "type": "String"
             }
         }

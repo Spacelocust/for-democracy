@@ -10,6 +10,13 @@ abstract class MissionsService {
 
   static String url = '${dotenv.get(APIService.baseUrlEnv)}$missionsUrl';
 
+  static Future<Mission> getMission(int missionId) async {
+    var dio = APIService.getDio();
+    var mission = await dio.get("$missionsUrl/$missionId");
+
+    return Mission.fromJson(mission.data);
+  }
+
   static Future<Mission> createMission(int groupId, MissionDTO data) async {
     var dio = APIService.getDio();
     var group = await dio.post(missionsUrl, data: {
@@ -50,6 +57,18 @@ abstract class MissionsService {
   ) async {
     var dio = APIService.getDio();
     var mission = await dio.post("$missionsUrl/$missionId/join", data: {
+      'stratagems': data.stratagems.map((e) => e.id).toList(),
+    });
+
+    return GroupUserMission.fromJson(mission.data);
+  }
+
+  static Future<GroupUserMission> editMissionParticipation(
+    int missionId,
+    MissionUserDTO data,
+  ) async {
+    var dio = APIService.getDio();
+    var mission = await dio.put("$missionsUrl/$missionId/edit", data: {
       'stratagems': data.stratagems.map((e) => e.id).toList(),
     });
 

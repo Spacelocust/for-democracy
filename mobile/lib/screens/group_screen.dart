@@ -1,26 +1,39 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/dto/mission_user_dto.dart';
 import 'package:mobile/models/group.dart';
+import 'package:mobile/models/group_user_mission.dart';
+import 'package:mobile/models/mission.dart';
+import 'package:mobile/models/stratagem.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/screens/group_edit_screen.dart';
+import 'package:mobile/screens/group_mission_edit_screen.dart';
 import 'package:mobile/screens/group_mission_new_screen.dart';
 import 'package:mobile/screens/groups_screen.dart';
 import 'package:mobile/services/groups_service.dart';
+import 'package:mobile/services/missions_service.dart';
+import 'package:mobile/services/stratagems_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/confirm_action_dialog.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
+import 'package:mobile/widgets/group/group_mission_user_dialog.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
+import 'package:mobile/widgets/stratagem/stratagem_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:super_tooltip/super_tooltip.dart';
 
 class GroupScreen extends StatefulWidget {
   static const String routePath = ':groupId';
@@ -39,17 +52,20 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  Future<Group>? _groupFuture;
+  Future<dynamic>? _groupAndStratagemsFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchGroup();
+    fetchGroupAndStratagems();
   }
 
-  void fetchGroup() {
+  void fetchGroupAndStratagems() {
     setState(() {
-      _groupFuture = GroupsService.getGroup(widget.groupId);
+      _groupAndStratagemsFuture = Future.wait([
+        GroupsService.getGroup(widget.groupId),
+        StratagemsService.getStratagems(),
+      ]);
     });
   }
 
@@ -57,8 +73,8 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: FutureBuilder<Group>(
-        future: _groupFuture,
+      child: FutureBuilder<dynamic>(
+        future: _groupAndStratagemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Loading state
@@ -71,13 +87,14 @@ class _GroupScreenState extends State<GroupScreen> {
             // Error state
             return ErrorMessage(
               errorMessage: AppLocalizations.of(context)!.groupScreenError,
-              onPressed: fetchGroup,
+              onPressed: fetchGroupAndStratagems,
             );
           }
 
           // Success state
           final user = context.watch<AuthState>().user;
-          final group = snapshot.data!;
+          final Group group = snapshot.data![0];
+          final List<Stratagem> stratagems = snapshot.data![1];
           final groupUsers = group.groupUsers;
           Widget? actions;
 
@@ -245,7 +262,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 if (!group.isOwner(user.steamId) &&
                     !group.isMember(user.steamId))
                   SpeedDialChild(
-                    child: const Icon(Icons.add),
+                    child: const Icon(Icons.login),
                     backgroundColor: ThemeColors.primary,
                     foregroundColor: ThemeColors.surface,
                     label: AppLocalizations.of(context)!.join,
@@ -312,24 +329,45 @@ class _GroupScreenState extends State<GroupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    group.name,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: TextStyleArame(
-                      fontSize:
-                          Theme.of(context).textTheme.headlineMedium!.fontSize,
-                    ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    spacing: 8,
+                    children: [
+                      if (!group.public)
+                        Icon(
+                          Icons.lock,
+                          size: 22,
+                          semanticLabel:
+                              AppLocalizations.of(context)!.groupPrivate,
+                        ),
+                      Text(
+                        group.name,
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                        style: TextStyleArame(
+                          fontSize: Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .fontSize,
+                        ),
+                      ),
+                    ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    spacing: 8,
                     children: [
                       Image(
                         image: AssetImage(group.difficulty.logo),
                         width: 30,
                         height: 30,
                       ),
-                      const SizedBox(width: 8),
                       GradientText(
                         group.difficulty.translatedName(context),
                         textAlign: TextAlign.center,
@@ -421,7 +459,14 @@ class _GroupScreenState extends State<GroupScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-              // TODO missions
+              ...group.missions.map(
+                (mission) => _MissionListItem(
+                  mission: mission,
+                  group: group,
+                  user: user,
+                  stratagems: stratagems,
+                ),
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -492,6 +537,440 @@ class _GroupMember extends StatelessWidget {
               color: ThemeColors.primary,
             )
           : null,
+    );
+  }
+}
+
+class _MissionListItem extends StatelessWidget {
+  final Mission mission;
+
+  final Group group;
+
+  final List<Stratagem> stratagems;
+
+  final User? user;
+
+  const _MissionListItem({
+    required this.mission,
+    required this.group,
+    required this.stratagems,
+    this.user,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    Widget? actions;
+
+    if (user != null) {
+      final isOwner = group.isOwner(user!.steamId);
+      final GroupUserMission? groupUserMission = mission.groupUserMissions
+          .cast<GroupUserMission?>()
+          .firstWhere(
+              (groupUserMission) =>
+                  groupUserMission!.groupUser?.user?.steamId == user!.steamId,
+              orElse: () => null);
+
+      actions = SpeedDial(
+        direction: SpeedDialDirection.down,
+        icon: Icons.more_vert,
+        activeIcon: Icons.close,
+        backgroundColor: ThemeColors.primary,
+        foregroundColor: ThemeColors.surface,
+        mini: true,
+        children: [
+          if (mission.isMember(user!.steamId))
+            SpeedDialChild(
+              child: const Icon(Icons.exit_to_app),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.leave,
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return ConfirmActionDialog(
+                      actionText: AppLocalizations.of(context)!.leave,
+                      content: Text(
+                        AppLocalizations.of(context)!.missionLeaveConfirmation,
+                      ),
+                      onConfirm: () async {
+                        try {
+                          await MissionsService.leaveMission(mission.id);
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.missionLeft,
+                          );
+
+                          context.replace(
+                            context.namedLocation(
+                              GroupScreen.routeName,
+                              pathParameters: {
+                                'groupId': group.id.toString(),
+                              },
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.somethingWentWrong,
+                          );
+                        } finally {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          if (mission.isMember(user!.steamId) && groupUserMission != null)
+            SpeedDialChild(
+              child: const Icon(Icons.edit_document),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.missionEditParticipation,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return GroupMissionUserDialog(
+                      group: group,
+                      mission: mission,
+                      stratagems: stratagems,
+                      editing: true,
+                      initialData: MissionUserDTO(
+                        stratagems: groupUserMission.stratagems!,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          if (!mission.isMember(user!.steamId))
+            SpeedDialChild(
+              child: const Icon(Icons.login),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.join,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return GroupMissionUserDialog(
+                      group: group,
+                      mission: mission,
+                      stratagems: stratagems,
+                    );
+                  },
+                );
+              },
+            ),
+          if (isOwner)
+            SpeedDialChild(
+              child: const Icon(Icons.edit),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.edit,
+              onTap: () {
+                context.go(
+                  context.namedLocation(
+                    GroupMissionEditScreen.routeName,
+                    pathParameters: {
+                      'groupId': group.id.toString(),
+                      'missionId': mission.id.toString(),
+                    },
+                  ),
+                );
+              },
+            ),
+          if (isOwner)
+            SpeedDialChild(
+              child: const Icon(Icons.delete),
+              backgroundColor: ThemeColors.primary,
+              foregroundColor: ThemeColors.surface,
+              label: AppLocalizations.of(context)!.delete,
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return ConfirmActionDialog(
+                      onConfirm: () async {
+                        try {
+                          await MissionsService.deleteMission(mission.id);
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.missionDeleted,
+                          );
+
+                          context.replace(
+                            context.namedLocation(
+                              GroupScreen.routeName,
+                              pathParameters: {
+                                'groupId': group.id.toString(),
+                              },
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          showSnackBar(
+                            context,
+                            AppLocalizations.of(context)!.somethingWentWrong,
+                          );
+                        } finally {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+        ],
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: ThemeColors.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.white,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ThemeColors.primary.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 4,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      margin: const EdgeInsets.only(
+        left: 8,
+        right: 8,
+        top: 12,
+        bottom: 12,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              mission.name,
+              style: TextStyleArame(
+                fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+              ),
+            ),
+            subtitle: Text(
+              AppLocalizations.of(context)!.missionEstimatedTime(
+                prettyDuration(
+                  mission.estimatedTime,
+                  locale: DurationLocale.fromLanguageCode(
+                    Localizations.localeOf(context).languageCode,
+                  )!,
+                ),
+              ),
+            ),
+            trailing: actions,
+          ),
+          if (mission.instructions != null && mission.instructions!.isNotEmpty)
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.missionInstructions,
+                style: const TextStyleArame(),
+              ),
+            ),
+          if (mission.instructions != null && mission.instructions!.isNotEmpty)
+            ListTile(
+              title: Text(
+                mission.instructions!,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+          ListTile(
+            title: Text(
+              "${AppLocalizations.of(context)!.missionObjectives} (${mission.objectiveTypes.length})",
+              style: const TextStyleArame(),
+            ),
+          ),
+          ...mission.objectiveTypes.map(
+            (objective) => ListTile(
+              leading: Image(
+                image: AssetImage(objective.logo),
+                width: 30,
+                height: 30,
+              ),
+              title: Text(objective.translatedName(context)),
+              subtitle: Text(
+                AppLocalizations.of(context)!.missionObjectiveTimeLimit(
+                  prettyDuration(
+                    objective.duration,
+                    locale: DurationLocale.fromLanguageCode(
+                      Localizations.localeOf(context).languageCode,
+                    )!,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text(
+              "${AppLocalizations.of(context)!.missionMembers} (${mission.groupUserMissions.length}/${group.groupUsers.length})",
+              style: const TextStyleArame(),
+            ),
+          ),
+          if (mission.groupUserMissions.isEmpty)
+            ListTile(
+              title: Text(
+                AppLocalizations.of(context)!.missionNoMembers,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ...mission.groupUserMissions.map(
+            (groupUserMission) => ListTile(
+              leading: CachedNetworkImage(
+                imageUrl: groupUserMission.groupUser!.user!.avatarUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey.shade200,
+                    highlightColor: ThemeColors.primary,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: ThemeColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+                imageBuilder: (context, imageProvider) => CircleAvatar(
+                  backgroundImage: imageProvider,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+              title: Text(
+                groupUserMission.groupUser!.user!.username,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              subtitle: Wrap(
+                direction: Axis.horizontal,
+                spacing: 8,
+                children: groupUserMission.stratagems!
+                    .map(
+                      (stratagem) => SuperTooltip(
+                        borderColor: ThemeColors.primary,
+                        borderWidth: 2,
+                        content: SizedBox(
+                          width: width * 0.7,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Wrap(
+                                spacing: 8,
+                                direction: Axis.horizontal,
+                                alignment: WrapAlignment.center,
+                                runAlignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  StratagemImage(
+                                    borderColor: ThemeColors.primary,
+                                    stratagem: stratagem,
+                                  ),
+                                  Text(
+                                    stratagem.name,
+                                    softWrap: true,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyleArame(),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemType(
+                                  stratagem.type.translatedName(context),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemUseType(
+                                  stratagem.useType.translatedName(context),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemCooldown(
+                                  prettyDuration(
+                                    Duration(
+                                      seconds: stratagem.cooldown,
+                                    ),
+                                    locale: DurationLocale.fromLanguageCode(
+                                      Localizations.localeOf(context)
+                                          .languageCode,
+                                    )!,
+                                  ),
+                                ),
+                              ),
+                              if (stratagem.useCount != null)
+                                const SizedBox(height: 2),
+                              if (stratagem.useCount != null)
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .missionStratagemUseCount(
+                                    stratagem.useCount!,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        arrowLength: 10,
+                        arrowTipDistance: 18,
+                        backgroundColor: ThemeColors.surface,
+                        popupDirection: TooltipDirection.up,
+                        child: StratagemImage(
+                          borderColor: ThemeColors.primary,
+                          stratagem: stratagem,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

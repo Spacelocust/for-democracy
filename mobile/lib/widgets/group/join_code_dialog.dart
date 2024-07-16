@@ -35,6 +35,7 @@ class _JoinCodeDialogState extends State<JoinCodeDialog> {
       title: Text(
         AppLocalizations.of(context)!.groupJoin,
         style: const TextStyleArame(),
+        textAlign: TextAlign.center,
       ),
       content: Form(
         key: _formKey,

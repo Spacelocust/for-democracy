@@ -112,11 +112,13 @@
     "groupScreenError": "Failed to load group",
     "groupScreenNewMission": "New mission",
     "@GROUPS_NEW_SCREEN": {},
-    "groupsNewScreenTitle": "Create a group",
+    "groupsNewScreenTitle": "New group",
     "@GROUPS_EDIT_SCREEN": {},
     "groupsEditScreenTitle": "Edit group",
     "@GROUPS_MISSION_NEW_SCREEN": {},
-    "groupsMissionNewScreenTitle": "Create a mission",
+    "groupsMissionNewScreenTitle": "New mission",
+    "@GROUPS_MISSION_EDIT_SCREEN": {},
+    "groupsMissionEditScreenTitle": "Edit mission",
     "@GALAXY_MAP": {},
     "galaxyMapLoading": "Loading galaxy map...",
     "galaxyMapError": "Failed to load galaxy map",
@@ -278,6 +280,8 @@
     "groupPlanetNotEmpty": "Please select a planet.",
     "@MISSION": {},
     "missionCreated": "Mission created successfully.",
+    "missionUpdated": "Mission updated successfully.",
+    "missionDeleted": "Mission deleted successfully.",
     "missionName": "Name",
     "missionNameHint": "The name of the mission",
     "missionNameNotEmpty": "Please enter a mission name.",
@@ -285,14 +289,77 @@
     "missionInstructions": "Instructions",
     "missionInstructionsHint": "The optional instructions for the mission",
     "missionInstructionsMaxLength": "Mission instructions must be at most 1000 characters long.",
-    "missionObjectives": "Objectives",
+    "missionObjectives": "Possible objectives",
     "missionObjectiveTimeLimit": "Time limit of {timeLimit}",
+    "missionObjectivesNotEmpty": "At least one objective is required.",
     "@missionObjectiveTimeLimit": {
         "placeholders": {
             "timeLimit": {
                 "type": "String",
                 "example": "1 hour",
                 "description": "The time limit for the mission."
+            }
+        }
+    },
+    "missionEstimatedTime": "Estimated mission time: {time}",
+    "@missionEstimatedTime": {
+        "placeholders": {
+            "time": {
+                "type": "String",
+                "example": "1 hour",
+                "description": "The estimated time for the mission."
+            }
+        }
+    },
+    "missionMembers": "Participants",
+    "missionNoMembers": "No participants yet",
+    "missionEditParticipation": "Edit participation",
+    "missionJoin": "Join mission",
+    "missionUpdateParticipation": "Update misson participation",
+    "missionJoining": "Joining mission...",
+    "missionUpdatingParticipation": "Updating mission participation...",
+    "missionJoined": "You have joined the mission.",
+    "missionUpdatedParticipation": "Mission participation updated.",
+    "missionLeaveConfirmation": "Are you sure you want to leave this mission?",
+    "missionLeft": "You have left the mission.",
+    "missionStratagems": "Stratagems",
+    "missionStratagemUseType": "Use type : {useType}",
+    "@missionStratagemUseType": {
+        "placeholders": {
+            "useType": {
+                "type": "String",
+                "example": "Self",
+                "description": "The type of use for the stratagem."
+            }
+        }
+    },
+    "missionStratagemUseCount": "Use count : {useCount}",
+    "@missionStratagemUseCount": {
+        "placeholders": {
+            "useCount": {
+                "type": "int",
+                "example": "3",
+                "description": "The number of times the stratagem can be used before resupply."
+            }
+        }
+    },
+    "missionStratagemCooldown": "Cooldown : {cooldown}",
+    "@missionStratagemCooldown": {
+        "placeholders": {
+            "cooldown": {
+                "type": "String",
+                "example": "2 minutes",
+                "description": "The cooldown time for the stratagem."
+            }
+        }
+    },
+    "missionStratagemType": "Type : {type}",
+    "@missionStratagemType": {
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "example": "Supply",
+                "description": "The type of the stratagem."
             }
         }
     }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -51,16 +52,10 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
         NavigationDelegate(
           onPageFinished: finishAuthentication,
           onHttpError: (HttpResponseError error) {
-            showSnackBar(
-              context,
-              error.toString(),
-            );
+            log(error.toString());
           },
           onWebResourceError: (WebResourceError error) {
-            showSnackBar(
-              context,
-              error.toString(),
-            );
+            log(error.toString());
           },
         ),
       )

@@ -5,6 +5,7 @@ import 'package:mobile/dto/mission_dto.dart';
 import 'package:mobile/enum/objective_type.dart';
 import 'package:mobile/models/group.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mobile/utils/snackbar.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
 
 class GroupMissionForm extends StatefulWidget {
@@ -60,6 +61,15 @@ class GroupMissionFormState extends State<GroupMissionForm> {
 
   void onSubmit() async {
     if (_formKey.currentState!.validate()) {
+      if (_formData.objectives.isEmpty) {
+        showSnackBar(
+          context,
+          AppLocalizations.of(context)!.missionObjectivesNotEmpty,
+        );
+
+        return;
+      }
+
       if (widget.onSubmit == null) {
         return;
       }
@@ -89,6 +99,7 @@ class GroupMissionFormState extends State<GroupMissionForm> {
       objectiveTiles.add(
         CheckboxListTile(
           value: _formData.objectives.contains(objective),
+          enabled: !_submitting,
           onChanged: (bool? value) {
             setState(() {
               if (value == true) {

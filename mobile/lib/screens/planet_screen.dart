@@ -13,6 +13,7 @@ import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/groups_filters_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/countdown.dart';
+import 'package:mobile/widgets/components/helldivers_box_decoration.dart';
 import 'package:mobile/widgets/components/progress.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
@@ -252,9 +253,9 @@ class _PlanetScreenView extends StatelessWidget {
     columns = [
       ...columns,
       // Background image of the planet
-      _BoxDecoration(
+      HelldiversBoxDecoration(
         borderColor: Colors.grey,
-        child: _BoxDecoration(
+        child: HelldiversBoxDecoration(
           child: CachedNetworkImage(
             imageUrl: planet.backgroundUrl,
             fit: BoxFit.cover,
@@ -508,11 +509,11 @@ class _ProgressDefence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _BoxDecoration(
+    return HelldiversBoxDecoration(
       borderColor: Colors.grey,
       child: Column(
         children: [
-          _BoxDecoration(
+          HelldiversBoxDecoration(
             borderColor: planet.defence!.enemyFaction.color,
             child: Container(
               color: Colors.black,
@@ -577,7 +578,7 @@ class _ProgressDefence extends StatelessWidget {
           const SizedBox(
             height: 5,
           ),
-          _BoxDecoration(
+          HelldiversBoxDecoration(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -641,7 +642,7 @@ class _ProgressDefence extends StatelessWidget {
           const SizedBox(
             height: 5,
           ),
-          _BoxDecoration(
+          HelldiversBoxDecoration(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -690,11 +691,11 @@ class _ProgressLiberation extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _BoxDecoration(
+        HelldiversBoxDecoration(
           borderColor: Colors.grey,
           child: Column(
             children: [
-              _BoxDecoration(
+              HelldiversBoxDecoration(
                 borderColor: planet.owner.color,
                 child: Container(
                   color: planet.owner.color,
@@ -709,7 +710,7 @@ class _ProgressLiberation extends StatelessWidget {
               const SizedBox(
                 height: 5,
               ),
-              _BoxDecoration(
+              HelldiversBoxDecoration(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -752,12 +753,12 @@ class _ProgressLiberation extends StatelessWidget {
         const SizedBox(
           height: 5,
         ),
-        _BoxDecoration(
+        HelldiversBoxDecoration(
           borderColor: Colors.grey,
           child: Row(
             children: [
               Expanded(
-                child: _BoxDecoration(
+                child: HelldiversBoxDecoration(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -786,9 +787,11 @@ class _ProgressLiberation extends StatelessWidget {
               const SizedBox(
                 width: 5,
               ),
-              _BoxDecoration(
-                  child:
-                      _ImpactPerHour(value: planet.liberation!.impactPerHour))
+              HelldiversBoxDecoration(
+                child: _ImpactPerHour(
+                  value: planet.liberation!.impactPerHour,
+                ),
+              ),
             ],
           ),
         )
@@ -1026,31 +1029,6 @@ class _PlanetStatisticItem extends StatelessWidget {
           valueText(context),
         ),
       ],
-    );
-  }
-}
-
-class _BoxDecoration extends StatelessWidget {
-  final Widget child;
-
-  final Color borderColor;
-
-  const _BoxDecoration({required this.child, this.borderColor = Colors.white});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border.all(
-          color: borderColor,
-          width: 2,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: child,
-      ),
     );
   }
 }
