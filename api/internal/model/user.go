@@ -12,6 +12,7 @@ type User struct {
 	Password   *string
 	AvatarUrl  *string
 	Role       enum.Role `gorm:"not null;type:role"`
+	TokenFcm   *TokenFcm
 	Tokens     []Token
 	GroupUsers []GroupUser
 }

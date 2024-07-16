@@ -719,6 +719,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/missions/{id}/edit": {
+            "put": {
+                "description": "Update the user mission stratagems",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "missions"
+                ],
+                "summary": "Update user mission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mission properties that needs to be updated",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.UserMission"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GroupUserMission"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/missions/{id}/join": {
             "post": {
                 "description": "Join a mission",
@@ -1049,7 +1111,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -1078,7 +1140,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -1136,7 +1198,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -1195,6 +1257,70 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Stratagem"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/token-fcm": {
+            "post": {
+                "description": "Route used to persist the FCM token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "token-fcm"
+                ],
+                "summary": "Persist the FCM token",
+                "parameters": [
+                    {
+                        "description": "Token data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validators.TokenFcm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/server.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "404": {
@@ -1396,33 +1522,6 @@ const docTemplate = `{
                 "Self",
                 "Team",
                 "Shared"
-            ]
-        },
-        "gin.Error": {
-            "type": "object",
-            "properties": {
-                "err": {},
-                "meta": {},
-                "type": {
-                    "$ref": "#/definitions/gin.ErrorType"
-                }
-            }
-        },
-        "gin.ErrorType": {
-            "type": "integer",
-            "enum": [
-                -9223372036854775808,
-                4611686018427387904,
-                1,
-                2,
-                -1
-            ],
-            "x-enum-varnames": [
-                "ErrorTypeBind",
-                "ErrorTypeRender",
-                "ErrorTypePrivate",
-                "ErrorTypePublic",
-                "ErrorTypeAny"
             ]
         },
         "gorm.DeletedAt": {
@@ -2161,6 +2260,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.TokenFcm": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -2190,6 +2315,9 @@ const docTemplate = `{
                 },
                 "steamId": {
                     "type": "string"
+                },
+                "tokenFcm": {
+                    "$ref": "#/definitions/model.TokenFcm"
                 },
                 "tokens": {
                     "type": "array",
@@ -2376,6 +2504,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/enum.ObjectiveType"
                     }
+                }
+            }
+        },
+        "validators.TokenFcm": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         },

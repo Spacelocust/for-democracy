@@ -12,6 +12,6 @@ compose.*.yml
 
 sdks/*
 
-firebase/*
+api/firebase/*.json
 
 .DS_Store

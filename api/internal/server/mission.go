@@ -1,11 +1,13 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"slices"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,7 @@ func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route.GET("/:id", s.GetMission)
 	route.PUT("/:id", s.UpdateMission)
 	route.DELETE("/:id", s.DeleteMission)
+	route.PUT("/:id/edit", s.UpdateGroupUserMission)
 	route.POST("/:id/join", s.JoinMission)
 	route.POST("/:id/leave", s.LeaveMission)
 }
@@ -57,13 +60,28 @@ func (s *Server) CreateMission(c *gin.Context) {
 	// Check if the group exists
 	var group model.Group
 
-	if err := db.Preload("Planet").First(&group, "id = ?", missionData.GroupID).Error; err != nil {
+	if err := db.Preload("Planet").Preload("GroupUsers.User.TokenFcm").First(&group, "id = ?", missionData.GroupID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group")
 			return
 		}
 
 		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// check if the user is the owner of the group
+	currentGroupeUserIndex := slices.IndexFunc(group.GroupUsers, func(gu model.GroupUser) bool {
+		return gu.User.ID == user.ID
+	})
+
+	if currentGroupeUserIndex == -1 {
+		s.ForbiddenResponse(c, "you are not a member of this group")
+		return
+	}
+
+	if !group.GroupUsers[currentGroupeUserIndex].Owner {
+		s.ForbiddenResponse(c, "you are not the owner of this group")
 		return
 	}
 
@@ -81,24 +99,6 @@ func (s *Server) CreateMission(c *gin.Context) {
 		}
 	}
 
-	// Check if the user is in a group
-	var groupUser model.GroupUser
-
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, missionData.GroupID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.ForbiddenResponse(c, "you are not a member of this group")
-			return
-		}
-
-		s.InternalErrorResponse(c, err)
-		return
-	}
-
-	if !groupUser.Owner {
-		s.ForbiddenResponse(c, "you are not the owner of this group")
-		return
-	}
-
 	// Create the mission
 	newMission := model.Mission{
 		Name:           missionData.Name,
@@ -112,7 +112,11 @@ func (s *Server) CreateMission(c *gin.Context) {
 		return
 	}
 
-	if err := db.Preload("GroupUserMissions.Stratagems").First(&newMission, "id = ?", newMission.ID).Error; err != nil {
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&newMission, "id = ?", newMission.ID).
+		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "mission")
 			return
@@ -120,6 +124,34 @@ func (s *Server) CreateMission(c *gin.Context) {
 
 		s.InternalErrorResponse(c, err)
 		return
+	}
+
+	// Send notification to all users in the group
+	var tokenFcms []string
+
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
+		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "New mission",
+				Body:  fmt.Sprintf("A new mission has been created in the group %s", group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
 
 	c.JSON(http.StatusCreated, newMission)
@@ -143,7 +175,11 @@ func (s *Server) GetMission(c *gin.Context) {
 
 	var mission model.Mission
 
-	if err := db.Preload("GroupUserMissions.Stratagems").First(&mission, "id = ?", missionID).Error; err != nil {
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&mission, "id = ?", missionID).
+		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "mission")
 			return
@@ -190,7 +226,9 @@ func (s *Server) UpdateMission(c *gin.Context) {
 	}
 
 	// Check if the group exists
-	if err := db.First(&model.Group{}, "id = ?", mission.GroupID).Error; err != nil {
+	var group model.Group
+
+	if err := db.Preload("GroupUsers.User.TokenFcm").First(&group, "id = ?", mission.GroupID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group")
 			return
@@ -200,20 +238,17 @@ func (s *Server) UpdateMission(c *gin.Context) {
 		return
 	}
 
-	// Check if the user is in a group
-	var groupUser model.GroupUser
+	// check if the user is the owner of the group
+	currentGroupeUserIndex := slices.IndexFunc(group.GroupUsers, func(gu model.GroupUser) bool {
+		return gu.User.ID == user.ID
+	})
 
-	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, mission.GroupID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.ForbiddenResponse(c, "you are not a member of this group")
-			return
-		}
-
-		s.InternalErrorResponse(c, err)
+	if currentGroupeUserIndex == -1 {
+		s.ForbiddenResponse(c, "you are not a member of this group")
 		return
 	}
 
-	if !groupUser.Owner {
+	if !group.GroupUsers[currentGroupeUserIndex].Owner {
 		s.ForbiddenResponse(c, "you are not the owner of this group")
 		return
 	}
@@ -234,6 +269,51 @@ func (s *Server) UpdateMission(c *gin.Context) {
 
 		s.InternalErrorResponse(c, err)
 		return
+	}
+
+	// Get the updated mission with the group user missions
+	if err := db.
+		Preload("GroupUserMissions.Stratagems").
+		Preload("GroupUserMissions.User").
+		First(&updatedMission, "id = ?", missionID).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// // Send notification to all users in the group
+	var tokenFcms []string
+
+	// Send notification to all users in the group except the user
+	// The group must have at least 2 users
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
+		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Mission Updated",
+				Body:  fmt.Sprintf("The mission %s has been updated in the group %s", updatedMission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
 	}
 
 	c.JSON(http.StatusOK, updatedMission)
@@ -400,6 +480,47 @@ func (s *Server) JoinMission(c *gin.Context) {
 		return
 	}
 
+	// Check if the group exists
+	var group model.Group
+
+	if err := db.Preload("GroupUsers.User.TokenFcm").First(&group, "id = ?", mission.GroupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Send notification to all users in the group
+	var tokenFcms []string
+
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
+		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player joined mission",
+				Body:  fmt.Sprintf("%s has joined the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+	}
+
 	c.JSON(http.StatusOK, newGroupUserMission)
 }
 
@@ -466,5 +587,134 @@ func (s *Server) LeaveMission(c *gin.Context) {
 		return
 	}
 
+	// Check if the group exists
+	var group model.Group
+
+	if err := db.Preload("GroupUsers.User.TokenFcm").First(&group, "id = ?", mission.GroupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "group")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Send notification to all users in the group
+	var tokenFcms []string
+
+	if len(group.GroupUsers) > 1 {
+		for _, groupUser := range group.GroupUsers {
+			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
+				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
+			}
+		}
+
+		client := s.firebase.GetMessaging()
+
+		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
+			Tokens: tokenFcms,
+			Notification: &messaging.Notification{
+				Title: "Player left mission",
+				Body:  fmt.Sprintf("%s has left the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			},
+		})
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
+		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+	}
+
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you left the mission"})
+}
+
+// @Summary Update user mission
+// @Description Update the user mission stratagems
+// @Tags    missions
+// @Produce  json
+// @Param id path int true "Mission ID"
+// @Param data body validators.UserMission true "Mission properties that needs to be updated"
+// @Success 200 {object} model.GroupUserMission
+// @Failure      500  {object}  server.ErrorResponse
+// @Failure      404  {object}  server.ErrorResponse
+// @Failure      400  {object}  server.ErrorResponse
+// @Failure      401  {object}  server.ErrorResponse
+// @Router /missions/{id}/edit [put]
+func (s *Server) UpdateGroupUserMission(c *gin.Context) {
+	db := s.db.GetDB()
+
+	user := checkAuth(c)
+
+	missionID := c.Param("id")
+
+	// Check if the mission exists
+	var mission model.Mission
+
+	if err := db.First(&mission, "id = ?", missionID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "mission")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	var missionData validators.UserMission
+
+	if err := c.ShouldBindJSON(&missionData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
+
+	// Validate Group struct
+	if err := s.validator.Validate(missionData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
+
+	// Check if the user is in a group
+	var groupUser model.GroupUser
+
+	if err := db.First(&groupUser, "user_id = ? AND group_id = ?", user.ID, mission.GroupID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.ForbiddenResponse(c, "you are not a member of this group")
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Check if the user is already in the mission
+	var groupUserMission model.GroupUserMission
+
+	if err := db.Find(&groupUserMission, "group_user_id = ? AND mission_id = ?", groupUser.ID, missionID).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	if groupUserMission.ID == 0 {
+		s.ForbiddenResponse(c, "you are not in this mission")
+		return
+	}
+
+	// Get the stratagems
+	var newStratagems []*model.Stratagem
+
+	if err := db.Find(&newStratagems, "id IN (?)", missionData.Stratagems).Error; err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	// Update the group user mission
+	if err := db.Model(&groupUserMission).Preload("User").Association("Stratagems").Replace(newStratagems); err != nil {
+		s.InternalErrorResponse(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, groupUserMission)
 }

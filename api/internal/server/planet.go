@@ -21,7 +21,7 @@ func (s *Server) RegisterPlanetRoutes(r *gin.Engine) {
 // @Tags         planets
 // @Produce      json
 // @Success      200  {array}  model.Planet
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /planets [get]
 func (s *Server) GetPlanets(c *gin.Context) {
 	db := s.db.GetDB()
@@ -41,7 +41,7 @@ func (s *Server) GetPlanets(c *gin.Context) {
 // @Tags         planets
 // @Produce      json
 // @Success      200  {array}  model.Planet
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /planets-event [get]
 func (s *Server) GetPlanetsWithEvent(c *gin.Context) {
 	db := s.db.GetDB()
@@ -69,7 +69,7 @@ func (s *Server) GetPlanetsWithEvent(c *gin.Context) {
 // @Produce      json
 // @Param        id   path      int  true  "Planet ID"
 // @Success      200  {object}  model.Planet
-// @Failure      500  {object}  gin.Error
+// @Failure      500  {object}  server.ErrorResponse
 // @Router       /planets/{id} [get]
 func (s *Server) GetPlanet(c *gin.Context) {
 	db := s.db.GetDB()

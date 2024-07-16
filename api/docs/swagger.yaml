@@ -134,27 +134,6 @@ definitions:
     - Self
     - Team
     - Shared
-  gin.Error:
-    properties:
-      err: {}
-      meta: {}
-      type:
-        $ref: '#/definitions/gin.ErrorType'
-    type: object
-  gin.ErrorType:
-    enum:
-    - -9223372036854775808
-    - 4611686018427387904
-    - 1
-    - 2
-    - -1
-    type: integer
-    x-enum-varnames:
-    - ErrorTypeBind
-    - ErrorTypeRender
-    - ErrorTypePrivate
-    - ErrorTypePublic
-    - ErrorTypeAny
   gorm.DeletedAt:
     properties:
       time:
@@ -640,6 +619,23 @@ definitions:
       userId:
         type: integer
     type: object
+  model.TokenFcm:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      token:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      userID:
+        type: integer
+    type: object
   model.User:
     properties:
       avatarUrl:
@@ -660,6 +656,8 @@ definitions:
         $ref: '#/definitions/enum.Role'
       steamId:
         type: string
+      tokenFcm:
+        $ref: '#/definitions/model.TokenFcm'
       tokens:
         items:
           $ref: '#/definitions/model.Token'
@@ -789,6 +787,13 @@ definitions:
     required:
     - name
     - objectiveTypes
+    type: object
+  validators.TokenFcm:
+    properties:
+      token:
+        type: string
+    required:
+    - token
     type: object
   validators.UserMission:
     properties:
@@ -1272,6 +1277,47 @@ paths:
       summary: Update a mission
       tags:
       - missions
+  /missions/{id}/edit:
+    put:
+      description: Update the user mission stratagems
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Mission properties that needs to be updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.UserMission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GroupUserMission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Update user mission
+      tags:
+      - missions
   /missions/{id}/join:
     post:
       description: Join a mission
@@ -1489,7 +1535,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get all planets
       tags:
       - planets
@@ -1508,7 +1554,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get all planets with events
       tags:
       - planets
@@ -1546,7 +1592,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gin.Error'
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get planet by ID
       tags:
       - planets
@@ -1596,6 +1642,48 @@ paths:
       summary: Get a stratagem
       tags:
       - stratagems
+  /token-fcm:
+    post:
+      consumes:
+      - application/json
+      description: Route used to persist the FCM token
+      parameters:
+      - description: Token data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.TokenFcm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/server.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Persist the FCM token
+      tags:
+      - token-fcm
   /users:
     get:
       description: Get users

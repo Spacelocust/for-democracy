@@ -4,7 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/services/api_service.dart';
+import 'package:mobile/services/firebase_service.dart';
 import 'package:mobile/services/oauth_service.dart';
+import 'package:mobile/services/token_fcm_service.dart';
 import 'package:mobile/services/token_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/utils/snackbar.dart';
@@ -92,6 +94,16 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
           User user = await OAuthService.getMe();
 
           if (mounted) {
+            // Retrieve the FCM token
+            var token =
+                await FirebaseMessagingService.firebaseMessaging.getToken();
+
+            if (token == null) {
+              throw Exception('FCM token is null');
+            }
+
+            await TokenFcmService.persistTokenFcm(token);
+
             // Set the user to the AuthState
             context
               ..read<AuthState>().setUser(user)
