@@ -11,7 +11,7 @@ RUN go mod download &&\
 COPY /api .
 
 # Build the binary
-RUN GOOS=linux GOARCH=arm64 go build -o fd-democracy main.go
+RUN GOOS=linux GOARCH=amd64 go build -o fd-democracy main.go
 
 FROM debian:buster-slim as runner
 
