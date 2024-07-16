@@ -14,7 +14,7 @@ class GroupUserMission {
   final Mission? mission;
 
   @JsonKey(name: 'GroupUser')
-  final GroupUser? user;
+  final GroupUser? groupUser;
 
   @JsonKey(name: 'Stratagems')
   final List<Stratagem>? stratagems;
@@ -22,7 +22,7 @@ class GroupUserMission {
   GroupUserMission({
     required this.id,
     this.mission,
-    this.user,
+    this.groupUser,
     this.stratagems,
   });
 

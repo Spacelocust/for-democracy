@@ -801,7 +801,7 @@ class _MissionListItem extends StatelessWidget {
           ...mission.groupUserMissions.map(
             (groupUserMission) => ListTile(
               trailing: CachedNetworkImage(
-                imageUrl: groupUserMission.user!.user!.avatarUrl,
+                imageUrl: groupUserMission.groupUser!.user!.avatarUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => SizedBox(
                   width: 40,
@@ -822,7 +822,7 @@ class _MissionListItem extends StatelessWidget {
                 ),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
-              title: Text(groupUserMission.user!.user!.username),
+              title: Text(groupUserMission.groupUser!.user!.username),
               subtitle: Wrap(
                 direction: Axis.horizontal,
                 spacing: 8,

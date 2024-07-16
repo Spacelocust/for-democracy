@@ -62,7 +62,7 @@ class Mission {
 
   bool isMember(String steamUserId) {
     return groupUserMissions.any((groupUserMission) {
-      return groupUserMission.user?.user?.steamId == steamUserId;
+      return groupUserMission.groupUser?.user?.steamId == steamUserId;
     });
   }
 

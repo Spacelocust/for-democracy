@@ -16,7 +16,7 @@ GroupUserMission _$GroupUserMissionFromJson(Map<String, dynamic> json) {
     mission: json['Mission'] == null
         ? null
         : Mission.fromJson(json['Mission'] as Map<String, dynamic>),
-    user: json['GroupUser'] == null
+    groupUser: json['GroupUser'] == null
         ? null
         : GroupUser.fromJson(json['GroupUser'] as Map<String, dynamic>),
     stratagems: (json['Stratagems'] as List<dynamic>?)
@@ -29,6 +29,6 @@ Map<String, dynamic> _$GroupUserMissionToJson(GroupUserMission instance) =>
     <String, dynamic>{
       'ID': instance.id,
       'Mission': instance.mission,
-      'GroupUser': instance.user,
+      'GroupUser': instance.groupUser,
       'Stratagems': instance.stratagems,
     };
