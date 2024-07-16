@@ -26,4 +26,3 @@ COPY --from=builder /go/src/app/fd-democracy /go/bin/fd-democracy
 ENV PATH="/go/bin:${PATH}"
 
 ENTRYPOINT ["fd-democracy", "gin-server"]
-
