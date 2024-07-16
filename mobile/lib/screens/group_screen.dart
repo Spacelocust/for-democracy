@@ -33,6 +33,7 @@ import 'package:mobile/widgets/stratagem/stratagem_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:super_tooltip/super_tooltip.dart';
 
 class GroupScreen extends StatefulWidget {
   static const String routePath = ':groupId';
@@ -537,6 +538,7 @@ class _MissionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     Widget? actions;
 
     if (user != null) {
@@ -582,7 +584,7 @@ class _MissionListItem extends StatelessWidget {
 
                           showSnackBar(
                             context,
-                            AppLocalizations.of(context)!.groupLeft,
+                            AppLocalizations.of(context)!.missionLeft,
                           );
 
                           context.replace(
@@ -863,9 +865,41 @@ class _MissionListItem extends StatelessWidget {
                 spacing: 8,
                 children: groupUserMission.stratagems!
                     .map(
-                      (stratagem) => StratagemImage(
+                      (stratagem) => SuperTooltip(
                         borderColor: ThemeColors.primary,
-                        stratagem: stratagem,
+                        borderWidth: 2,
+                        content: SizedBox(
+                          width: width * 0.5,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                stratagem.name,
+                                textAlign: TextAlign.center,
+                                style: const TextStyleArame(),
+                              ),
+                              const SizedBox(height: 8),
+                              if (stratagem.useCount != null)
+                                Text(stratagem.useCount.toString()),
+                              if (stratagem.useCount != null)
+                                const SizedBox(height: 2),
+                              Text(stratagem.useType.translatedName(context)),
+                              const SizedBox(height: 2),
+                              Text(stratagem.cooldown.toString()),
+                              const SizedBox(height: 2),
+                              Text(stratagem.type.translatedName(context))
+                            ],
+                          ),
+                        ),
+                        arrowLength: 10,
+                        arrowTipDistance: 18,
+                        backgroundColor: ThemeColors.surface,
+                        popupDirection: TooltipDirection.up,
+                        child: StratagemImage(
+                          borderColor: ThemeColors.primary,
+                          stratagem: stratagem,
+                        ),
                       ),
                     )
                     .toList(),
