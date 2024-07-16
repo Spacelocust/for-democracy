@@ -314,7 +314,6 @@
     "missionMembers": "Participants",
     "missionNoMembers": "No participants yet",
     "missionEditParticipation": "Edit participation",
-    "missionStratagems": "Stratagems",
     "missionJoin": "Join mission",
     "missionUpdateParticipation": "Update misson participation",
     "missionJoining": "Joining mission...",
@@ -322,5 +321,46 @@
     "missionJoined": "You have joined the mission.",
     "missionUpdatedParticipation": "Mission participation updated.",
     "missionLeaveConfirmation": "Are you sure you want to leave this mission?",
-    "missionLeft": "You have left the mission."
+    "missionLeft": "You have left the mission.",
+    "missionStratagems": "Stratagems",
+    "missionStratagemUseType": "Use type : {useType}",
+    "@missionStratagemUseType": {
+        "placeholders": {
+            "useType": {
+                "type": "String",
+                "example": "Self",
+                "description": "The type of use for the stratagem."
+            }
+        }
+    },
+    "missionStratagemUseCount": "Use count : {useCount}",
+    "@missionStratagemUseCount": {
+        "placeholders": {
+            "useCount": {
+                "type": "int",
+                "example": "3",
+                "description": "The number of times the stratagem can be used before resupply."
+            }
+        }
+    },
+    "missionStratagemCooldown": "Cooldown : {cooldown}",
+    "@missionStratagemCooldown": {
+        "placeholders": {
+            "cooldown": {
+                "type": "String",
+                "example": "2 minutes",
+                "description": "The cooldown time for the stratagem."
+            }
+        }
+    },
+    "missionStratagemType": "Type : {type}",
+    "@missionStratagemType": {
+        "placeholders": {
+            "type": {
+                "type": "String",
+                "example": "Supply",
+                "description": "The type of the stratagem."
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ import 'package:mobile/dto/group_dto.dart';
 import 'package:mobile/models/group.dart';
 import 'package:mobile/models/group_user.dart';
 import 'package:mobile/services/api_service.dart';
+import 'package:mobile/utils/date.dart';
 
 abstract class GroupsService {
   static const String groupsUrl = '/groups';
@@ -32,7 +33,7 @@ abstract class GroupsService {
       'public': !data.private,
       'planetId': data.planet!.id,
       'difficulty': data.difficulty.code,
-      'startAt': data.startAt.toString(),
+      'startAt': formatDateForAPI(data.startAt),
     });
 
     return Group.fromJson(group.data);
@@ -46,7 +47,7 @@ abstract class GroupsService {
       'public': !data.private,
       'planetId': data.planet!.id,
       'difficulty': data.difficulty.code,
-      'startAt': data.startAt.toString(),
+      'startAt': formatDateForAPI(data.startAt),
     });
 
     return Group.fromJson(group.data);

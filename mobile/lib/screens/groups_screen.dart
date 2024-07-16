@@ -120,6 +120,10 @@ class _GroupsScreenState extends State<GroupsScreen> {
 
             return true;
           }).toList();
+          Planet? selectedPlanet = planetFilters.cast().firstWhere(
+              (planet) =>
+                  planet.id == context.read<GroupsFiltersState>().planet,
+              orElse: () => null);
 
           final List<Widget> groupsList = [
             ListTile(
@@ -130,43 +134,45 @@ class _GroupsScreenState extends State<GroupsScreen> {
                       Theme.of(context).textTheme.headlineMedium!.fontSize,
                 ),
               ),
-              trailing: SpeedDial(
-                direction: SpeedDialDirection.down,
-                icon: Icons.add,
-                activeIcon: Icons.close,
-                backgroundColor: ThemeColors.primary,
-                foregroundColor: ThemeColors.surface,
-                children: [
-                  SpeedDialChild(
-                    child: const Icon(Icons.groups),
-                    backgroundColor: ThemeColors.primary,
-                    foregroundColor: ThemeColors.surface,
-                    label: AppLocalizations.of(context)!.createGroup,
-                    onTap: () {
-                      context.go(
-                        context.namedLocation(
-                          GroupNewScreen.routeName,
+              trailing: currentUser != null
+                  ? SpeedDial(
+                      direction: SpeedDialDirection.down,
+                      icon: Icons.add,
+                      activeIcon: Icons.close,
+                      backgroundColor: ThemeColors.primary,
+                      foregroundColor: ThemeColors.surface,
+                      children: [
+                        SpeedDialChild(
+                          child: const Icon(Icons.groups),
+                          backgroundColor: ThemeColors.primary,
+                          foregroundColor: ThemeColors.surface,
+                          label: AppLocalizations.of(context)!.createGroup,
+                          onTap: () {
+                            context.go(
+                              context.namedLocation(
+                                GroupNewScreen.routeName,
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  SpeedDialChild(
-                    child: const Icon(Icons.group_add),
-                    backgroundColor: ThemeColors.primary,
-                    foregroundColor: ThemeColors.surface,
-                    label: AppLocalizations.of(context)!.groupJoinCode,
-                    onTap: () {
-                      showDialog<void>(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return const JoinCodeDialog();
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+                        SpeedDialChild(
+                          child: const Icon(Icons.group_add),
+                          backgroundColor: ThemeColors.primary,
+                          foregroundColor: ThemeColors.surface,
+                          label: AppLocalizations.of(context)!.groupJoinCode,
+                          onTap: () {
+                            showDialog<void>(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return const JoinCodeDialog();
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    )
+                  : null,
             ),
             ListTile(
               title: Text(
@@ -178,7 +184,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
             DropdownMenu<int?>(
               label: Text(AppLocalizations.of(context)!.planet),
               expandedInsets: EdgeInsets.zero,
-              initialSelection: context.read<GroupsFiltersState>().planet,
+              initialSelection: selectedPlanet?.id,
               onSelected: (int? value) {
                 setState(() {
                   context.read<GroupsFiltersState>().setPlanet(value);
@@ -249,13 +255,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
                 return HelldiversListTile(
                   title: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 5,
                     children: [
                       if (!group.public)
                         const Icon(
                           Icons.lock,
                           size: 16,
                         ),
-                      if (!group.public) const SizedBox(width: 5),
                       Text(
                         group.name,
                         style: Theme.of(context).textTheme.titleMedium,

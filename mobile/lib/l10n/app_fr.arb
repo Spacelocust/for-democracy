@@ -33,9 +33,9 @@
     "liberated": "Libérée",
     "defence": "Défense",
     "defended": "Défendue",
-    "losing": "Perdre",
-    "winning": "Gagner",
-    "holding": "Tenir",
+    "losing": "Perdant",
+    "winning": "Gagnant",
+    "holding": "Tenant",
     "attack": "Attaque",
     "required": "Requis",
     "hours": "{count, plural, zero{0 heure} one{1 heure} other{{count} heures}}",
@@ -134,7 +134,7 @@
             }
         }
     },
-    "planetUnderAttack": "Attaque des {enemyFaction}.",
+    "planetUnderAttack": "Attaque des {enemyFaction}",
     "@planetUnderAttack": {
         "placeholders": {
             "enemyFaction": {
@@ -142,7 +142,7 @@
             }
         }
     },
-    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}.",
+    "planetBeingLiberated": "La planète est en cours de libération des {ownerFaction}",
     "@planetBeingLiberated": {
         "placeholders": {
             "ownerFaction": {
@@ -290,7 +290,6 @@
     "missionMembers": "Participants",
     "missionNoMembers": "Aucun participant pour le moment",
     "missionEditParticipation": "Modifier la participation",
-    "missionStratagems": "Stratagèmes",
     "missionJoin": "Rejoindre la mission",
     "missionUpdateParticipation": "Mettre à jour la participation à la mission",
     "missionJoining": "En train de rejoindre la mission...",
@@ -298,5 +297,38 @@
     "missionJoined": "Vous avez rejoint la mission.",
     "missionUpdatedParticipation": "Participation à la mission mise à jour avec succès.",
     "missionLeaveConfirmation": "Êtes-vous sûr de vouloir quitter cette mission ?",
-    "missionLeft": "Vous avez quitté la mission."
+    "missionLeft": "Vous avez quitté la mission.",
+    "missionStratagems": "Stratagèmes",
+    "missionStratagemUseType": "Type d'utilisation : {useType}",
+    "@missionStratagemUseType": {
+        "placeholders": {
+            "useType": {
+                "type": "String"
+            }
+        }
+    },
+    "missionStratagemUseCount": "Nombre d'utilisations : {useCount}",
+    "@missionStratagemUseCount": {
+        "placeholders": {
+            "useCount": {
+                "type": "int"
+            }
+        }
+    },
+    "missionStratagemCooldown": "Temps de recharge : {cooldown}",
+    "@missionStratagemCooldown": {
+        "placeholders": {
+            "cooldown": {
+                "type": "String"
+            }
+        }
+    },
+    "missionStratagemType": "Type : {type}",
+    "@missionStratagemType": {
+        "placeholders": {
+            "type": {
+                "type": "String"
+            }
+        }
+    }
 }

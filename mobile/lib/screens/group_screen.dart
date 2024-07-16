@@ -329,24 +329,45 @@ class _GroupScreenState extends State<GroupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    group.name,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: TextStyleArame(
-                      fontSize:
-                          Theme.of(context).textTheme.headlineMedium!.fontSize,
-                    ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    spacing: 8,
+                    children: [
+                      if (!group.public)
+                        Icon(
+                          Icons.lock,
+                          size: 22,
+                          semanticLabel:
+                              AppLocalizations.of(context)!.groupPrivate,
+                        ),
+                      Text(
+                        group.name,
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                        style: TextStyleArame(
+                          fontSize: Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .fontSize,
+                        ),
+                      ),
+                    ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    direction: Axis.horizontal,
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    spacing: 8,
                     children: [
                       Image(
                         image: AssetImage(group.difficulty.logo),
                         width: 30,
                         height: 30,
                       ),
-                      const SizedBox(width: 8),
                       GradientText(
                         group.difficulty.translatedName(context),
                         textAlign: TextAlign.center,
@@ -820,7 +841,7 @@ class _MissionListItem extends StatelessWidget {
           ),
           ListTile(
             title: Text(
-              "${AppLocalizations.of(context)!.missionMembers} (${mission.groupUserMissions.length})",
+              "${AppLocalizations.of(context)!.missionMembers} (${mission.groupUserMissions.length}/${group.groupUsers.length})",
               style: const TextStyleArame(),
             ),
           ),
@@ -869,26 +890,68 @@ class _MissionListItem extends StatelessWidget {
                         borderColor: ThemeColors.primary,
                         borderWidth: 2,
                         content: SizedBox(
-                          width: width * 0.5,
+                          width: width * 0.7,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                stratagem.name,
-                                textAlign: TextAlign.center,
-                                style: const TextStyleArame(),
+                              Wrap(
+                                spacing: 8,
+                                direction: Axis.horizontal,
+                                alignment: WrapAlignment.center,
+                                runAlignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  StratagemImage(
+                                    borderColor: ThemeColors.primary,
+                                    stratagem: stratagem,
+                                  ),
+                                  Text(
+                                    stratagem.name,
+                                    softWrap: true,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyleArame(),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 8),
-                              if (stratagem.useCount != null)
-                                Text(stratagem.useCount.toString()),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemType(
+                                  stratagem.type.translatedName(context),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemUseType(
+                                  stratagem.useType.translatedName(context),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .missionStratagemCooldown(
+                                  prettyDuration(
+                                    Duration(
+                                      seconds: stratagem.cooldown,
+                                    ),
+                                    locale: DurationLocale.fromLanguageCode(
+                                      Localizations.localeOf(context)
+                                          .languageCode,
+                                    )!,
+                                  ),
+                                ),
+                              ),
                               if (stratagem.useCount != null)
                                 const SizedBox(height: 2),
-                              Text(stratagem.useType.translatedName(context)),
-                              const SizedBox(height: 2),
-                              Text(stratagem.cooldown.toString()),
-                              const SizedBox(height: 2),
-                              Text(stratagem.type.translatedName(context))
+                              if (stratagem.useCount != null)
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .missionStratagemUseCount(
+                                    stratagem.useCount!,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
