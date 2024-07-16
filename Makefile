@@ -88,6 +88,9 @@ dcm: db-create-migration ## Alias for db-create-migration
 db-migrate-apply: ## Apply the migrations
 	$(EXECAPI) atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 
+db-m-a:
+	docker run --rm -v $(PWD)/api/migrations:/migrations --network for-democracy_default arigaio/atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
+
 dma: db-migrate-apply ## Alias for db-migrate-apply
 
 db-create-empty-migration: ## Create an empty migration
