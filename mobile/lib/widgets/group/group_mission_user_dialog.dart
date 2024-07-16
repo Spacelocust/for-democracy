@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/dto/mission_user_dto.dart';
 import 'package:mobile/models/group.dart';
@@ -10,7 +9,9 @@ import 'package:mobile/models/stratagem.dart';
 import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/missions_service.dart';
 import 'package:mobile/utils/snackbar.dart';
+import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/components/text_style_arame.dart';
+import 'package:mobile/widgets/stratagem/stratagem_image.dart';
 
 class GroupMissionUserDialog extends StatefulWidget {
   static const maxStratagems = 4;
@@ -54,8 +55,16 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
   void initState() {
     super.initState();
 
+    List<Stratagem> stratagems = [];
+
+    if (widget.initialData != null) {
+      stratagems = widget.initialData!.stratagems.map((e) {
+        return widget.stratagems.firstWhere((s) => s.id == e.id);
+      }).toList();
+    }
+
     _formData = MissionUserDTO(
-      stratagems: widget.initialData?.stratagems ?? [],
+      stratagems: stratagems,
     );
   }
 
@@ -64,19 +73,21 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
 
     for (final stratagem in widget.stratagems) {
       bool isEnabled = !_submitting;
+      bool isSelected = _formData.stratagems.contains(stratagem);
 
-      if (!_formData.stratagems.any(
-              (selectedStratagem) => selectedStratagem.id == stratagem.id) &&
-          isEnabled) {
+      if (!isSelected && isEnabled) {
         isEnabled =
             _formData.stratagems.length < GroupMissionUserDialog.maxStratagems;
       }
 
+      final stratagemImage = StratagemImage(
+        stratagem: stratagem,
+        borderColor: isSelected ? ThemeColors.primary : Colors.white,
+      );
+
       stratagemTiles.add(
         CheckboxListTile(
-          value: _formData.stratagems.any(
-            (selectedStratagem) => selectedStratagem.id == stratagem.id,
-          ),
+          value: _formData.stratagems.contains(stratagem),
           enabled: isEnabled,
           onChanged: (bool? value) {
             setState(() {
@@ -87,16 +98,15 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
               }
             });
           },
-          secondary: SvgPicture.network(
-            stratagem.imageURL,
-            width: 20,
-            height: 20,
-            semanticsLabel: stratagem.name,
-            colorFilter: const ColorFilter.mode(
-              Colors.white,
-              BlendMode.srcIn,
-            ),
-          ),
+          secondary: isEnabled
+              ? stratagemImage
+              : ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Colors.grey,
+                    BlendMode.modulate,
+                  ),
+                  child: stratagemImage,
+                ),
           title: Text(stratagem.name),
           subtitle: Text(
             stratagem.useType.translatedName(context),
@@ -128,6 +138,7 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
             ? AppLocalizations.of(context)!.missionUpdateParticipation
             : AppLocalizations.of(context)!.missionJoin,
         style: const TextStyleArame(),
+        textAlign: TextAlign.center,
       ),
       content: Form(
         key: _formKey,
@@ -245,8 +256,12 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
                     }
                   }
                 },
-          icon: const Icon(Icons.group_add),
-          label: Text(AppLocalizations.of(context)!.join),
+          icon: Icon(widget.editing ? Icons.save : Icons.group_add),
+          label: Text(
+            widget.editing
+                ? AppLocalizations.of(context)!.save
+                : AppLocalizations.of(context)!.join,
+          ),
         ),
       ],
     );

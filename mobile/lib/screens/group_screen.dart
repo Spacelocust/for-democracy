@@ -4,7 +4,6 @@ import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/dto/mission_user_dto.dart';
@@ -30,6 +29,7 @@ import 'package:mobile/widgets/group/group_mission_user_dialog.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
+import 'package:mobile/widgets/stratagem/stratagem_image.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -700,7 +700,7 @@ class _MissionListItem extends StatelessWidget {
                             AppLocalizations.of(context)!.missionDeleted,
                           );
 
-                          context.go(
+                          context.replace(
                             context.namedLocation(
                               GroupScreen.routeName,
                               pathParameters: {
@@ -854,21 +854,18 @@ class _MissionListItem extends StatelessWidget {
                 ),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
-              title: Text(groupUserMission.groupUser!.user!.username),
+              title: Text(
+                groupUserMission.groupUser!.user!.username,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               subtitle: Wrap(
                 direction: Axis.horizontal,
                 spacing: 8,
                 children: groupUserMission.stratagems!
                     .map(
-                      (stratagem) => SvgPicture.network(
-                        stratagem.imageURL,
-                        width: 20,
-                        height: 20,
-                        semanticsLabel: stratagem.name,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
+                      (stratagem) => StratagemImage(
+                        borderColor: ThemeColors.primary,
+                        stratagem: stratagem,
                       ),
                     )
                     .toList(),
