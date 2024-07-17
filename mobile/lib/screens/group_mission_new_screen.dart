@@ -94,7 +94,7 @@ class _GroupMissionNewScreenState extends State<GroupMissionNewScreen> {
                 },
                 onSubmit: (formData) async {
                   try {
-                    final newGroup = await MissionsService.createMission(
+                    await MissionsService.createMission(
                       group.id,
                       formData,
                     );
@@ -109,7 +109,7 @@ class _GroupMissionNewScreenState extends State<GroupMissionNewScreen> {
                         context.namedLocation(
                           GroupScreen.routeName,
                           pathParameters: {
-                            'groupId': newGroup.id.toString(),
+                            'groupId': group.id.toString(),
                           },
                         ),
                       );
