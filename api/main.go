@@ -21,12 +21,12 @@ import (
 func main() {
 
 	// Set up the Swagger documentation
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("API_DOMAIN"), os.Getenv("API_PORT"))
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-
 	if os.Getenv("API_ENV") == "production" {
 		docs.SwaggerInfo.Host = os.Getenv("API_DOMAIN")
 		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("API_DOMAIN"), os.Getenv("API_PORT"))
+		docs.SwaggerInfo.Schemes = []string{"http"}
 	}
 
 	cmd.RunCLI()

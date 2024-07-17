@@ -52,12 +52,15 @@ func GetObjectives() []ObjectiveType {
 		EliminateBroodCommanders,
 		PurgeHatcheries,
 		ActivateE710Pumps,
+		NukeNursery,
+		ActivateTerminidControlSystem,
 		BlitzSearchAndDestroyTerminids,
 		EliminateChargers,
 		EradicateTerminidSwarm,
 		EliminateBileTitans,
 		EnableE710Extraction,
 		EliminateDevastators,
+		EliminateAutomatonHulks,
 		SabotageSupplyBases,
 		DestroyTransmissionNetwork,
 		EradicateAutomatonForces,
@@ -71,7 +74,33 @@ func GetObjectives() []ObjectiveType {
 func ValidateObjectiveType(fl validator.FieldLevel) bool {
 	value := fl.Field().Interface().(ObjectiveType)
 	switch value {
-	case TerminateIllegalBroadcast, PumpFuelToICBM, UploadEscapePodData, ConductGeologicalSurvey, LaunchICBM, RetrieveValuableData, EmergencyEvacuation, SpreadDemocracy, EliminateBroodCommanders, PurgeHatcheries, ActivateE710Pumps, BlitzSearchAndDestroyTerminids, EliminateChargers, EradicateTerminidSwarm, EliminateBileTitans, EnableE710Extraction, EliminateDevastators, SabotageSupplyBases, DestroyTransmissionNetwork, EradicateAutomatonForces, BlitzSearchAndDestroyAutomatons, SabotageAirBase, EliminateAutomatonFactoryStrider, DestroyCommandBunkers:
+	case TerminateIllegalBroadcast,
+		PumpFuelToICBM,
+		UploadEscapePodData,
+		ConductGeologicalSurvey,
+		LaunchICBM,
+		RetrieveValuableData,
+		EmergencyEvacuation,
+		SpreadDemocracy,
+		EliminateBroodCommanders,
+		PurgeHatcheries,
+		ActivateE710Pumps,
+		NukeNursery,
+		ActivateTerminidControlSystem,
+		BlitzSearchAndDestroyTerminids,
+		EliminateChargers,
+		EradicateTerminidSwarm,
+		EliminateBileTitans,
+		EnableE710Extraction,
+		EliminateDevastators,
+		EliminateAutomatonHulks,
+		SabotageSupplyBases,
+		DestroyTransmissionNetwork,
+		EradicateAutomatonForces,
+		BlitzSearchAndDestroyAutomatons,
+		SabotageAirBase,
+		EliminateAutomatonFactoryStrider,
+		DestroyCommandBunkers:
 		return true
 	}
 
@@ -83,7 +112,33 @@ func (ot *ObjectiveType) Scan(value interface{}) error {
 
 	if ok {
 		switch value.(string) {
-		case string(TerminateIllegalBroadcast), string(PumpFuelToICBM), string(UploadEscapePodData), string(ConductGeologicalSurvey), string(LaunchICBM), string(RetrieveValuableData), string(EmergencyEvacuation), string(SpreadDemocracy), string(EliminateBroodCommanders), string(PurgeHatcheries), string(ActivateE710Pumps), string(BlitzSearchAndDestroyTerminids), string(EliminateChargers), string(EradicateTerminidSwarm), string(EliminateBileTitans), string(EnableE710Extraction), string(EliminateDevastators), string(SabotageSupplyBases), string(DestroyTransmissionNetwork), string(EradicateAutomatonForces), string(BlitzSearchAndDestroyAutomatons), string(SabotageAirBase), string(EliminateAutomatonFactoryStrider), string(DestroyCommandBunkers):
+		case string(TerminateIllegalBroadcast),
+			string(PumpFuelToICBM),
+			string(UploadEscapePodData),
+			string(ConductGeologicalSurvey),
+			string(LaunchICBM),
+			string(RetrieveValuableData),
+			string(EmergencyEvacuation),
+			string(SpreadDemocracy),
+			string(EliminateBroodCommanders),
+			string(PurgeHatcheries),
+			string(ActivateE710Pumps),
+			string(NukeNursery),
+			string(ActivateTerminidControlSystem),
+			string(BlitzSearchAndDestroyTerminids),
+			string(EliminateChargers),
+			string(EradicateTerminidSwarm),
+			string(EliminateBileTitans),
+			string(EnableE710Extraction),
+			string(EliminateDevastators),
+			string(EliminateAutomatonHulks),
+			string(SabotageSupplyBases),
+			string(DestroyTransmissionNetwork),
+			string(EradicateAutomatonForces),
+			string(BlitzSearchAndDestroyAutomatons),
+			string(SabotageAirBase),
+			string(EliminateAutomatonFactoryStrider),
+			string(DestroyCommandBunkers):
 			*ot = ObjectiveType(str)
 		default:
 			return fmt.Errorf("invalid value for ObjectiveType: %v", value)

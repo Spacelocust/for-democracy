@@ -1847,6 +1847,9 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
+                "groupUser": {
+                    "$ref": "#/definitions/model.GroupUser"
+                },
                 "groupUserID": {
                     "type": "integer"
                 },
