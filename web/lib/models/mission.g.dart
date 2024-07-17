@@ -9,7 +9,7 @@ part of 'mission.dart';
 Mission _$MissionFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['ID', 'Name', 'ObjectiveTypes', 'GroupUserMissions'],
+    requiredKeys: const ['ID', 'Name'],
   );
   return Mission(
     id: (json['ID'] as num).toInt(),

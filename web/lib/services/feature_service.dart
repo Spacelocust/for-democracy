@@ -15,6 +15,13 @@ abstract class FeaturesService {
     return [...featuresData.map((feature) => Feature.fromJson(feature))];
   }
 
+  static Future<Feature> getFeature() async {
+    var dio = APIService.getDio();
+    var feature = await dio.get(featuresUrl);
+
+    return feature.data;
+  }
+
   static Future<void> toggleFeature(Feature feature) async {
     var dio = APIService.getDio();
 

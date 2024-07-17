@@ -9,21 +9,21 @@ import (
 )
 
 func (s *Server) RegisterObjectiveRoutes(r *gin.Engine) {
-	route := r.Group("/objectifs")
+	route := r.Group("/objectives")
 
-	route.GET("", s.GetObjectifs)
+	route.GET("", s.GetObjectives)
 	route.GET("/:name", s.GetObjectif)
 }
 
-// @Summary Get all objectifs
-// @Description Get all objectifs
-// @Tags    objectifs
+// @Summary Get all objectives
+// @Description Get all objectives
+// @Tags    objectives
 // @Produce  json
 // @Success 200 {array} model.Objective
 // @Failure 404  {object}  server.ErrorResponse
-// @Router /objectifs [get]
-func (s *Server) GetObjectifs(c *gin.Context) {
-	var objectifs []model.Objective
+// @Router /objectives [get]
+func (s *Server) GetObjectives(c *gin.Context) {
+	var objectives []model.Objective
 
 	for _, obj := range enum.GetObjectives() {
 		objectif, err := model.GetObjective(obj)
@@ -32,20 +32,20 @@ func (s *Server) GetObjectifs(c *gin.Context) {
 			return
 		}
 
-		objectifs = append(objectifs, objectif)
+		objectives = append(objectives, objectif)
 	}
 
-	c.JSON(http.StatusOK, objectifs)
+	c.JSON(http.StatusOK, objectives)
 }
 
 // @Summary Get an objectif
 // @Description Get an objectif
-// @Tags    objectifs
+// @Tags    objectives
 // @Produce  json
-// @Param name path string true "Objectif name"
+// @Param name path string true "Objective name"
 // @Success 200 {object} model.Objective
 // @Failure 404  {object}  server.ErrorResponse
-// @Router /objectifs/{name} [get]
+// @Router /objectives/{name} [get]
 func (s *Server) GetObjectif(c *gin.Context) {
 	name := c.Param("name")
 

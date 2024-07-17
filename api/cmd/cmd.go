@@ -16,6 +16,8 @@ func RunCLI() {
 			gatherEventsCmd,
 			cronCmd,
 			ginCmd,
+			adminFixturesCmd,
+			featureFixturesCmd,
 		},
 	}
 

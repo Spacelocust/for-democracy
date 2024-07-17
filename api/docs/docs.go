@@ -102,6 +102,39 @@ const docTemplate = `{
             }
         },
         "/features/{code}": {
+            "get": {
+                "description": "Get feature",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "features"
+                ],
+                "summary": "Get feature",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Feature code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Feature"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "Toggle feature using code",
                 "produces": [
@@ -580,6 +613,48 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "get": {
+                "description": "Login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plain password",
+                        "name": "password",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     },
                     "500": {
@@ -1115,16 +1190,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/objectifs": {
+        "/objectives": {
             "get": {
-                "description": "Get all objectifs",
+                "description": "Get all objectives",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "objectifs"
+                    "objectives"
                 ],
-                "summary": "Get all objectifs",
+                "summary": "Get all objectives",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1144,20 +1219,20 @@ const docTemplate = `{
                 }
             }
         },
-        "/objectifs/{name}": {
+        "/objectives/{name}": {
             "get": {
                 "description": "Get an objectif",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "objectifs"
+                    "objectives"
                 ],
                 "summary": "Get an objectif",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Objectif name",
+                        "description": "Objective name",
                         "name": "name",
                         "in": "path",
                         "required": true
@@ -1447,6 +1522,38 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/model.Feature"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/admin": {
+            "get": {
+                "description": "Get admin user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get admin",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     },
                     "500": {

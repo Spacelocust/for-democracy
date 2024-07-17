@@ -12,8 +12,8 @@ Feature _$FeatureFromJson(Map<String, dynamic> json) {
     requiredKeys: const ['Code', 'Enabled'],
   );
   return Feature(
+    enabled: json['Enabled'] as bool? ?? false,
     code: json['Code'] as String,
-    enabled: json['Enabled'] as bool,
   );
 }
 

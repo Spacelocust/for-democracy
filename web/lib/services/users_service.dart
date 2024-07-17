@@ -1,11 +1,8 @@
 import 'package:app/models/user.dart';
 import 'package:app/services/api_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class UsersService {
   static const String usersUrl = '/users';
-
-  static String url = '${dotenv.get(APIService.baseUrlEnv)}$usersUrl';
 
   static Future<List<User>> getUsers() async {
     var dio = APIService.getDio();
@@ -15,10 +12,10 @@ abstract class UsersService {
     return [...usersData.map((user) => User.fromJson(user))];
   }
 
-  static Future<User> getUser(int userId) async {
+  static Future<User> getAdmin() async {
     var dio = APIService.getDio();
-    var user = await dio.get('$usersUrl/$userId');
+    var admin = await dio.get('$usersUrl/admin');
 
-    return User.fromJson(user.data);
+    return User.fromJson(admin.data);
   }
 }

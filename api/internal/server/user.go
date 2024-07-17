@@ -1,15 +1,18 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (s *Server) RegisterUsersRoutes(r *gin.Engine) {
 	route := r.Group("/users")
 
+	route.GET("/admin", s.GetAdmin)
 	route.GET("", s.GetUsers)
 }
 
@@ -32,4 +35,32 @@ func (s *Server) GetUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+// @Summary Get admin
+// @Description Get admin user
+// @Tags users
+// @Produce json
+// @Success 200 {object} model.User
+// @Failure 404  {object}  server.ErrorResponse
+// @Failure 500  {object}  server.ErrorResponse
+// @Router /users/admin [get]
+func (s *Server) GetAdmin(c *gin.Context) {
+	db := s.db.GetDB()
+
+	var admin model.User
+
+	if err := db.First(&admin, "role = ?", "admin").Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "user")
+
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, admin)
 }

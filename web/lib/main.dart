@@ -14,9 +14,10 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// The views that will be used by the router
 final Map<String, Function(BuildContext context, GoRouterState state)> _views =
     {
-  LoginScreen.routePath: (context, state) => const LoginScreen(),
-  HomeScreen.routePath: (context, state) => const HomeScreen(),
+  LoginScreen.routePath: (context, state) => LoginScreen(key: UniqueKey()),
+  HomeScreen.routePath: (context, state) => HomeScreen(key: UniqueKey()),
   EditFeatureScreen.routePath: (context, state) => EditFeatureScreen(
+        key: UniqueKey(),
         featureCode: state.pathParameters['featureCode']!,
       ),
 };

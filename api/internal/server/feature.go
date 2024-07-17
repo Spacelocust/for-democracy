@@ -13,6 +13,7 @@ import (
 func (s *Server) RegisterFeatureRoutes(r *gin.Engine) {
 	route := r.Group("/features")
 
+	route.GET("/:code", s.GetFeature)
 	route.GET("", s.GetFeatures)
 	route.PATCH("/:code", s.ToggleFeature)
 }
@@ -36,6 +37,36 @@ func (s *Server) GetFeatures(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, features)
+}
+
+// @Summary Get feature
+// @Description Get feature
+// @Tags features
+// @Produce json
+// @Param code path string true "Feature code"
+// @Success 200 {object} model.Feature
+// @Failure 500  {object}  server.ErrorResponse
+// @Router /features/{code} [get]
+func (s *Server) GetFeature(c *gin.Context) {
+	db := s.db.GetDB()
+
+	code := c.Param("code")
+
+	var feature model.Feature
+
+	if err := db.Find(&feature, "code = ?", code).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			s.NotFoundResponse(c, "feature")
+
+			return
+		}
+
+		s.InternalErrorResponse(c, err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, feature)
 }
 
 // @Summary Toggle feature

@@ -15,7 +15,7 @@ Planet _$PlanetFromJson(Map<String, dynamic> json) {
       'Disabled',
       'PositionX',
       'PositionY',
-      'HelldiversID',
+      'HelldiversID'
     ],
   );
   return Planet(

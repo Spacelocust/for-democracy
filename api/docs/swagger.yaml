@@ -878,6 +878,28 @@ paths:
       tags:
       - features
   /features/{code}:
+    get:
+      description: Get feature
+      parameters:
+      - description: Feature code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Feature'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get feature
+      tags:
+      - features
     patch:
       description: Toggle feature using code
       parameters:
@@ -1201,6 +1223,34 @@ paths:
       summary: Join a group with code
       tags:
       - groups
+  /login:
+    get:
+      description: Login
+      parameters:
+      - description: Plain password
+        in: path
+        name: password
+        required: true
+        type: string
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Login
+      tags:
+      - login
   /missions:
     post:
       description: Create a mission
@@ -1547,9 +1597,9 @@ paths:
       summary: Get the user
       tags:
       - authentication
-  /objectifs:
+  /objectives:
     get:
-      description: Get all objectifs
+      description: Get all objectives
       produces:
       - application/json
       responses:
@@ -1563,14 +1613,14 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/server.ErrorResponse'
-      summary: Get all objectifs
+      summary: Get all objectives
       tags:
-      - objectifs
-  /objectifs/{name}:
+      - objectives
+  /objectives/{name}:
     get:
       description: Get an objectif
       parameters:
-      - description: Objectif name
+      - description: Objective name
         in: path
         name: name
         required: true
@@ -1588,7 +1638,7 @@ paths:
             $ref: '#/definitions/server.ErrorResponse'
       summary: Get an objectif
       tags:
-      - objectifs
+      - objectives
   /planets:
     get:
       description: Get all planets
@@ -1770,6 +1820,27 @@ paths:
           schema:
             $ref: '#/definitions/server.ErrorResponse'
       summary: Get users
+      tags:
+      - users
+  /users/admin:
+    get:
+      description: Get admin user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get admin
       tags:
       - users
 swagger: "2.0"
