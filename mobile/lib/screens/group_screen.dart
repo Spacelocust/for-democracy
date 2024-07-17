@@ -417,7 +417,11 @@ class _GroupScreenState extends State<GroupScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    "${DateFormat.MMMMd().format(group.startAt)}, ${DateFormat.Hm().format(group.startAt)}",
+                    "${DateFormat.MMMMd(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(group.startAt)}, ${DateFormat.Hm(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(group.startAt)}",
                     style: Theme.of(context).textTheme.bodyLarge,
                   )
                 ],
@@ -924,6 +928,27 @@ class _MissionListItem extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 8),
+                              if (stratagem.keys.isNotEmpty)
+                                Center(
+                                  child: Wrap(
+                                    spacing: 8,
+                                    direction: Axis.horizontal,
+                                    children: stratagem.keys
+                                        .map(
+                                          (key) => Image(
+                                            image: AssetImage(key.icon),
+                                            semanticLabel: key.translatedName(
+                                              context,
+                                            ),
+                                            width: 25,
+                                            height: 25,
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              if (stratagem.keys.isNotEmpty)
+                                const SizedBox(height: 8),
                               Text(
                                 AppLocalizations.of(context)!
                                     .missionStratagemType(
@@ -937,21 +962,23 @@ class _MissionListItem extends StatelessWidget {
                                   stratagem.useType.translatedName(context),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                AppLocalizations.of(context)!
-                                    .missionStratagemCooldown(
-                                  prettyDuration(
-                                    Duration(
-                                      seconds: stratagem.cooldown,
+                              if (stratagem.cooldown > 0)
+                                const SizedBox(height: 2),
+                              if (stratagem.cooldown > 0)
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .missionStratagemCooldown(
+                                    prettyDuration(
+                                      Duration(
+                                        seconds: stratagem.cooldown,
+                                      ),
+                                      locale: DurationLocale.fromLanguageCode(
+                                        Localizations.localeOf(context)
+                                            .languageCode,
+                                      )!,
                                     ),
-                                    locale: DurationLocale.fromLanguageCode(
-                                      Localizations.localeOf(context)
-                                          .languageCode,
-                                    )!,
                                   ),
                                 ),
-                              ),
                               if (stratagem.useCount != null)
                                 const SizedBox(height: 2),
                               if (stratagem.useCount != null)

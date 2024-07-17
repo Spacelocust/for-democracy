@@ -276,7 +276,11 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        "${DateFormat.MMMMd().format(group.startAt)}, ${DateFormat.Hm().format(group.startAt)}",
+                        "${DateFormat.MMMMd(
+                          Localizations.localeOf(context).languageCode,
+                        ).format(group.startAt)}, ${DateFormat.Hm(
+                          Localizations.localeOf(context).languageCode,
+                        ).format(group.startAt)}",
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                       Text(

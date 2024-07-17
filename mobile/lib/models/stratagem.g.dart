@@ -30,7 +30,9 @@ Stratagem _$StratagemFromJson(Map<String, dynamic> json) {
     activation: (json['Activation'] as num).toInt(),
     imageURL: json['ImageURL'] as String,
     type: $enumDecode(_$StratagemTypeEnumMap, json['Type']),
-    keys: json['Keys'] as List<dynamic>,
+    keys: (json['Keys'] as List<dynamic>)
+        .map((e) => $enumDecode(_$StratagemKeyEnumMap, e))
+        .toList(),
   );
 }
 
@@ -44,7 +46,7 @@ Map<String, dynamic> _$StratagemToJson(Stratagem instance) => <String, dynamic>{
       'Activation': instance.activation,
       'ImageURL': instance.imageURL,
       'Type': _$StratagemTypeEnumMap[instance.type]!,
-      'Keys': instance.keys,
+      'Keys': instance.keys.map((e) => _$StratagemKeyEnumMap[e]!).toList(),
     };
 
 const _$StratagemUseTypeEnumMap = {
@@ -58,4 +60,11 @@ const _$StratagemTypeEnumMap = {
   StratagemType.mission: 'mission',
   StratagemType.defensive: 'defensive',
   StratagemType.offensive: 'offensive',
+};
+
+const _$StratagemKeyEnumMap = {
+  StratagemKey.up: 'up',
+  StratagemKey.right: 'right',
+  StratagemKey.down: 'down',
+  StratagemKey.left: 'left',
 };

@@ -1,6 +1,10 @@
 {
     "@@locale": "en",
     "@COMMON": {},
+    "up": "Up",
+    "right": "Right",
+    "down": "Down",
+    "left": "Left",
     "somethingWentWrong": "Something went wrong. Please try again later.",
     "invalidForm": "Invalid form. Please check the fields and try again.",
     "logout": "Logout",

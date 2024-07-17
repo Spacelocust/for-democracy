@@ -165,7 +165,7 @@ class AuthButton extends StatelessWidget {
       child: const Padding(
         padding: EdgeInsets.all(10),
         child: Image(
-          image: AssetImage('assets/steam-logo.png'),
+          image: AssetImage('assets/images/steam-logo.png'),
           height: 30,
           alignment: Alignment.centerLeft,
         ),

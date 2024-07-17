@@ -95,6 +95,7 @@ flutter:
     - assets/images/effects/
     - assets/images/difficulties/
     - assets/images/objective_types/
+    - assets/images/stratagem_keys/
     - assets/svgs/
     - .env
 
