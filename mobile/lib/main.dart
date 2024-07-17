@@ -167,10 +167,10 @@ Future main() async {
   );
 
   // Initialize Firebase Messaging
-  await FirebaseMessagingService.init();
+  await FirebaseMessagingService.init(_rootNavigatorKey);
 
   // Initialize local notifications
-  await LocalNotificationService.init();
+  await LocalNotificationService.init(_rootNavigatorKey);
 
   User? user;
 

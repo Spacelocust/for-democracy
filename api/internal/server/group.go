@@ -13,6 +13,7 @@ import (
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 	"gorm.io/gorm"
 )
 
@@ -354,7 +355,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	if len(updatedGroup.GroupUsers) > 1 {
+	if len(updatedGroup.GroupUsers) > 0 {
 		for _, groupUser := range updatedGroup.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
@@ -362,12 +363,18 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 		}
 
 		client := s.firebase.GetMessaging()
+		groupJson, err := json.Marshal(group)
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Group Updated",
-				Body:  fmt.Sprintf("Group %s has been updated", updatedGroup.Name),
+			Tokens: []string{user.TokenFcm.Token},
+			Data: map[string]string{
+				"type": "group_joined",
+				"data": string(groupJson),
 			},
 		})
 
@@ -714,12 +721,18 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 		}
 
 		client := s.firebase.GetMessaging()
+		groupJson, err := json.Marshal(group)
+
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Player left",
-				Body:  fmt.Sprintf("%s has left %s", user.Username, group.Name),
+			Data: map[string]string{
+				"type": "group_joined",
+				"data": string(groupJson),
 			},
 		})
 

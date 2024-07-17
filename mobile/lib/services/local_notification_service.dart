@@ -17,24 +17,36 @@ abstract class LocalNotificationService {
     importance: Importance.high,
   );
 
-  static Future<void> init() async {
+  static Future<void> init(GlobalKey<NavigatorState> rootNavigatorKey) async {
     // Specify the initialization settings for Android
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@drawable/ic_helldivers');
+        AndroidInitializationSettings(
+      '@drawable/ic_helldivers',
+    );
 
     // Specify the initialization settings of the plugin
     const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
 
     // Initialize the plugin
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (notificationResponse) =>
+          onDidReceiveNotificationResponse(
+        rootNavigatorKey.currentContext,
+        notificationResponse,
+      ),
+    );
 
     final platform =
         _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
 
-    await platform?.createNotificationChannel(_androidChannel);
+    await platform?.createNotificationChannel(
+      _androidChannel,
+    );
   }
 
   static showNotification({
@@ -70,10 +82,17 @@ abstract class LocalNotificationService {
 }
 
 void onDidReceiveNotificationResponse(
-    NotificationResponse notificationResponse) async {
-  if (notificationResponse.payload != null) {
-    final message =
-        RemoteMessage.fromMap(jsonDecode(notificationResponse.payload!));
-    FirebaseMessagingService.handleMessage(message);
+  BuildContext? context,
+  NotificationResponse notificationResponse,
+) async {
+  if (notificationResponse.payload == null) {
+    return;
   }
+
+  final message = RemoteMessage.fromMap(
+    jsonDecode(
+      notificationResponse.payload!,
+    ),
+  );
+  FirebaseMessagingService.handleMessage(context, message);
 }

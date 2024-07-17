@@ -28,6 +28,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   static const double xPadding = 8;
 
   Future<List<Planet>>? _planetsFuture;
+
   FlutterError? _error;
 
   // TODO fix this
