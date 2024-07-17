@@ -15,8 +15,8 @@ import (
 func (s *Server) RegisterOauthRoutes(r *gin.Engine) {
 	route := r.Group("/oauth")
 
-	route.GET("/me", s.OAuthMiddleware, s.OAuthMe)
-	route.GET("/logout/:provider", s.OAuthMiddleware, s.OAuthLogout)
+	route.GET("/me", s.AuthMiddleware, s.OAuthMe)
+	route.GET("/logout/:provider", s.AuthMiddleware, s.OAuthLogout)
 	route.GET("/:provider", s.OAuth)
 	route.GET("/:provider/callback", s.OAuthCallback)
 }

@@ -10,7 +10,7 @@ import (
 
 func (s *Server) RegisterTokenFcmRoutes(r *gin.Engine) {
 	route := r.Group("/token-fcm")
-	route.Use(s.OAuthMiddleware)
+	route.Use(s.AuthMiddleware)
 
 	route.POST("", s.PersistToken)
 }

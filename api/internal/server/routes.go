@@ -26,6 +26,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/healthz", s.HealthHandler)
 
 	// Register routes
+	s.RegisterAdminAuthRoutes(r)
 	s.RegisterEventRoutes(r)
 	s.RegisterFeatureRoutes(r)
 	s.RegisterGroupRoutes(r)

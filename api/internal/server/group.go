@@ -21,13 +21,13 @@ func (s *Server) RegisterGroupRoutes(r *gin.Engine) {
 	route := r.Group("/groups")
 
 	route.GET("", s.OAuthOptionalMiddleware, s.GetGroups)
-	route.POST("", s.OAuthMiddleware, s.CreateGroup)
-	route.POST("/join", s.OAuthMiddleware, s.JoinGroupWithCode)
+	route.POST("", s.AuthMiddleware, s.CreateGroup)
+	route.POST("/join", s.AuthMiddleware, s.JoinGroupWithCode)
 	route.GET("/:id", s.OAuthOptionalMiddleware, s.GetGroup)
-	route.PUT("/:id", s.OAuthMiddleware, s.UpdateGroup)
-	route.DELETE("/:id", s.OAuthMiddleware, s.DeleteGroup)
-	route.POST("/:id/join", s.OAuthMiddleware, s.JoinGroup)
-	route.POST("/:id/leave", s.OAuthMiddleware, s.LeaveGroup)
+	route.PUT("/:id", s.AuthMiddleware, s.UpdateGroup)
+	route.DELETE("/:id", s.AuthMiddleware, s.DeleteGroup)
+	route.POST("/:id/join", s.AuthMiddleware, s.JoinGroup)
+	route.POST("/:id/leave", s.AuthMiddleware, s.LeaveGroup)
 }
 
 // GroupFieldsDistinct is a constant that contains the fields that are distinct in the groups table

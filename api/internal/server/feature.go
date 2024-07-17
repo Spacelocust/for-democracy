@@ -15,7 +15,7 @@ func (s *Server) RegisterFeatureRoutes(r *gin.Engine) {
 
 	route.GET("/:code", s.GetFeature)
 	route.GET("", s.GetFeatures)
-	route.PATCH("/:code", s.ToggleFeature)
+	route.PATCH("/:code", s.AuthMiddleware, s.ToggleFeature)
 }
 
 // @Summary Get features

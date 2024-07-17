@@ -804,6 +804,37 @@ definitions:
     required:
     - token
     type: object
+  validators.User:
+    properties:
+      avatarUrl:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      groupUsers:
+        items:
+          $ref: '#/definitions/model.GroupUser'
+        type: array
+      id:
+        type: integer
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/enum.Role'
+      steamId:
+        type: string
+      tokenFcm:
+        $ref: '#/definitions/validators.TokenFcm'
+      tokens:
+        items:
+          $ref: '#/definitions/model.Token'
+        type: array
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
   validators.UserMission:
     properties:
       stratagems:
@@ -826,6 +857,77 @@ info:
   title: For Democracy API
   version: "1.0"
 paths:
+  /auth/check:
+    post:
+      description: Check if user password matches hash
+      parameters:
+      - description: Plain password
+        in: path
+        name: password
+        required: true
+        type: string
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Auth check
+      tags:
+      - authentication
+  /auth/login:
+    post:
+      description: Route used to store the admin token after authentication
+      parameters:
+      - description: Feature code
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/validators.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goth.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Get the admin user after authentication is complete
+      tags:
+      - authentication
+  /auth/logout:
+    get:
+      description: Route used to log the user out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Log the user out
+      tags:
+      - authentication
   /events:
     get:
       description: Get all events
@@ -1223,34 +1325,6 @@ paths:
       summary: Join a group with code
       tags:
       - groups
-  /login:
-    post:
-      description: Login
-      parameters:
-      - description: Plain password
-        in: path
-        name: password
-        required: true
-        type: string
-      - description: Username
-        in: path
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: boolean
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-      summary: Login
-      tags:
-      - login
   /missions:
     post:
       description: Create a mission

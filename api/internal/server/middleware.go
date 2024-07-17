@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// OAuthMiddleware is used to check if the user is authenticated
-func (s *Server) OAuthMiddleware(c *gin.Context) {
+// AuthMiddleware is used to check if the user is authenticated
+func (s *Server) AuthMiddleware(c *gin.Context) {
 	db := s.db.GetDB()
 
 	tokenString, err := c.Cookie("token")
