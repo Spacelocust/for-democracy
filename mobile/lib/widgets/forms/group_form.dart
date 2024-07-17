@@ -273,9 +273,18 @@ class GroupFormState extends State<GroupForm> {
                     theme: const picker_theme.DatePickerTheme(
                       backgroundColor: ThemeColors.surface,
                       headerColor: ThemeColors.surface,
-                      doneStyle: TextStyle(color: ThemeColors.primary),
-                      cancelStyle: TextStyle(color: ThemeColors.primary),
-                      itemStyle: TextStyle(color: ThemeColors.primary),
+                      doneStyle: TextStyle(
+                        color: ThemeColors.primary,
+                        fontFamily: 'Reddit Mono',
+                      ),
+                      cancelStyle: TextStyle(
+                        color: ThemeColors.primary,
+                        fontFamily: 'Reddit Mono',
+                      ),
+                      itemStyle: TextStyle(
+                        color: ThemeColors.primary,
+                        fontFamily: 'Reddit Mono',
+                      ),
                     ),
                     locale:
                         Localizations.localeOf(context) == const Locale('fr')
