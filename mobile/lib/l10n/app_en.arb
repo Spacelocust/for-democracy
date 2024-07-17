@@ -1,6 +1,10 @@
 {
     "@@locale": "en",
     "@COMMON": {},
+    "up": "Up",
+    "right": "Right",
+    "down": "Down",
+    "left": "Left",
     "somethingWentWrong": "Something went wrong. Please try again later.",
     "invalidForm": "Invalid form. Please check the fields and try again.",
     "logout": "Logout",
@@ -255,6 +259,7 @@
     "groupCodeEmpty": "Please enter a group code.",
     "groupCreated": "Group created successfully.",
     "groupUpdated": "Group updated successfully.",
+    "groupFull": "This group is full.",
     "groupJoinConfirmation": "Are you sure you want to join this group?",
     "groupJoining": "Joining group...",
     "groupJoined": "You have joined the group.",

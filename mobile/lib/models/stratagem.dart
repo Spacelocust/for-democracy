@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobile/enum/stratagem_key.dart';
 import 'package:mobile/enum/stratagem_type.dart';
 import 'package:mobile/enum/stratagem_use_type.dart';
 
@@ -34,7 +35,7 @@ class Stratagem {
   final StratagemType type;
 
   @JsonKey(required: true, name: 'Keys')
-  final List keys;
+  final List<StratagemKey> keys;
 
   Stratagem({
     required this.id,

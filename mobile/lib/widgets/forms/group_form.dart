@@ -260,7 +260,11 @@ class GroupFormState extends State<GroupForm> {
               return OutlinedButton.icon(
                 icon: const Icon(Icons.calendar_today),
                 label: Text(
-                  "${AppLocalizations.of(context)!.groupStartAt} (${DateFormat.MMMMd().format(_formData.startAt)}, ${DateFormat.Hm().format(_formData.startAt)})",
+                  "${AppLocalizations.of(context)!.groupStartAt} (${DateFormat.MMMMd(
+                    Localizations.localeOf(context).languageCode,
+                  ).format(_formData.startAt)}, ${DateFormat.Hm(
+                    Localizations.localeOf(context).languageCode,
+                  ).format(_formData.startAt)})",
                 ),
                 onPressed: () {
                   DatePicker.showDateTimePicker(

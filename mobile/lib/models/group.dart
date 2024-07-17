@@ -8,6 +8,8 @@ part 'group.g.dart';
 
 @JsonSerializable()
 class Group {
+  static const int maxPlayers = 4;
+
   @JsonKey(required: true, name: 'ID')
   final int id;
 
@@ -53,6 +55,8 @@ class Group {
   });
 
   GroupUser? get owner => groupUsers.firstWhere((element) => element.owner);
+
+  bool get isFull => groupUsers.length >= maxPlayers;
 
   bool isOwner(String userSteamId) => groupUsers.any(
       (groupUser) => groupUser.owner && groupUser.user?.steamId == userSteamId);

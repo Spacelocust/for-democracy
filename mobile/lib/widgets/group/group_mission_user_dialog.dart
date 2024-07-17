@@ -109,7 +109,7 @@ class _GroupMissionUserDialogState extends State<GroupMissionUserDialog> {
                 ),
           title: Text(stratagem.name),
           subtitle: Text(
-            stratagem.useType.translatedName(context),
+            "${stratagem.type.translatedName(context)} - ${stratagem.useType.translatedName(context)}",
           ),
         ),
       );
