@@ -8,9 +8,11 @@ import (
 	"slices"
 
 	"firebase.google.com/go/v4/messaging"
+	"github.com/Spacelocust/for-democracy/internal/firebase"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 	"gorm.io/gorm"
 )
 
@@ -130,19 +132,29 @@ func (s *Server) CreateMission(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all the token fcm of the users in the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "New mission",
-				Body:  fmt.Sprintf("A new mission has been created in the group %s", group.Name),
+			Data: map[string]string{
+				"type":         firebase.MISSION_CREATED,
+				"data":         string(groupJson),
+				"mission_name": newMission.Name,
 			},
 		})
 
@@ -151,7 +163,7 @@ func (s *Server) CreateMission(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.MISSION_CREATED, response))
 	}
 
 	c.JSON(http.StatusCreated, newMission)
@@ -292,19 +304,29 @@ func (s *Server) UpdateMission(c *gin.Context) {
 	// Send notification to all users in the group except the user
 	// The group must have at least 2 users
 	if len(group.GroupUsers) > 1 {
+
+		// Get all the token fcm of the users in the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Mission Updated",
-				Body:  fmt.Sprintf("The mission %s has been updated in the group %s", updatedMission.Name, group.Name),
+			Data: map[string]string{
+				"type":         firebase.MISSION_UPDATED,
+				"data":         string(groupJson),
+				"mission_name": updatedMission.Name,
 			},
 		})
 
@@ -313,7 +335,7 @@ func (s *Server) UpdateMission(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.MISSION_UPDATED, response))
 	}
 
 	c.JSON(http.StatusOK, updatedMission)
@@ -511,19 +533,29 @@ func (s *Server) JoinMission(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all the token fcm of the users in the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Player joined mission",
-				Body:  fmt.Sprintf("%s has joined the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			Data: map[string]string{
+				"type":     firebase.MISSION_JOINED,
+				"data":     string(groupJson),
+				"username": user.Username,
 			},
 		})
 
@@ -532,7 +564,7 @@ func (s *Server) JoinMission(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.MISSION_JOINED, response))
 	}
 
 	c.JSON(http.StatusOK, newGroupUserMission)
@@ -618,19 +650,29 @@ func (s *Server) LeaveMission(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all the token fcm of the users in the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Player left mission",
-				Body:  fmt.Sprintf("%s has left the mission %s in the group %s", user.Username, mission.Name, group.Name),
+			Data: map[string]string{
+				"type":     firebase.MISSION_LEFT,
+				"data":     string(groupJson),
+				"username": user.Username,
 			},
 		})
 
@@ -639,7 +681,7 @@ func (s *Server) LeaveMission(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.MISSION_LEFT, response))
 	}
 
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you left the mission"})

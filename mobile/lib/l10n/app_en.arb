@@ -80,6 +80,84 @@
     "results": "Results",
     "formLoading": "Loading form...",
     "formLoadingFailed": "Failed to load form",
+    "@NOTIFICATION": {},
+    "groupJoinedTitle": "Player joined group",
+    "groupJoinedBody": "{playerName} joined the group.",
+    "@groupJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who joined the group."
+            }
+        }
+    },
+    "groupLeftTitle": "Player left group",
+    "groupLeftBody": "{playerName} left the group.",
+    "@groupLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who left the group."
+            }
+        }
+    },
+    "groupUpdatedTitle": "Group updated",
+    "groupUpdatedBody": "the {groupName} group has been updated.",
+    "@groupUpdatedBody": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Alpha Squad",
+                "description": "The name of the group."
+            }
+        }
+    },
+    "missionCreatedTitle": "New mission",
+    "missionCreatedBody": "A new mission has been created for the {groupName} group.",
+    "@missionCreatedBody": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Alpha Squad",
+                "description": "The name of the group."
+            }
+        }
+    },
+    "missionJoinedTitle": "Player joined mission",
+    "missionJoinedBody": "{playerName} joined the mission.",
+    "@missionJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who joined the mission."
+            }
+        }
+    },
+    "missionLeftTitle": "Player left mission",
+    "missionLeftBody": "{playerName} left the mission.",
+    "@missionLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who left the mission."
+            }
+        }
+    },
+    "missionUpdatedTitle": "Mission updated",
+    "missionUpdatedBody": "the {missionName} mission has been updated.",
+    "@missionUpdatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String",
+                "example": "Operation: Hellfire",
+                "description": "The name of the mission."
+            }
+        }
+    },
     "@ERROR": {},
     "pageNotFound": "Page not found",
     "unknownError": "An unknown error occurred.",

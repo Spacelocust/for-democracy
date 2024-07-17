@@ -1,9 +1,10 @@
 import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/enum/notification_type.dart';
 import 'package:mobile/services/local_notification_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 abstract class FirebaseMessagingService {
   static final _firebaseMessaging = FirebaseMessaging.instance;
@@ -57,8 +58,86 @@ abstract class FirebaseMessagingService {
 
     switch (notificationType) {
       case NotificationType.groupJoined:
-        notificationTitle = AppLocalizations.of(context)!.attack;
-        notificationBody = 'You have joined a group';
+        var username = message.data['username'] as String?;
+        if (username == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.groupJoinedTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.groupJoinedBody(username);
+
+        break;
+      case NotificationType.groupUpdated:
+        if (message.data['data'] == null) {
+          return;
+        }
+
+        var groupName = jsonDecode(message.data['data'])['Name'] as String?;
+        if (groupName == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.groupUpdatedTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.groupUpdatedBody(groupName);
+
+        break;
+      case NotificationType.groupLeft:
+        var username = message.data['username'] as String?;
+        if (username == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.groupLeftTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.groupLeftBody(username);
+
+        break;
+      case NotificationType.missionJoined:
+        var username = message.data['username'] as String?;
+        if (username == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.missionJoinedTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.missionJoinedBody(username);
+      case NotificationType.missionLeft:
+        var username = message.data['username'] as String?;
+        if (username == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.missionLeftTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.missionLeftBody(username);
+
+        break;
+      case NotificationType.missionUpdated:
+        var missionName = message.data['mission_name'] as String?;
+        if (missionName == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.missionUpdatedTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.missionUpdatedBody(missionName);
+
+        break;
+      case NotificationType.missionCreated:
+        if (message.data['data'] == null) {
+          return;
+        }
+
+        var groupName = jsonDecode(message.data['data'])['Name'] as String?;
+        if (groupName == null) {
+          return;
+        }
+
+        notificationTitle = AppLocalizations.of(context)!.missionCreatedTitle;
+        notificationBody =
+            AppLocalizations.of(context)!.missionCreatedBody(groupName);
 
         break;
       default:

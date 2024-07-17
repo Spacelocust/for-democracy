@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/messaging"
+	"github.com/Spacelocust/for-democracy/internal/firebase"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/Spacelocust/for-democracy/utils"
@@ -355,25 +356,28 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	// Send notification to all users in the group
 	var tokenFcms []string
 
-	if len(updatedGroup.GroupUsers) > 0 {
+	if len(updatedGroup.GroupUsers) > 1 {
+
+		// Get all token fcm of users in the group except the user that updated the group
 		for _, groupUser := range updatedGroup.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
-		client := s.firebase.GetMessaging()
+		// Send the updated group to all users in the group
 		groupJson, err := json.Marshal(group)
-
 		if err != nil {
 			s.InternalErrorResponse(c, err)
 			return
 		}
 
+		client := s.firebase.GetMessaging()
+
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
-			Tokens: []string{user.TokenFcm.Token},
+			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type": "group_joined",
+				"type": firebase.GROUP_UPDATED,
 				"data": string(groupJson),
 			},
 		})
@@ -383,7 +387,7 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.GROUP_UPDATED, response))
 	}
 
 	c.JSON(http.StatusOK, updatedGroup)
@@ -462,6 +466,7 @@ func (s *Server) JoinGroup(c *gin.Context) {
 		return
 	}
 
+	// BUG: Need to query the group again to preoload the sub-relations (GroupUsers.User) because the Create method doesn't return the sub-relations
 	if err := db.Preload("User").First(&newUserGroup, "id = ?", newUserGroup.ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group user")
@@ -485,19 +490,29 @@ func (s *Server) JoinGroup(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all token fcm of users in the group except the user that joined the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Player joined",
-				Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
+			Data: map[string]string{
+				"type":     firebase.GROUP_JOINED,
+				"data":     string(groupJson),
+				"username": user.Username,
 			},
 		})
 
@@ -506,7 +521,7 @@ func (s *Server) JoinGroup(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.GROUP_JOINED, response))
 	}
 
 	c.JSON(http.StatusCreated, newUserGroup)
@@ -597,6 +612,7 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 		return
 	}
 
+	// BUG: Need to query the group again to preoload the sub-relations (GroupUsers.User) because the Create method doesn't return the sub-relations
 	if err := db.Preload("User").First(&newUserGroup, "id = ?", newUserGroup.ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "group user")
@@ -621,19 +637,29 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all token fcm of users in the group except the user that joined the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
+		// Send the updated group to all users in the group
+		groupJson, err := json.Marshal(group)
+		if err != nil {
+			s.InternalErrorResponse(c, err)
+			return
+		}
+
 		client := s.firebase.GetMessaging()
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
-			Notification: &messaging.Notification{
-				Title: "Player joined",
-				Body:  fmt.Sprintf("%s has joined %s", user.Username, group.Name),
+			Data: map[string]string{
+				"type":     firebase.GROUP_JOINED,
+				"data":     string(groupJson),
+				"username": user.Username,
 			},
 		})
 
@@ -642,7 +668,7 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s-code] Successfully sent message: %v", firebase.GROUP_JOINED, response))
 	}
 
 	c.JSON(http.StatusCreated, newUserGroup)
@@ -679,6 +705,7 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 		return
 	}
 
+	// Delete the user from the group
 	if err := db.Unscoped().Delete(&groupUser).Error; err != nil {
 		s.InternalErrorResponse(c, err)
 		return
@@ -714,25 +741,29 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
+
+		// Get all token fcm of users in the group except the user that left the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
 				tokenFcms = append(tokenFcms, groupUser.User.TokenFcm.Token)
 			}
 		}
 
-		client := s.firebase.GetMessaging()
+		// Send the updated group to all users in the group
 		groupJson, err := json.Marshal(group)
-
 		if err != nil {
 			s.InternalErrorResponse(c, err)
 			return
 		}
 
+		client := s.firebase.GetMessaging()
+
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type": "group_joined",
-				"data": string(groupJson),
+				"type":     firebase.GROUP_LEFT,
+				"data":     string(groupJson),
+				"username": user.Username,
 			},
 		})
 
@@ -741,7 +772,7 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 			return
 		}
 
-		s.logger.Info(fmt.Sprintf("Successfully sent message: %v", response))
+		s.logger.Info(fmt.Sprintf("[%s] Successfully sent message: %v", firebase.GROUP_LEFT, response))
 	}
 
 	c.JSON(http.StatusOK, SuccessResponse{Message: "you have left the group"})
@@ -794,6 +825,7 @@ func (s *Server) DeleteGroup(c *gin.Context) {
 		return
 	}
 
+	// Delete the group
 	if err := db.Unscoped().Delete(&group).Error; err != nil {
 		s.InternalErrorResponse(c, err)
 		return

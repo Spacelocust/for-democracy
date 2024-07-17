@@ -72,6 +72,84 @@
     "results": "Résultats",
     "formLoading": "Chargement du formulaire...",
     "formLoadingFailed": "Impossible de charger le formulaire",
+    "@NOTIFICATION": {},
+    "groupJoinedTitle": "Nouveau joueur dans le groupe",
+    "groupJoinedBody": "{playerName} a rejoint le groupe.",
+    "@groupJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "Le nom du joueur qui a rejoint le groupe."
+            }
+        }
+    },
+    "groupLeftTitle": "Un joueur a quitté le groupe",
+    "groupLeftBody": "{playerName} a quitté le groupe.",
+    "@groupLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "Le nom du joueur qui a quitté le groupe."
+            }
+        }
+    },
+    "groupUpdatedTitle": "Groupe mis à jour",
+    "groupUpdatedBody": "Le groupe {groupName} a été mis à jour.",
+    "@groupUpdatedBody": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Alpha Squad",
+                "description": "Le nom du groupe."
+            }
+        }
+    },
+    "missionCreatedTitle": "Nouvelle mission",
+    "missionCreatedBody": "Une nouvelle mission a été créée dans le groupe {groupName}",
+    "@missionCreatedBody": {
+        "placeholders": {
+            "groupName": {
+                "type": "String",
+                "example": "Alpha Squad",
+                "description": "Le nom du groupe."
+            }
+        }
+    },
+    "missionJoinedTitle": "Un joueur a rejoint la mission",
+    "missionJoinedBody": "{playerName} a rejoint la mission.",
+    "@missionJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "Le nom du joueur qui a rejoint la mission."
+            }
+        }
+    },
+    "missionLeftTitle": "Un joueur a quitté la mission",
+    "missionLeftBody": "{playerName} a quitté la mission.",
+    "@missionLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "Le nom du joueur qui a quitté la mission."
+            }
+        }
+    },
+    "missionUpdatedTitle": "Mission mise à jour",
+    "missionUpdatedBody": "La mission {missionName} a été mise à jour.",
+    "@missionUpdatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String",
+                "example": "Operation: Hellfire",
+                "description": "Le nom de la mission."
+            }
+        }
+    },
     "@ERROR": {},
     "pageNotFound": "Page non trouvée",
     "unknownError": "Une erreur inconnue s'est produite.",

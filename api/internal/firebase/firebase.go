@@ -8,6 +8,17 @@ import (
 	"firebase.google.com/go/v4/messaging"
 )
 
+// Constants for the different types of notifications
+const (
+	GROUP_JOINED    = "group_joined"
+	GROUP_LEFT      = "group_left"
+	GROUP_UPDATED   = "group_updated"
+	MISSION_JOINED  = "mission_joined"
+	MISSION_LEFT    = "mission_left"
+	MISSION_UPDATED = "mission_updated"
+	MISSION_CREATED = "mission_created"
+)
+
 type Service interface {
 	// GetApp returns the firebase client
 	GetApp() *firebase.App
