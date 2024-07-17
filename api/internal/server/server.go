@@ -69,8 +69,14 @@ func NewServer() *http.Server {
 		log.Fatal(err)
 	}
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("API_DOMAIN"), os.Getenv("API_PORT"))
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	// Set up the Swagger documentation
+	if os.Getenv("API_ENV") == "production" {
+		docs.SwaggerInfo.Host = os.Getenv("API_DOMAIN")
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("API_DOMAIN"), os.Getenv("API_PORT"))
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	}
 
 	// Declare Server config
 	server := &http.Server{
