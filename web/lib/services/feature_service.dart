@@ -12,7 +12,7 @@ abstract class FeaturesService {
     var features = await dio.get(featuresUrl);
     var featuresData = features.data as List<dynamic>;
 
-    return [...featuresData.map((feature) => Feature.fromJson(feature))];
+    return [...featuresData.map((feature) => feature.fromJson(feature))];
   }
 
   static Future<Feature> getFeature() async {

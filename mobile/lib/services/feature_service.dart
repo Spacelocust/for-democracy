@@ -11,4 +11,12 @@ abstract class FeatureService {
 
     return [...featuresData.map((feature) => feature.fromJson(feature))];
   }
+
+  static Future<List<Feature>> getFeatures() async {
+    var dio = APIService.getDio();
+    var features = await dio.get(featuresUrl);
+    var featuresData = features.data as List<dynamic>;
+
+    return [...featuresData.map((feature) => feature.fromJson(feature))];
+  }
 }

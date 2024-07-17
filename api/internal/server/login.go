@@ -24,7 +24,7 @@ func (s *Server) RegisterLoginRoutes(r *gin.Engine) {
 // @Param username path string true "Username"
 // @Success 200 {object} bool
 // @Failure 500  {object}  server.ErrorResponse
-// @Router /login [get]
+// @Router /login [post]
 func (s *Server) Login(c *gin.Context) {
 	db := s.db.GetDB()
 

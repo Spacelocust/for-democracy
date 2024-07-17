@@ -3,7 +3,9 @@ import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
+import 'package:mobile/enum/feature.dart';
 import 'package:mobile/models/planet.dart';
+import 'package:mobile/services/feature_service.dart';
 import 'package:mobile/services/planets_service.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:mobile/widgets/components/spinner.dart';
@@ -28,12 +30,20 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   static const double xPadding = 8;
 
+  Future<List<Feature>>? _featuresFuture;
   Future<List<Planet>>? _planetsFuture;
 
   @override
   void initState() {
     super.initState();
+    fetchFeatures();
     fetchPlanets();
+  }
+
+  void fetchFeatures() {
+    setState(() {
+      _featuresFuture = FeatureService.getFeatures();
+    });
   }
 
   void fetchPlanets() {

@@ -1224,7 +1224,7 @@ paths:
       tags:
       - groups
   /login:
-    get:
+    post:
       description: Login
       parameters:
       - description: Plain password

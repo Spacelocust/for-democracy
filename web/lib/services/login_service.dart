@@ -1,6 +1,6 @@
 import 'package:app/services/api_service.dart';
 
-abstract class PasswordService {
+abstract class LoginService {
   static const String passwordUrl = '/login';
 
   static Future<bool> login(String password, String username) async {

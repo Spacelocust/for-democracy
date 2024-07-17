@@ -625,7 +625,7 @@ const docTemplate = `{
             }
         },
         "/login": {
-            "get": {
+            "post": {
                 "description": "Login",
                 "produces": [
                     "application/json"
