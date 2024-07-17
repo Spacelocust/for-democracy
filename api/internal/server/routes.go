@@ -30,7 +30,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	s.RegisterEventRoutes(r)
 	s.RegisterFeatureRoutes(r)
 	s.RegisterGroupRoutes(r)
-	s.RegisterLoginRoutes(r)
 	s.RegisterMissionRoutes(r)
 	s.RegisterOauthRoutes(r)
 	s.RegisterObjectiveRoutes(r)
