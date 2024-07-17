@@ -280,7 +280,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                       Text(
-                        "${group.groupUsers.length.toString()}/4",
+                        "${group.groupUsers.length.toString()}/${Group.maxPlayers}",
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],

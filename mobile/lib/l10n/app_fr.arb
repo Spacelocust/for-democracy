@@ -235,6 +235,7 @@
     "groupCodeEmpty": "Veuillez saisir un code de groupe.",
     "groupCreated": "Groupe créé avec succès.",
     "groupUpdated": "Groupe mis à jour avec succès.",
+    "groupFull": "Ce groupe est complet.",
     "groupJoinConfirmation": "Êtes-vous sûr de vouloir rejoindre ce groupe ?",
     "groupJoining": "En train de rejoindre le groupe...",
     "groupJoined": "Vous avez rejoint le groupe.",

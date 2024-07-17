@@ -267,6 +267,15 @@ class _GroupScreenState extends State<GroupScreen> {
                     foregroundColor: ThemeColors.surface,
                     label: AppLocalizations.of(context)!.join,
                     onTap: () async {
+                      if (group.isFull) {
+                        showSnackBar(
+                          context,
+                          AppLocalizations.of(context)!.groupFull,
+                        );
+
+                        return;
+                      }
+
                       await showDialog(
                         context: context,
                         barrierDismissible: false,
@@ -433,7 +442,7 @@ class _GroupScreenState extends State<GroupScreen> {
               const SizedBox(height: 16),
               ListTile(
                 title: Text(
-                  "${AppLocalizations.of(context)!.members} (${groupUsers.length}/4)",
+                  "${AppLocalizations.of(context)!.members} (${groupUsers.length}/${Group.maxPlayers})",
                   style: const TextStyleArame(),
                 ),
               ),
