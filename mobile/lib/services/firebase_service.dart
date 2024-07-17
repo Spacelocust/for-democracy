@@ -51,7 +51,7 @@ abstract class FirebaseMessagingService {
     String? notificationBody;
     NotificationType? notificationType =
         NotificationType.values.cast().firstWhere(
-              (e) => e.toString() == message.data['type'],
+              (e) => e.type == message.data['type'],
               orElse: () => null,
             );
 
