@@ -29,7 +29,7 @@ func (s *Server) GetStratagems(c *gin.Context) {
 
 	var stratagems []model.Stratagem
 
-	if err := db.Not("use_type = ?", enum.Shared).Find(&stratagems).Error; err != nil {
+	if err := db.Not("use_type = ? OR type = ?", enum.Shared, enum.Mission).Find(&stratagems).Error; err != nil {
 		s.InternalErrorResponse(c, err)
 		return
 	}
