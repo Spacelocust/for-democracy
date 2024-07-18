@@ -1,17 +1,17 @@
-import 'package:app/models/user.dart';
-import 'package:app/services/users_service.dart';
+import 'package:app/models/group.dart';
+import 'package:app/services/groups_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class UsersDatatable extends StatefulWidget {
-  const UsersDatatable({super.key});
+class GroupsDatatable extends StatefulWidget {
+  const GroupsDatatable({super.key});
 
   @override
-  State<UsersDatatable> createState() => _UsersDatatableState();
+  State<GroupsDatatable> createState() => _GroupsDatatableState();
 }
 
-class _UsersDatatableState extends State<UsersDatatable> {
-  late Future<List<User>> _usersFuture;
+class _GroupsDatatableState extends State<GroupsDatatable> {
+  late Future<List<Group>> _groupsFuture;
 
   @override
   void initState() {
@@ -21,7 +21,7 @@ class _UsersDatatableState extends State<UsersDatatable> {
 
   void fetchUsers() {
     setState(() {
-      _usersFuture = UsersService.getUsers();
+      _groupsFuture = GroupsService.getGroups();
     });
   }
 
@@ -30,13 +30,17 @@ class _UsersDatatableState extends State<UsersDatatable> {
     final l10n = AppLocalizations.of(context)!;
 
     final columns = [
-      l10n.steamId,
-      l10n.username,
-      l10n.avatarUrl,
+      l10n.id,
+      l10n.code,
+      l10n.name,
+      l10n.planet,
+      l10n.difficulty,
+      l10n.public,
+      l10n.startAt,
     ];
 
-    return FutureBuilder<List<User>>(
-      future: _usersFuture,
+    return FutureBuilder<List<Group>>(
+      future: _groupsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -60,11 +64,15 @@ class _UsersDatatableState extends State<UsersDatatable> {
             ),
           ],
           rows: [
-            ...snapshot.data!.map((user) {
+            ...snapshot.data!.map((group) {
               return DataRow(cells: [
-                DataCell(Text(user.steamId)),
-                DataCell(Text(user.username)),
-                DataCell(Text(user.avatarUrl)),
+                DataCell(Text(group.id.toString())),
+                DataCell(Text(group.code)),
+                DataCell(Text(group.name)),
+                DataCell(Text(group.planet.name)),
+                DataCell(Text(group.difficulty.toString())),
+                DataCell(Text(group.public.toString())),
+                DataCell(Text(group.startAt.toString())),
               ]);
             })
           ],

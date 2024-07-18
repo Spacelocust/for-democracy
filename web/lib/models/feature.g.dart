@@ -9,15 +9,15 @@ part of 'feature.dart';
 Feature _$FeatureFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['Active', 'Name'],
+    requiredKeys: const ['Code', 'Enabled'],
   );
   return Feature(
-    active: json['Active'] as bool,
-    name: json['Name'] as String,
+    enabled: json['Enabled'] as bool? ?? false,
+    code: json['Code'] as String,
   );
 }
 
 Map<String, dynamic> _$FeatureToJson(Feature instance) => <String, dynamic>{
-      'Active': instance.active,
-      'Name': instance.name,
+      'Code': instance.code,
+      'Enabled': instance.enabled,
     };

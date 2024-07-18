@@ -30,8 +30,8 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
     final l10n = AppLocalizations.of(context)!;
 
     final columns = [
-      l10n.name,
-      l10n.state,
+      l10n.code,
+      l10n.enabled,
     ];
 
     return FutureBuilder<List<Feature>>(
@@ -62,11 +62,15 @@ class _FeaturesDatatableState extends State<FeaturesDatatable> {
             ...snapshot.data!.map((feature) {
               return DataRow(
                 cells: [
-                  DataCell(Text(feature.name)),
+                  DataCell(Text(feature.code)),
                   DataCell(
                     Switch(
-                      value: feature.active,
-                      onChanged: (bool value) {},
+                      value: feature.enabled,
+                      onChanged: (value) {
+                        FeaturesService.toggleFeature(feature).then(
+                          (value) => fetchFeatures(),
+                        );
+                      },
                     ),
                   ),
                 ],

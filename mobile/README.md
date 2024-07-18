@@ -24,7 +24,7 @@ mobile:
     container_name: fd-mobile
     build:
         context: .
-        dockerfile: ./docker/dev/flutter/Dockerfile
+        dockerfile: ./docker/dev/mobile/Dockerfile
     ports:
         - 5037:5037
     privileged: true

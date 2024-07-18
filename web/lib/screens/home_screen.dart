@@ -1,6 +1,6 @@
 import 'package:app/widgets/datatable/events.dart';
 import 'package:app/widgets/datatable/features.dart';
-import 'package:app/widgets/datatable/user.dart';
+import 'package:app/widgets/datatable/groups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -25,9 +25,14 @@ class HomeScreen extends StatelessWidget {
         'widget': const EventsDatatable(),
       },
       {
+        'label': AppLocalizations.of(context)!.groups,
+        'icon': Icons.group,
+        'widget': const GroupsDatatable(),
+      },
+      {
         'label': AppLocalizations.of(context)!.users,
         'icon': Icons.person,
-        'widget': const UsersDatatable(),
+        'widget': const Placeholder(),
       },
       {
         'label': AppLocalizations.of(context)!.biomes,
@@ -90,7 +95,12 @@ class HomeScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             ...tabs.map(
-              (tab) => Center(child: tab['widget'] as Widget),
+              (tab) => Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: SingleChildScrollView(
+                  child: Center(child: tab['widget'] as Widget),
+                ),
+              ),
             ),
           ],
         ),

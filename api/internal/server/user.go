@@ -10,6 +10,7 @@ import (
 func (s *Server) RegisterUsersRoutes(r *gin.Engine) {
 	route := r.Group("/users")
 
+	route.GET("/admin", s.AuthMiddleware, s.GetAdmin)
 	route.GET("", s.GetUsers)
 }
 
@@ -32,4 +33,24 @@ func (s *Server) GetUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+// @Summary Get admin
+// @Description Get admin user
+// @Tags users
+// @Produce json
+// @Success 200 {object} model.User
+// @Failure 404  {object}  server.ErrorResponse
+// @Failure 500  {object}  server.ErrorResponse
+// @Router /users/admin [get]
+func (s *Server) GetAdmin(c *gin.Context) {
+	admin := checkAuth(c)
+
+	if (admin.Role != "admin") {
+		s.ForbiddenResponse(c, "You are not an admin")
+
+		return
+	}
+
+	c.JSON(http.StatusOK, admin)
 }

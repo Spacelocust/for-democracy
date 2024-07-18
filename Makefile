@@ -73,7 +73,7 @@ dart-build-runner-watch: ## Run build_runner watch
 	cd mobile && dart run build_runner watch --delete-conflicting-outputs
 
 ##@ Database
-db-reset: db-drop db-create dma ## Reset the database
+db-reset: db-drop db-create dma fixtures ## Reset the database
 
 db-drop-dev: ## Drop the dev database (use only if db-create-migration fails)
 	$(EXECPG) dropdb dev
@@ -123,3 +123,7 @@ example: ## Run the example commande
 
 cron: ## Run the cron job to collect events
 	$(EXECAPI) go run main.go cron
+
+fixtures: ## Run the admin fixtures
+	$(EXECAPI) go run main.go adminFixtures
+	$(EXECAPI) go run main.go featureFixtures

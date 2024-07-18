@@ -18,7 +18,7 @@ import (
 
 func (s *Server) RegisterMissionRoutes(r *gin.Engine) {
 	route := r.Group("/missions")
-	route.Use(s.OAuthMiddleware)
+	route.Use(s.AuthMiddleware)
 
 	route.POST("", s.CreateMission)
 	route.GET("/:id", s.GetMission)

@@ -1,20 +1,25 @@
+import 'package:app/screens/edit_feature.dart';
 import 'package:app/screens/error_screen.dart';
 import 'package:app/screens/home_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:app/widgets/layout/error_scaffold.dart';
 import 'package:app/widgets/layout/main_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// The views that will be used by the router
 final Map<String, Function(BuildContext context, GoRouterState state)> _views =
     {
-  LoginScreen.routePath: (context, state) => const LoginScreen(),
-  HomeScreen.routePath: (context, state) => const HomeScreen(),
+  LoginScreen.routePath: (context, state) => LoginScreen(key: UniqueKey()),
+  HomeScreen.routePath: (context, state) => HomeScreen(key: UniqueKey()),
+  EditFeatureScreen.routePath: (context, state) => EditFeatureScreen(
+        key: UniqueKey(),
+        featureCode: state.pathParameters['featureCode']!,
+      ),
 };
 
 /// The router configuration
@@ -45,6 +50,12 @@ GoRouter router(
             builder: (context, state) =>
                 views[HomeScreen.routePath]!(context, state),
           ),
+          // GoRoute(
+          //   name: EditFeatureScreen.routeName,
+          //   path: EditFeatureScreen.routePath,
+          //   builder: (context, state) =>
+          //       views[EditFeatureScreen.routePath]!(context, state),
+          // ),
         ],
       ),
     ],
