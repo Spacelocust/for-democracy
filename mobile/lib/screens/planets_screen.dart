@@ -51,19 +51,8 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final features = [
-      feature_enum.Feature.map,
-      feature_enum.Feature.planetList
-    ];
-
-    if (features.isEmpty) {
-      return const Placeholder();
-    }
-
-    var tabLabels = [];
-
     return DefaultTabController(
-      length: tabLabels.length,
+      length: 2,
       child: Column(
         children: [
           Container(
@@ -75,7 +64,8 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
             ),
             child: TabBar(
               tabs: [
-                ...tabLabels.map((label) => Tab(text: label)),
+                Tab(text: AppLocalizations.of(context)!.map),
+                Tab(text: AppLocalizations.of(context)!.list),
               ],
             ),
           ),
@@ -224,25 +214,41 @@ class _ViewState extends State<_View> {
       tabChildren.add(GalaxyMap(
         planets: sortedPlanets,
       ));
+    } else {
+      tabChildren.add(ListTile(
+        title: Text(
+          AppLocalizations.of(context)!.planetsNoPlanets,
+          textAlign: TextAlign.center,
+        ),
+      ));
     }
 
     if (features.contains(feature_enum.Feature.planetList)) {
-      tabChildren.add(Container(
-        padding: const EdgeInsets.only(
-          left: _PlanetsScreenState.xPadding,
-          right: _PlanetsScreenState.xPadding,
-          bottom: _PlanetsScreenState.yPadding,
-        ),
-        child: ListView.separated(
-          separatorBuilder: (context, index) => const SizedBox(
-            height: 8,
+      tabChildren.add(
+        Container(
+          padding: const EdgeInsets.only(
+            left: _PlanetsScreenState.xPadding,
+            right: _PlanetsScreenState.xPadding,
+            bottom: _PlanetsScreenState.yPadding,
           ),
-          itemCount: listItems.length,
-          itemBuilder: (context, index) {
-            final item = listItems[index];
+          child: ListView.separated(
+            separatorBuilder: (context, index) => const SizedBox(
+              height: 8,
+            ),
+            itemCount: listItems.length,
+            itemBuilder: (context, index) {
+              final item = listItems[index];
 
-            return item.build(context);
-          },
+              return item.build(context);
+            },
+          ),
+        ),
+      );
+    } else {
+      tabChildren.add(ListTile(
+        title: Text(
+          AppLocalizations.of(context)!.planetsNoPlanets,
+          textAlign: TextAlign.center,
         ),
       ));
     }
@@ -251,13 +257,6 @@ class _ViewState extends State<_View> {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         ...tabChildren,
-        if (listItems.isEmpty)
-          ListTile(
-            title: Text(
-              AppLocalizations.of(context)!.planetsNoPlanets,
-              textAlign: TextAlign.center,
-            ),
-          ),
       ],
     );
   }
