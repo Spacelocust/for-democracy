@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -54,8 +55,6 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // For testing features
-
     final features = [Feature.map, Feature.planetList];
 
     if (features.isEmpty) {
@@ -63,14 +62,6 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
     }
 
     var tabLabels = [];
-
-    if (features.contains(Feature.map)) {
-      tabLabels.add(AppLocalizations.of(context)!.map);
-    }
-
-    if (features.contains(Feature.planetList)) {
-      tabLabels.add(AppLocalizations.of(context)!.list);
-    }
 
     return DefaultTabController(
       length: tabLabels.length,
@@ -112,77 +103,10 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                   );
                 }
 
+                // Success state
                 return _View(
                   initialPlanets: snapshot.data!,
-                  // Success state
-                  final planets = context.read<PlanetsState>().planets.isEmpty
-                      ? snapshot.data!
-                      : context.read<PlanetsState>().planets
-                    ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
-                  int? lastSectorId;
-
-                  final listItems = planets.fold<List<ListItem>>(
-                    [],
-                    (previousValue, planet) {
-                      if (lastSectorId != planet.sector.id) {
-                        lastSectorId = planet.sector.id;
-
-                        previousValue.add(
-                          SectorListItem(sector: planet.sector),
-                        );
-                      }
-
-                      previousValue.add(
-                        PlanetListItem(planet: planet),
-                      );
-
-                      return previousValue;
-                    },
-                  );
-
-                  var tabChildren = [];
-
-                  if (features.contains(Feature.map)) {
-                    tabChildren.add(GalaxyMap(
-                      planets: planets,
-                    ));
-                  }
-
-                  if (features.contains(Feature.planetList)) {
-                    tabChildren.add(Container(
-                      padding: const EdgeInsets.only(
-                        left: xPadding,
-                        right: xPadding,
-                        bottom: yPadding,
-                      ),
-                      child: ListView.separated(
-                        separatorBuilder: (context, index) => const SizedBox(
-                          height: 8,
-                        ),
-                        itemCount: listItems.length,
-                        itemBuilder: (context, index) {
-                          final item = listItems[index];
-
-                          return item.build(context);
-                        },
-                      ),
-                    ));
-                  }
-
-                  return TabBarView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      ...tabChildren,
-                      if (listItems.isEmpty)
-                        ListTile(
-                          title: Text(
-                            AppLocalizations.of(context)!.planetsNoPlanets,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                    ],
-                  );
-                ),
+                );
               },
             ),
           ),
@@ -247,6 +171,22 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
+    final features = [Feature.map, Feature.planetList];
+
+    if (features.isEmpty) {
+      return const Placeholder();
+    }
+
+    var tabLabels = [];
+
+    if (features.contains(Feature.map)) {
+      tabLabels.add(AppLocalizations.of(context)!.map);
+    }
+
+    if (features.contains(Feature.planetList)) {
+      tabLabels.add(AppLocalizations.of(context)!.list);
+    }
+
     final sortedPlanets = planets
       ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
     int? lastSectorId;
@@ -270,30 +210,39 @@ class _ViewState extends State<_View> {
       },
     );
 
+    var tabChildren = [];
+
+    if (features.contains(Feature.map)) {
+      tabChildren.add(GalaxyMap(
+        planets: sortedPlanets,
+      ));
+    }
+
+    if (features.contains(Feature.planetList)) {
+      tabChildren.add(Container(
+        padding: const EdgeInsets.only(
+          left: _PlanetsScreenState.xPadding,
+          right: _PlanetsScreenState.xPadding,
+          bottom: _PlanetsScreenState.yPadding,
+        ),
+        child: ListView.separated(
+          separatorBuilder: (context, index) => const SizedBox(
+            height: 8,
+          ),
+          itemCount: listItems.length,
+          itemBuilder: (context, index) {
+            final item = listItems[index];
+
+            return item.build(context);
+          },
+        ),
+      ));
+    }
+
     return TabBarView(
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        GalaxyMap(
-          planets: sortedPlanets,
-        ),
-        Container(
-          padding: const EdgeInsets.only(
-            left: _PlanetsScreenState.xPadding,
-            right: _PlanetsScreenState.xPadding,
-            bottom: _PlanetsScreenState.yPadding,
-          ),
-          child: ListView.separated(
-            separatorBuilder: (context, index) => const SizedBox(
-              height: 8,
-            ),
-            itemCount: listItems.length,
-            itemBuilder: (context, index) {
-              final item = listItems[index];
-
-              return item.build(context);
-            },
-          ),
-        ),
+        ...tabChildren,
         if (listItems.isEmpty)
           ListTile(
             title: Text(
