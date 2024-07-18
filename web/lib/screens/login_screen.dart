@@ -1,7 +1,8 @@
+import 'package:app/screens/home_screen.dart';
 import 'package:app/services/auth_service.dart';
-import 'package:app/services/users_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routePath = '/login';
@@ -9,8 +10,6 @@ class LoginScreen extends StatelessWidget {
   static const String routeName = 'login';
 
   LoginScreen({super.key});
-
-  static final admin = UsersService.getAdmin();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -34,12 +33,11 @@ class LoginScreen extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              final validPassword = LoginService.login(
-                'admin',
-                'password',
-              );
-
-              print(validPassword);
+              AuthService.login('admin', 'admin').then((admin) {
+                if (admin != null) {
+                  context.goNamed(HomeScreen.routeName);
+                }
+              });
             },
             child: Text(AppLocalizations.of(context)!.login),
           ),

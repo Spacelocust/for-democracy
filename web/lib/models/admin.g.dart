@@ -9,15 +9,15 @@ part of 'admin.dart';
 Admin _$AdminFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['Id', 'Username'],
+    requiredKeys: const ['ID', 'Username'],
   );
   return Admin(
-    id: (json['Id'] as num).toInt(),
+    id: (json['ID'] as num).toInt(),
     username: json['Username'] as String,
   );
 }
 
 Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
-      'Id': instance.id,
+      'ID': instance.id,
       'Username': instance.username,
     };

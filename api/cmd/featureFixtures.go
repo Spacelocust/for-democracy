@@ -14,7 +14,7 @@ var featureFixturesCmd = &cli.Command{
 	Usage:   "Feature fixtures",
 	Aliases: []string{"ff"},
 	Action: func(ff *cli.Context) error {
-		fmt.Println("Collecting data from the HellHub API")
+		fmt.Println("Loading feature fixtures")
 
 		newFeatureFixture := fixtures.NewFeatureFixture(database.New())
 

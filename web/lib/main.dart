@@ -2,6 +2,7 @@ import 'package:app/screens/edit_feature.dart';
 import 'package:app/screens/error_screen.dart';
 import 'package:app/screens/home_screen.dart';
 import 'package:app/screens/login_screen.dart';
+import 'package:app/services/api_service.dart';
 import 'package:app/widgets/layout/error_scaffold.dart';
 import 'package:app/widgets/layout/main_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,12 @@ GoRouter router(
 
 void main() async {
   await dotenv.load(fileName: '.env');
+
+  try {
+    APIService.prepareJar();
+  } catch (e) {
+    print('Failed to prepare jar: $e');
+  }
 
   runApp(
     AdminApp(

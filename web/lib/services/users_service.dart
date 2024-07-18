@@ -11,11 +11,4 @@ abstract class UsersService {
 
     return [...usersData.map((user) => User.fromJson(user))];
   }
-
-  static Future<User> getAdmin() async {
-    var dio = APIService.getDio();
-    var admin = await dio.get('$usersUrl/admin');
-
-    return User.fromJson(admin.data);
-  }
 }

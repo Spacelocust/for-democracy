@@ -1,7 +1,6 @@
 import 'package:app/widgets/datatable/events.dart';
 import 'package:app/widgets/datatable/features.dart';
 import 'package:app/widgets/datatable/groups.dart';
-import 'package:app/widgets/datatable/users.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -33,7 +32,7 @@ class HomeScreen extends StatelessWidget {
       {
         'label': AppLocalizations.of(context)!.users,
         'icon': Icons.person,
-        'widget': const UsersDatatable(),
+        'widget': const Placeholder(),
       },
       {
         'label': AppLocalizations.of(context)!.biomes,

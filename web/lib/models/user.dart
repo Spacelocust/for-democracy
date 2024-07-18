@@ -4,7 +4,7 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class User {
-  @JsonKey(required: true, name: 'SteamId')
+  @JsonKey(name: 'SteamId')
   final String steamId;
 
   @JsonKey(required: true, name: 'Username')

@@ -37,7 +37,7 @@ func DeleteCookieToken(c *gin.Context) {
 
 func CreateToken(user model.User) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": *user.SteamId,                              // Subject (user identifier) // Custom payload
+		"sub": user.ID,                                    // Subject (user identifier) // Custom payload
 		"iss": os.Getenv("API_BASE_URL"),                  // Issuer
 		"aud": user.Role,                                  // Audience (user role)
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(), // Expiration time

@@ -4,7 +4,7 @@ part 'admin.g.dart';
 
 @JsonSerializable()
 class Admin {
-  @JsonKey(required: true, name: 'Id')
+  @JsonKey(required: true, name: 'ID')
   final int id;
 
   @JsonKey(required: true, name: 'Username')

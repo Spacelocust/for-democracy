@@ -9,7 +9,7 @@ part of 'user.dart';
 User _$UserFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['SteamId', 'Username', 'AvatarUrl'],
+    requiredKeys: const ['Username', 'AvatarUrl'],
   );
   return User(
     steamId: json['SteamId'] as String,

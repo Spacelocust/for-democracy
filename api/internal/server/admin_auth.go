@@ -13,31 +13,40 @@ import (
 )
 
 func (s *Server) RegisterAdminAuthRoutes(r *gin.Engine) {
-	route := r.Group("/auth")
-
-	route.GET("/check", s.AuthCheck)
-	route.GET("/login", s.AuthLogin)
-	route.GET("/logout", s.AuthLogout)
+	r.POST("/login", s.Login)
+	r.GET("/logout", s.AuthMiddleware, s.Logout)
 }
 
-// @Summary Auth check
-// @Description Check if user password matches hash
+// @Summary Login
+// @Description Admin login
 // @Tags authentication
+// @Accept  json
 // @Produce json
-// @Param password path string true "Plain password"
-// @Param username path string true "Username"
+// @Param data body validators.Admin true "Admin data"
 // @Success 200 {object} bool
 // @Failure 500  {object}  server.ErrorResponse
-// @Router /auth/check [post]
-func (s *Server) AuthCheck(c *gin.Context) {
+// @Router /login [post]
+func (s *Server) Login(c *gin.Context) {
 	db := s.db.GetDB()
 
-	plainPassword := c.Param("password")
-	username := c.Param("username")
+	// Get data from request body and validate
+	var adminData validators.Admin
+	
+	// Bind JSON request to Group struct
+	if err := c.ShouldBindJSON(&adminData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
+
+	// Validate Group struct
+	if err := s.validator.Validate(adminData); err != nil {
+		s.BadRequestResponse(c, err.Error())
+		return
+	}
 
 	var user model.User
 
-	if err := db.First(&user, "username = ?", username).Error; err != nil {
+	if err := db.First(&user, "username = ?", adminData.Username).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.BadRequestResponse(c, "Invalid credentials")
 
@@ -49,62 +58,29 @@ func (s *Server) AuthCheck(c *gin.Context) {
 		return
 	}
 
-	hash := user.Password
+	hash := *user.Password
 
-	match, err := password.ComparePasswordAndHash(plainPassword, *hash)
+	match, err := password.ComparePasswordAndHash(adminData.Password, hash)
 
 	if err != nil {
-		print(err)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, match)
-}
-
-// @Summary		Get the admin user after authentication is complete
-// @Description Route used to store the admin token after authentication
-// @Tags        authentication
-// @Produce     json
-// @Param       data body validators.User true "Feature code"
-// @Success     200  {object}  goth.User
-// @Failure     500  {object}  server.ErrorResponse
-// @Router      /auth/login [post]
-func (s *Server) AuthLogin(c *gin.Context) {
-	db := s.db.GetDB()
-
-	// Get data from request body and validate
-	var userData validators.User
-	
-	// Bind JSON request to Group struct
-	if err := c.ShouldBindJSON(&userData); err != nil {
-		s.BadRequestResponse(c, err.Error())
-		return
-	}
-
-	// Validate Group struct
-	if err := s.validator.Validate(userData); err != nil {
-		s.BadRequestResponse(c, err.Error())
-		return
-	}
-
-	// Check if the user exists
-	var user model.User
-	if err := db.Where("username = ?", userData.Username).First(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.NotFoundResponse(c, "group")
-			return
-		}
-
 		s.InternalErrorResponse(c, err)
+
 		return
 	}
+
+	if !match {
+		s.BadRequestResponse(c, "Invalid credentials")
+
+		return
+	}
+
+	user.Password = nil
 
 	tokenString, err := utils.CreateToken(user)
 
 	if err != nil {
-		s.logger.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
+		s.InternalErrorResponse(c, err)
+
 		return
 	}
 
@@ -112,14 +88,14 @@ func (s *Server) AuthLogin(c *gin.Context) {
 		Token:  tokenString,
 		UserId: user.ID,
 	}).Error; err != nil {
-		s.logger.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, ErrorResponse{Error: "something happened while authenticating the user"})
+		s.InternalErrorResponse(c, err)
+
 		return
 	}
 
 	utils.CreateCookieToken(tokenString, c)
 
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(pageLoading))
+	c.JSON(http.StatusOK, user)
 }
 
 // @Summary	    Log the user out
@@ -129,8 +105,8 @@ func (s *Server) AuthLogin(c *gin.Context) {
 // @Success     200
 // @Failure     401  {object}  server.ErrorResponse
 // @Failure     500  {object}  server.ErrorResponse
-// @Router      /auth/logout [get]
-func (s *Server) AuthLogout(c *gin.Context) {
+// @Router      /logout [get]
+func (s *Server) Logout(c *gin.Context) {
 	db := s.db.GetDB()
 
 	token, ok := c.Get("token")

@@ -14,7 +14,7 @@ var adminFixturesCmd = &cli.Command{
 	Usage:   "Admin fixtures",
 	Aliases: []string{"af"},
 	Action: func(af *cli.Context) error {
-		fmt.Println("Collecting data from the HellHub API")
+		fmt.Println("Loading admin fixtures")
 
 		newAdminFixture := fixtures.NewAdminFixture(database.New())
 
