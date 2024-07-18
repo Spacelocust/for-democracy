@@ -155,6 +155,8 @@ func (s *Server) GetGroups(c *gin.Context) {
 			Preload("GroupUsers.User").
 			Preload("GroupUsers.GroupUserMissions.Stratagems").
 			Preload("Planet").
+			Order("start_at desc").
+			Where("start_at > ?", time.Now()).
 			Find(&groups, "public = ?", true).Error
 
 		if err != nil {
@@ -169,13 +171,14 @@ func (s *Server) GetGroups(c *gin.Context) {
 	// Get groups that the user is a member of and public groups
 	err := db.
 		Joins("LEFT JOIN group_users ON groups.id = group_users.group_id").
-		Where("group_users.user_id = ? OR groups.public = ?", user.ID, true).
+		Where("group_users.user_id = ? OR groups.public = ? AND groups.start_at > ?", user.ID, true, time.Now()).
 		Preload("Missions.GroupUserMissions.Stratagems").
 		Preload("Missions.GroupUserMissions.GroupUser.User").
 		Preload("GroupUsers.User").
 		Preload("GroupUsers.GroupUserMissions.Stratagems").
 		Preload("Planet").
 		Distinct(GroupFieldsDistinct).
+		Order("groups.start_at desc").
 		Find(&groups).Error
 
 	if err != nil {
