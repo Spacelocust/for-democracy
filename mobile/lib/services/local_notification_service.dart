@@ -1,9 +1,7 @@
 import 'dart:convert';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mobile/services/firebase_service.dart';
+import 'package:go_router/go_router.dart';
 
 abstract class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin
@@ -85,14 +83,16 @@ void onDidReceiveNotificationResponse(
   BuildContext? context,
   NotificationResponse notificationResponse,
 ) async {
-  if (notificationResponse.payload == null) {
+  if (notificationResponse.payload == null || context == null) {
     return;
   }
 
-  final message = RemoteMessage.fromMap(
-    jsonDecode(
-      notificationResponse.payload!,
-    ),
-  );
-  FirebaseMessagingService.handleMessage(context, message);
+  final payload = jsonDecode(notificationResponse.payload!);
+  final route = payload['route'] as String?;
+
+  if (route == null) {
+    return;
+  }
+
+  context.go(context.namedLocation(route));
 }

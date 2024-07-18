@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'package:vector_math/vector_math_64.dart';
 
 /// Get a [TransformationController] that centers and zooms the content of a given size.
 TransformationController getTransformationControllerForSize(
   Size size, {
   double zoomFactor = 1.0,
   double margin = 0.0,
+  Vector3? translation,
 }) {
-  double xTranslate = margin + ((size.width / 2 - margin * 2) / 2) + margin;
-  double yTranslate = margin + ((size.height / 4 - margin * 2) / 2);
-
   var transformationController = TransformationController();
 
   transformationController.value
     ..setEntry(0, 0, zoomFactor)
     ..setEntry(1, 1, zoomFactor)
-    ..setEntry(2, 2, zoomFactor)
-    ..setEntry(0, 3, -xTranslate)
-    ..setEntry(1, 3, -yTranslate);
+    ..setEntry(2, 2, zoomFactor);
+
+  if (translation != null) {
+    transformationController.value
+      ..setEntry(0, 3, translation.x)
+      ..setEntry(1, 3, translation.y)
+      ..setEntry(2, 3, translation.z);
+  } else {
+    double xTranslate = margin + ((size.width / 2 - margin * 2) / 2) + margin;
+    double yTranslate = margin + ((size.height / 4 - margin * 2) / 2);
+
+    transformationController.value
+      ..setEntry(0, 3, -xTranslate)
+      ..setEntry(1, 3, -yTranslate);
+  }
 
   return transformationController;
 }

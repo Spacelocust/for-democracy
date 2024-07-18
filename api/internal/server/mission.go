@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/Spacelocust/for-democracy/internal/firebase"
 	"github.com/Spacelocust/for-democracy/internal/model"
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-json"
 	"gorm.io/gorm"
 )
 
@@ -132,7 +132,6 @@ func (s *Server) CreateMission(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
-
 		// Get all the token fcm of the users in the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
@@ -140,21 +139,16 @@ func (s *Server) CreateMission(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
 				"type":         firebase.MISSION_CREATED,
-				"data":         string(groupJson),
-				"mission_name": newMission.Name,
+				"mission_name": missionData.Name,
+				"group_name":   group.Name,
+				"group_id":     groupId,
 			},
 		})
 
@@ -312,21 +306,16 @@ func (s *Server) UpdateMission(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
 				"type":         firebase.MISSION_UPDATED,
-				"data":         string(groupJson),
 				"mission_name": updatedMission.Name,
+				"group_name":   group.Name,
+				"group_id":     groupId,
 			},
 		})
 
@@ -541,21 +530,17 @@ func (s *Server) JoinMission(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type":     firebase.MISSION_JOINED,
-				"data":     string(groupJson),
-				"username": user.Username,
+				"type":         firebase.MISSION_JOINED,
+				"username":     user.Username,
+				"mission_name": mission.Name,
+				"group_name":   group.Name,
+				"group_id":     groupId,
 			},
 		})
 
@@ -658,21 +643,17 @@ func (s *Server) LeaveMission(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type":     firebase.MISSION_LEFT,
-				"data":     string(groupJson),
-				"username": user.Username,
+				"type":         firebase.MISSION_LEFT,
+				"username":     user.Username,
+				"mission_name": mission.Name,
+				"group_name":   group.Name,
+				"group_id":     groupId,
 			},
 		})
 

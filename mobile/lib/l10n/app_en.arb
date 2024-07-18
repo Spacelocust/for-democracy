@@ -81,9 +81,8 @@
     "formLoading": "Loading form...",
     "formLoadingFailed": "Failed to load form",
     "@NOTIFICATION": {},
-    "groupJoinedTitle": "Player joined group",
-    "groupJoinedBody": "{playerName} joined the group.",
-    "@groupJoinedBody": {
+    "notificationGroupJoinedBody": "{playerName} joined the group.",
+    "@notificationGroupJoinedBody": {
         "placeholders": {
             "playerName": {
                 "type": "String",
@@ -92,9 +91,8 @@
             }
         }
     },
-    "groupLeftTitle": "Player left group",
-    "groupLeftBody": "{playerName} left the group.",
-    "@groupLeftBody": {
+    "notificationGroupLeftBody": "{playerName} left the group.",
+    "@notificationGroupLeftBody": {
         "placeholders": {
             "playerName": {
                 "type": "String",
@@ -103,53 +101,49 @@
             }
         }
     },
-    "groupUpdatedTitle": "Group updated",
-    "groupUpdatedBody": "the {groupName} group has been updated.",
-    "@groupUpdatedBody": {
+    "notificationGroupUpdatedBody": "Group has been updated.",
+    "notificationMissionCreatedBody": "New mission {missionName} has been created.",
+    "@notificationMissionCreatedBody": {
         "placeholders": {
-            "groupName": {
+            "missionName": {
                 "type": "String",
-                "example": "Alpha Squad",
-                "description": "The name of the group."
+                "example": "Mission 1",
+                "description": "The name of the mission."
             }
         }
     },
-    "missionCreatedTitle": "New mission",
-    "missionCreatedBody": "A new mission has been created for the {groupName} group.",
-    "@missionCreatedBody": {
-        "placeholders": {
-            "groupName": {
-                "type": "String",
-                "example": "Alpha Squad",
-                "description": "The name of the group."
-            }
-        }
-    },
-    "missionJoinedTitle": "Player joined mission",
-    "missionJoinedBody": "{playerName} joined the mission.",
-    "@missionJoinedBody": {
+    "notificationMissionJoinedBody": "{playerName} joined mission {missionName}.",
+    "@notificationMissionJoinedBody": {
         "placeholders": {
             "playerName": {
                 "type": "String",
                 "example": "John",
                 "description": "The name of the player who joined the mission."
+            },
+            "missionName": {
+                "type": "String",
+                "example": "Mission 1",
+                "description": "The name of the mission."
             }
         }
     },
-    "missionLeftTitle": "Player left mission",
-    "missionLeftBody": "{playerName} left the mission.",
-    "@missionLeftBody": {
+    "notificationMissionLeftBody": "{playerName} left mission {missionName}.",
+    "@notificationMissionLeftBody": {
         "placeholders": {
             "playerName": {
                 "type": "String",
                 "example": "John",
                 "description": "The name of the player who left the mission."
+            },
+            "missionName": {
+                "type": "String",
+                "example": "Mission 1",
+                "description": "The name of the mission."
             }
         }
     },
-    "missionUpdatedTitle": "Mission updated",
-    "missionUpdatedBody": "the {missionName} mission has been updated.",
-    "@missionUpdatedBody": {
+    "notificationMissionUpdatedBody": "Mission {missionName} has been updated.",
+    "@notificationMissionUpdatedBody": {
         "placeholders": {
             "missionName": {
                 "type": "String",
@@ -213,9 +207,9 @@
     "planetStatistics": "Statistics",
     "planetLiberationInProgress": "Liberation in progress",
     "planetDefenceInProgress": "Defence in progress",
-    "planetLiberationPerHour": "Liberation percentage per hour.",
-    "planetProgressPerHour": "Progress per hour.",
-    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time.",
+    "planetLiberationPerHour": "Liberation percentage per hour",
+    "planetProgressPerHour": "Progress per hour",
+    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time",
     "planetUnderControl": "{faction} controlled",
     "@planetUnderControl": {
         "placeholders": {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/models/user.dart';
+import 'package:mobile/screens/planets_screen.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/services/firebase_service.dart';
 import 'package:mobile/services/oauth_service.dart';
@@ -102,7 +103,13 @@ class _WebOAuthScreenState extends State<WebOAuthScreen> {
             // Set the user to the AuthState
             context
               ..read<AuthState>().setUser(user)
-              ..pop();
+              ..pop()
+              ..go(
+                // ignore: use_build_context_synchronously
+                context.namedLocation(
+                  PlanetsScreen.routeName,
+                ),
+              );
           }
         }
       } catch (e) {

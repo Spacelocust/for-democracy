@@ -14,7 +14,6 @@ import (
 	"github.com/Spacelocust/for-democracy/internal/validators"
 	"github.com/Spacelocust/for-democracy/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-json"
 	"gorm.io/gorm"
 )
 
@@ -357,7 +356,6 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(updatedGroup.GroupUsers) > 1 {
-
 		// Get all token fcm of users in the group except the user that updated the group
 		for _, groupUser := range updatedGroup.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
@@ -365,20 +363,15 @@ func (s *Server) UpdateGroup(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(updatedGroup.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type": firebase.GROUP_UPDATED,
-				"data": string(groupJson),
+				"type":       firebase.GROUP_UPDATED,
+				"group_name": updatedGroup.Name,
+				"group_id":   groupId,
 			},
 		})
 
@@ -498,21 +491,16 @@ func (s *Server) JoinGroup(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type":     firebase.GROUP_JOINED,
-				"data":     string(groupJson),
-				"username": user.Username,
+				"type":       firebase.GROUP_JOINED,
+				"username":   user.Username,
+				"group_name": group.Name,
+				"group_id":   groupId,
 			},
 		})
 
@@ -637,7 +625,6 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
-
 		// Get all token fcm of users in the group except the user that joined the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
@@ -645,21 +632,16 @@ func (s *Server) JoinGroupWithCode(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type":     firebase.GROUP_JOINED,
-				"data":     string(groupJson),
-				"username": user.Username,
+				"type":       firebase.GROUP_JOINED,
+				"username":   user.Username,
+				"group_name": group.Name,
+				"group_id":   groupId,
 			},
 		})
 
@@ -741,7 +723,6 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 	var tokenFcms []string
 
 	if len(group.GroupUsers) > 1 {
-
 		// Get all token fcm of users in the group except the user that left the group
 		for _, groupUser := range group.GroupUsers {
 			if groupUser.User.TokenFcm != nil && groupUser.User.ID != user.ID {
@@ -749,21 +730,16 @@ func (s *Server) LeaveGroup(c *gin.Context) {
 			}
 		}
 
-		// Send the updated group to all users in the group
-		groupJson, err := json.Marshal(group)
-		if err != nil {
-			s.InternalErrorResponse(c, err)
-			return
-		}
-
 		client := s.firebase.GetMessaging()
+		groupId := strconv.FormatUint(uint64(group.ID), 10)
 
 		response, err := client.SendEachForMulticast(context.Background(), &messaging.MulticastMessage{
 			Tokens: tokenFcms,
 			Data: map[string]string{
-				"type":     firebase.GROUP_LEFT,
-				"data":     string(groupJson),
-				"username": user.Username,
+				"type":       firebase.GROUP_LEFT,
+				"username":   groupUser.User.Username,
+				"group_name": group.Name,
+				"group_id":   groupId,
 			},
 		})
 

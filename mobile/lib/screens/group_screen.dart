@@ -374,8 +374,8 @@ class _GroupScreenState extends State<GroupScreen> {
                     children: [
                       Image(
                         image: AssetImage(group.difficulty.logo),
-                        width: 30,
-                        height: 30,
+                        width: 35,
+                        height: 35,
                       ),
                       GradientText(
                         group.difficulty.translatedName(context),

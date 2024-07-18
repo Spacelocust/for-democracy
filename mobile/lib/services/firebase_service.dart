@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/notification_type.dart';
+import 'package:mobile/screens/group_screen.dart';
 import 'package:mobile/services/local_notification_service.dart';
 
 abstract class FirebaseMessagingService {
@@ -50,6 +52,7 @@ abstract class FirebaseMessagingService {
 
     String? notificationTitle;
     String? notificationBody;
+    String? notificationRoutePayload;
     NotificationType? notificationType =
         NotificationType.values.cast().firstWhere(
               (e) => e.type == message.data['type'],
@@ -58,86 +61,156 @@ abstract class FirebaseMessagingService {
 
     switch (notificationType) {
       case NotificationType.groupJoined:
-        var username = message.data['username'] as String?;
-        if (username == null) {
+        final username = message.data['username'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (username == null || groupName == null || groupId == null) {
           return;
         }
 
-        notificationTitle = AppLocalizations.of(context)!.groupJoinedTitle;
+        notificationTitle = groupName;
         notificationBody =
-            AppLocalizations.of(context)!.groupJoinedBody(username);
+            AppLocalizations.of(context)!.notificationGroupJoinedBody(username);
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       case NotificationType.groupUpdated:
-        if (message.data['data'] == null) {
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (groupName == null || groupId == null) {
           return;
         }
 
-        var groupName = jsonDecode(message.data['data'])['Name'] as String?;
-        if (groupName == null) {
-          return;
-        }
-
-        notificationTitle = AppLocalizations.of(context)!.groupUpdatedTitle;
+        notificationTitle = groupName;
         notificationBody =
-            AppLocalizations.of(context)!.groupUpdatedBody(groupName);
+            AppLocalizations.of(context)!.notificationGroupUpdatedBody;
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       case NotificationType.groupLeft:
-        var username = message.data['username'] as String?;
-        if (username == null) {
+        final username = message.data['username'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (username == null || groupName == null || groupId == null) {
           return;
         }
 
-        notificationTitle = AppLocalizations.of(context)!.groupLeftTitle;
+        notificationTitle = groupName;
         notificationBody =
-            AppLocalizations.of(context)!.groupLeftBody(username);
+            AppLocalizations.of(context)!.notificationGroupLeftBody(username);
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       case NotificationType.missionJoined:
-        var username = message.data['username'] as String?;
-        if (username == null) {
+        final username = message.data['username'] as String?;
+        final missionName = message.data['mission_name'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (username == null ||
+            missionName == null ||
+            groupName == null ||
+            groupId == null) {
           return;
         }
 
-        notificationTitle = AppLocalizations.of(context)!.missionJoinedTitle;
+        notificationTitle = groupName;
         notificationBody =
-            AppLocalizations.of(context)!.missionJoinedBody(username);
+            AppLocalizations.of(context)!.notificationMissionJoinedBody(
+          username,
+          missionName,
+        );
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
+
+        break;
       case NotificationType.missionLeft:
-        var username = message.data['username'] as String?;
-        if (username == null) {
+        final username = message.data['username'] as String?;
+        final missionName = message.data['mission_name'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (username == null ||
+            missionName == null ||
+            groupName == null ||
+            groupId == null) {
           return;
         }
 
-        notificationTitle = AppLocalizations.of(context)!.missionLeftTitle;
+        notificationTitle = groupName;
         notificationBody =
-            AppLocalizations.of(context)!.missionLeftBody(username);
+            AppLocalizations.of(context)!.notificationMissionLeftBody(
+          username,
+          missionName,
+        );
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       case NotificationType.missionUpdated:
-        var missionName = message.data['mission_name'] as String?;
-        if (missionName == null) {
+        final missionName = message.data['mission_name'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (missionName == null || groupName == null || groupId == null) {
           return;
         }
 
-        notificationTitle = AppLocalizations.of(context)!.missionUpdatedTitle;
-        notificationBody =
-            AppLocalizations.of(context)!.missionUpdatedBody(missionName);
+        notificationTitle = groupName;
+        notificationBody = AppLocalizations.of(context)!
+            .notificationMissionUpdatedBody(missionName);
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       case NotificationType.missionCreated:
-        if (message.data['data'] == null) {
+        final missionName = message.data['mission_name'] as String?;
+        final groupName = message.data['group_name'] as String?;
+        final groupId = message.data['group_id'] as String?;
+
+        if (missionName == null || groupName == null || groupId == null) {
           return;
         }
 
-        var groupName = jsonDecode(message.data['data'])['Name'] as String?;
-        if (groupName == null) {
-          return;
-        }
-
-        notificationTitle = AppLocalizations.of(context)!.missionCreatedTitle;
-        notificationBody =
-            AppLocalizations.of(context)!.missionCreatedBody(groupName);
+        notificationTitle = groupName;
+        notificationBody = AppLocalizations.of(context)!
+            .notificationMissionCreatedBody(missionName);
+        notificationRoutePayload = context.namedLocation(
+          GroupScreen.routeName,
+          pathParameters: {
+            'groupId': groupId,
+          },
+        );
 
         break;
       default:
@@ -147,7 +220,9 @@ abstract class FirebaseMessagingService {
     LocalNotificationService.showNotification(
       title: notificationTitle,
       body: notificationBody,
-      payload: jsonEncode(message.toMap()),
+      payload: jsonEncode({
+        'route': notificationRoutePayload,
+      }),
     );
   }
 }

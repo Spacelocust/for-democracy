@@ -1,3 +1,4 @@
+import 'package:http/http.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,7 +21,6 @@ import 'package:mobile/services/token_fcm_service.dart';
 import 'package:mobile/states/auth_state.dart';
 import 'package:mobile/states/galaxy_map_zoom_state.dart';
 import 'package:mobile/states/groups_filters_state.dart';
-import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/utils/theme_colors.dart';
 import 'package:mobile/widgets/layout/error_scaffold.dart';
 import 'package:mobile/widgets/layout/main_scaffold.dart';
@@ -94,10 +94,8 @@ GoRouter router(
           GoRoute(
             name: PlanetsScreen.routeName,
             path: PlanetsScreen.routePath,
-            builder: (context, state) => ChangeNotifierProvider(
-              create: (_) => PlanetsState(planets: []),
-              child: views[PlanetsScreen.routePath]!(context, state),
-            ),
+            builder: (context, state) =>
+                views[PlanetsScreen.routePath]!(context, state),
           ),
           GoRoute(
             name: EventsScreen.routeName,
@@ -159,7 +157,22 @@ GoRouter router(
 }
 
 Future main() async {
+  FlutterError.onError = (details) {
+    if (details.exception is ClientException) {
+      final exception = details.exception as ClientException;
+
+      if (exception.message.contains(
+        'Connection closed before full header was received',
+      )) {
+        return;
+      }
+    }
+
+    FlutterError.presentError(details);
+  };
+
   await dotenv.load(fileName: '.env');
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(

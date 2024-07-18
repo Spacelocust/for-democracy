@@ -49,6 +49,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/events-stream/": {
+            "get": {
+                "description": "Get events stream",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream"
+                ],
+                "summary": "Get events stream",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Planet"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/features": {
             "get": {
                 "description": "Get features",

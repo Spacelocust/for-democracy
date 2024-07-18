@@ -73,80 +73,58 @@
     "formLoading": "Chargement du formulaire...",
     "formLoadingFailed": "Impossible de charger le formulaire",
     "@NOTIFICATION": {},
-    "groupJoinedTitle": "Nouveau joueur dans le groupe",
-    "groupJoinedBody": "{playerName} a rejoint le groupe.",
-    "@groupJoinedBody": {
+    "notificationGroupJoinedBody": "{playerName} a rejoint le groupe.",
+    "@notificationGroupJoinedBody": {
         "placeholders": {
             "playerName": {
-                "type": "String",
-                "example": "John",
-                "description": "Le nom du joueur qui a rejoint le groupe."
+                "type": "String"
             }
         }
     },
-    "groupLeftTitle": "Un joueur a quitté le groupe",
-    "groupLeftBody": "{playerName} a quitté le groupe.",
-    "@groupLeftBody": {
+    "notificationGroupLeftBody": "{playerName} a quitté le groupe.",
+    "@notificationGroupLeftBody": {
         "placeholders": {
             "playerName": {
-                "type": "String",
-                "example": "John",
-                "description": "Le nom du joueur qui a quitté le groupe."
+                "type": "String"
             }
         }
     },
-    "groupUpdatedTitle": "Groupe mis à jour",
-    "groupUpdatedBody": "Le groupe {groupName} a été mis à jour.",
-    "@groupUpdatedBody": {
-        "placeholders": {
-            "groupName": {
-                "type": "String",
-                "example": "Alpha Squad",
-                "description": "Le nom du groupe."
-            }
-        }
-    },
-    "missionCreatedTitle": "Nouvelle mission",
-    "missionCreatedBody": "Une nouvelle mission a été créée dans le groupe {groupName}",
-    "@missionCreatedBody": {
-        "placeholders": {
-            "groupName": {
-                "type": "String",
-                "example": "Alpha Squad",
-                "description": "Le nom du groupe."
-            }
-        }
-    },
-    "missionJoinedTitle": "Un joueur a rejoint la mission",
-    "missionJoinedBody": "{playerName} a rejoint la mission.",
-    "@missionJoinedBody": {
-        "placeholders": {
-            "playerName": {
-                "type": "String",
-                "example": "John",
-                "description": "Le nom du joueur qui a rejoint la mission."
-            }
-        }
-    },
-    "missionLeftTitle": "Un joueur a quitté la mission",
-    "missionLeftBody": "{playerName} a quitté la mission.",
-    "@missionLeftBody": {
-        "placeholders": {
-            "playerName": {
-                "type": "String",
-                "example": "John",
-                "description": "Le nom du joueur qui a quitté la mission."
-            }
-        }
-    },
-    "missionUpdatedTitle": "Mission mise à jour",
-    "missionUpdatedBody": "La mission {missionName} a été mise à jour.",
-    "@missionUpdatedBody": {
+    "notificationGroupUpdatedBody": "Le groupe a été mis à jour.",
+    "notificationMissionCreatedBody": "Nouvelle mission {missionName} créée.",
+    "@notificationMissionCreatedBody": {
         "placeholders": {
             "missionName": {
-                "type": "String",
-                "example": "Operation: Hellfire",
-                "description": "Le nom de la mission."
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionJoinedBody": "{playerName} a rejoint la mission {missionName}.",
+    "@notificationMissionJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            },
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionLeftBody": "{playerName} a quitté la mission {missionName}.",
+    "@notificationMissionLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            },
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionUpdatedBody": "La mission {missionName} a été mise à jour.",
+    "@notificationMissionUpdatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String"
             }
         }
     },
@@ -205,9 +183,9 @@
     "planetStatistics": "Statistiques",
     "planetLiberationInProgress": "Libération en cours",
     "planetDefenceInProgress": "Défense en cours",
-    "planetLiberationPerHour": "Taux de libération par heure.",
-    "planetProgressPerHour": "Taux de progression par heure.",
-    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps.",
+    "planetLiberationPerHour": "Taux de libération par heure",
+    "planetProgressPerHour": "Taux de progression par heure",
+    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps",
     "planetUnderControl": "Sous contrôle des {faction}",
     "@planetUnderControl": {
         "placeholders": {
