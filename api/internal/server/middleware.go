@@ -48,7 +48,7 @@ func (s *Server) OAuthMiddleware(c *gin.Context) {
 	// Get the user from the database
 	var token model.Token
 
-	err = db.Preload("User").First(&token, "token = ?", tokenString).Error
+	err = db.Preload("User.TokenFcm").First(&token, "token = ?", tokenString).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			s.NotFoundResponse(c, "user")

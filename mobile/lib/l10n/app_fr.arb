@@ -72,6 +72,62 @@
     "results": "Résultats",
     "formLoading": "Chargement du formulaire...",
     "formLoadingFailed": "Impossible de charger le formulaire",
+    "@NOTIFICATION": {},
+    "notificationGroupJoinedBody": "{playerName} a rejoint le groupe.",
+    "@notificationGroupJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationGroupLeftBody": "{playerName} a quitté le groupe.",
+    "@notificationGroupLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationGroupUpdatedBody": "Le groupe a été mis à jour.",
+    "notificationMissionCreatedBody": "Nouvelle mission {missionName} créée.",
+    "@notificationMissionCreatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionJoinedBody": "{playerName} a rejoint la mission {missionName}.",
+    "@notificationMissionJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            },
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionLeftBody": "{playerName} a quitté la mission {missionName}.",
+    "@notificationMissionLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String"
+            },
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
+    "notificationMissionUpdatedBody": "La mission {missionName} a été mise à jour.",
+    "@notificationMissionUpdatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String"
+            }
+        }
+    },
     "@ERROR": {},
     "pageNotFound": "Page non trouvée",
     "unknownError": "Une erreur inconnue s'est produite.",
@@ -127,9 +183,9 @@
     "planetStatistics": "Statistiques",
     "planetLiberationInProgress": "Libération en cours",
     "planetDefenceInProgress": "Défense en cours",
-    "planetLiberationPerHour": "Taux de libération par heure.",
-    "planetProgressPerHour": "Taux de progression par heure.",
-    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps.",
+    "planetLiberationPerHour": "Taux de libération par heure",
+    "planetProgressPerHour": "Taux de progression par heure",
+    "planetProgressRequiredPerHour": "Taux de progression requis par heure pour réussir la defence à temps",
     "planetUnderControl": "Sous contrôle des {faction}",
     "@planetUnderControl": {
         "placeholders": {

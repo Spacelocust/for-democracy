@@ -20,7 +20,8 @@ func (stream *Event) PlanetsStream(r *gin.Engine) {
 
 	go func() {
 		for {
-			time.Sleep(time.Second * 20)
+			time.Sleep(time.Second * 10)
+
 			planets := []model.Planet{}
 
 			if err := db.Preload(clause.Associations).Find(&planets).Error; err != nil {
@@ -29,6 +30,7 @@ func (stream *Event) PlanetsStream(r *gin.Engine) {
 			}
 
 			planetsJson, err := json.Marshal(planets)
+
 			if err != nil {
 				stream.Error <- err
 				continue

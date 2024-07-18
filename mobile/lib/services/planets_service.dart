@@ -11,7 +11,8 @@ abstract class PlanetsService {
   static const String planetsEventUrl = '/planets-event';
   static const String planetsStreamUrl = '/planets-stream';
 
-  static String url = '${dotenv.get(APIService.baseUrlEnv)}$planetsStreamUrl';
+  static String streamUrl =
+      '${dotenv.get(APIService.baseUrlEnv)}$planetsStreamUrl';
 
   static Future<List<Planet>> getPlanets({
     onlyEvents = false,
@@ -36,11 +37,12 @@ abstract class PlanetsService {
     Function()? onClose,
   }) {
     return newStream(
-      url: url,
+      url: streamUrl,
       onSuccess: (planets) {
         var planetsData = jsonDecode(planets.data) as List<dynamic>;
         var planetsList =
             planetsData.map((planet) => Planet.fromJson(planet)).toList();
+
         onSuccess(planetsList);
       },
       onError: onError,

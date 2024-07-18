@@ -75,8 +75,10 @@ class _GalaxyMapState extends State<GalaxyMap> {
     TransformationController transformationController,
   ) {
     context
-        .read<GalaxyMapZoomState>()
-        .setZoomFactor(transformationController.value.getMaxScaleOnAxis());
+      ..read<GalaxyMapZoomState>()
+          .setZoomFactor(transformationController.value.getMaxScaleOnAxis())
+      ..read<GalaxyMapZoomState>()
+          .setTranslation(transformationController.value.getTranslation());
   }
 
   @override
@@ -109,6 +111,7 @@ class _GalaxyMapState extends State<GalaxyMap> {
           canvasSize,
           zoomFactor: context.read<GalaxyMapZoomState>().zoomFactor,
           margin: margin,
+          translation: context.read<GalaxyMapZoomState>().translation,
         );
 
         transformationController.addListener(() {

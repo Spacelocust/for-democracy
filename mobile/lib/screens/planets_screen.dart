@@ -1,15 +1,16 @@
+import 'dart:developer';
+import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart';
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/planets_service.dart';
-import 'package:mobile/states/planets_state.dart';
 import 'package:mobile/widgets/base/list_item.dart';
 import 'package:mobile/widgets/components/spinner.dart';
 import 'package:mobile/widgets/layout/error_message.dart';
 import 'package:mobile/widgets/planet/galaxy_map.dart';
 import 'package:mobile/widgets/planet/list_item.dart';
 import 'package:mobile/widgets/sector/list_item.dart';
-import 'package:provider/provider.dart';
 
 class PlanetsScreen extends StatefulWidget {
   static const String routePath = '/planets';
@@ -28,42 +29,11 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
   static const double xPadding = 8;
 
   Future<List<Planet>>? _planetsFuture;
-  FlutterError? _error;
-
-  // TODO fix this
-  // late EventFlux _streamPlanets;
 
   @override
   void initState() {
     super.initState();
     fetchPlanets();
-    startStream();
-  }
-
-  @override
-  void dispose() {
-    // _streamPlanets.disconnect();
-    super.dispose();
-  }
-
-  void startStream() {
-    // Reset the error state
-    // setState(() {
-    //   _error = null;
-    // });
-
-    // _streamPlanets = PlanetsService.getPlanetsStream(
-    //   onSuccess: (planets) {
-    //     context.read<PlanetsState>().setPlanets(planets);
-    //   },
-    //   onError: (error) {
-    //     log('Error while getting planet stream: $error');
-
-    //     setState(() {
-    //       _error = FlutterError(error.toString());
-    //     });
-    //   },
-    // );
   }
 
   void fetchPlanets() {
@@ -105,11 +75,10 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 }
 
                 // Error state
-                if (snapshot.hasError || !snapshot.hasData || _error != null) {
+                if (snapshot.hasError || !snapshot.hasData) {
                   return ErrorMessage(
                     onPressed: () {
                       fetchPlanets();
-                      startStream();
                     },
                     errorMessage:
                         AppLocalizations.of(context)!.planetsScreenError,
@@ -117,69 +86,128 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 }
 
                 // Success state
-                final planets = context.read<PlanetsState>().planets.isEmpty
-                    ? snapshot.data!
-                    : context.read<PlanetsState>().planets
-                  ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
-                int? lastSectorId;
-
-                final listItems = planets.fold<List<ListItem>>(
-                  [],
-                  (previousValue, planet) {
-                    if (lastSectorId != planet.sector.id) {
-                      lastSectorId = planet.sector.id;
-
-                      previousValue.add(
-                        SectorListItem(sector: planet.sector),
-                      );
-                    }
-
-                    previousValue.add(
-                      PlanetListItem(planet: planet),
-                    );
-
-                    return previousValue;
-                  },
-                );
-
-                return TabBarView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    GalaxyMap(
-                      planets: planets,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(
-                        left: xPadding,
-                        right: xPadding,
-                        bottom: yPadding,
-                      ),
-                      child: ListView.separated(
-                        separatorBuilder: (context, index) => const SizedBox(
-                          height: 8,
-                        ),
-                        itemCount: listItems.length,
-                        itemBuilder: (context, index) {
-                          final item = listItems[index];
-
-                          return item.build(context);
-                        },
-                      ),
-                    ),
-                    if (listItems.isEmpty)
-                      ListTile(
-                        title: Text(
-                          AppLocalizations.of(context)!.planetsNoPlanets,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                  ],
+                return _View(
+                  initialPlanets: snapshot.data!,
                 );
               },
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _View extends StatefulWidget {
+  final List<Planet> initialPlanets;
+
+  const _View({
+    required this.initialPlanets,
+  });
+
+  @override
+  State<_View> createState() => _ViewState();
+}
+
+class _ViewState extends State<_View> {
+  late EventFlux _planetsStream;
+
+  late List<Planet> planets;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlanets();
+    startStream();
+  }
+
+  @override
+  void dispose() {
+    try {
+      _planetsStream.disconnect();
+    } on ClientException catch (e) {
+      log('Error while disconnecting planets stream');
+      log(e.message.toString());
+    } finally {
+      super.dispose();
+    }
+  }
+
+  void initPlanets() {
+    planets = widget.initialPlanets;
+  }
+
+  void startStream() {
+    _planetsStream = PlanetsService.getPlanetsStream(
+      onSuccess: (newPlanets) {
+        setState(() {
+          planets = newPlanets;
+        });
+      },
+      onError: (error) {
+        log('Error while getting planet stream');
+        log(error.message.toString());
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedPlanets = planets
+      ..sort((a, b) => a.sector.name.compareTo(b.sector.name));
+    int? lastSectorId;
+
+    final listItems = sortedPlanets.fold<List<ListItem>>(
+      [],
+      (previousValue, planet) {
+        if (lastSectorId != planet.sector.id) {
+          lastSectorId = planet.sector.id;
+
+          previousValue.add(
+            SectorListItem(sector: planet.sector),
+          );
+        }
+
+        previousValue.add(
+          PlanetListItem(planet: planet),
+        );
+
+        return previousValue;
+      },
+    );
+
+    return TabBarView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        GalaxyMap(
+          planets: sortedPlanets,
+        ),
+        Container(
+          padding: const EdgeInsets.only(
+            left: _PlanetsScreenState.xPadding,
+            right: _PlanetsScreenState.xPadding,
+            bottom: _PlanetsScreenState.yPadding,
+          ),
+          child: ListView.separated(
+            separatorBuilder: (context, index) => const SizedBox(
+              height: 8,
+            ),
+            itemCount: listItems.length,
+            itemBuilder: (context, index) {
+              final item = listItems[index];
+
+              return item.build(context);
+            },
+          ),
+        ),
+        if (listItems.isEmpty)
+          ListTile(
+            title: Text(
+              AppLocalizations.of(context)!.planetsNoPlanets,
+              textAlign: TextAlign.center,
+            ),
+          ),
+      ],
     );
   }
 }

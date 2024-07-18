@@ -80,6 +80,78 @@
     "results": "Results",
     "formLoading": "Loading form...",
     "formLoadingFailed": "Failed to load form",
+    "@NOTIFICATION": {},
+    "notificationGroupJoinedBody": "{playerName} joined the group.",
+    "@notificationGroupJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who joined the group."
+            }
+        }
+    },
+    "notificationGroupLeftBody": "{playerName} left the group.",
+    "@notificationGroupLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who left the group."
+            }
+        }
+    },
+    "notificationGroupUpdatedBody": "Group has been updated.",
+    "notificationMissionCreatedBody": "New mission {missionName} has been created.",
+    "@notificationMissionCreatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String",
+                "example": "Mission 1",
+                "description": "The name of the mission."
+            }
+        }
+    },
+    "notificationMissionJoinedBody": "{playerName} joined mission {missionName}.",
+    "@notificationMissionJoinedBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who joined the mission."
+            },
+            "missionName": {
+                "type": "String",
+                "example": "Mission 1",
+                "description": "The name of the mission."
+            }
+        }
+    },
+    "notificationMissionLeftBody": "{playerName} left mission {missionName}.",
+    "@notificationMissionLeftBody": {
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "John",
+                "description": "The name of the player who left the mission."
+            },
+            "missionName": {
+                "type": "String",
+                "example": "Mission 1",
+                "description": "The name of the mission."
+            }
+        }
+    },
+    "notificationMissionUpdatedBody": "Mission {missionName} has been updated.",
+    "@notificationMissionUpdatedBody": {
+        "placeholders": {
+            "missionName": {
+                "type": "String",
+                "example": "Operation: Hellfire",
+                "description": "The name of the mission."
+            }
+        }
+    },
     "@ERROR": {},
     "pageNotFound": "Page not found",
     "unknownError": "An unknown error occurred.",
@@ -135,9 +207,9 @@
     "planetStatistics": "Statistics",
     "planetLiberationInProgress": "Liberation in progress",
     "planetDefenceInProgress": "Defence in progress",
-    "planetLiberationPerHour": "Liberation percentage per hour.",
-    "planetProgressPerHour": "Progress per hour.",
-    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time.",
+    "planetLiberationPerHour": "Liberation percentage per hour",
+    "planetProgressPerHour": "Progress per hour",
+    "planetProgressRequiredPerHour": "Progress required per hour to win the defence in time",
     "planetUnderControl": "{faction} controlled",
     "@planetUnderControl": {
         "placeholders": {

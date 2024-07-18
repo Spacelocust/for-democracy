@@ -836,6 +836,21 @@ paths:
       summary: Get all events
       tags:
       - events
+  /events-stream/:
+    get:
+      description: Get events stream
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Planet'
+            type: array
+      summary: Get events stream
+      tags:
+      - stream
   /features:
     get:
       description: Get features

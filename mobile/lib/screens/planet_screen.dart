@@ -1,4 +1,7 @@
+import 'dart:developer';
+import 'package:http/http.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -105,85 +108,151 @@ class _PlanetScreenState extends State<PlanetScreen> {
               }
 
               // Success state
-              final planet = snapshot.data!;
-              final user = context.read<AuthState>().user;
-              List<Widget> planetViewChildren = [
-                Padding(
-                  padding: EdgeInsets.only(
-                    bottom: planet.hasLiberationOrDefence ? 60 : 0,
-                  ),
-                  child: _PlanetScreenView(
-                    planet: planet,
-                    scrollController: scrollController,
-                  ),
-                ),
-              ];
-
-              if (planet.hasLiberationOrDefence) {
-                planetViewChildren = [
-                  ...planetViewChildren,
-                  Positioned(
-                    width: MediaQuery.of(context).size.width,
-                    bottom: 5,
-                    right: 0,
-                    child: SingleChildScrollView(
-                      clipBehavior: Clip.none,
-                      reverse: true,
-                      padding: const EdgeInsets.only(
-                        left: 36,
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-
-                              context
-                                ..read<GroupsFiltersState>()
-                                    .setPlanet(planet.id)
-                                ..go(
-                                  context.namedLocation(GroupsScreen.routeName),
-                                );
-                            },
-                            label:
-                                Text(AppLocalizations.of(context)!.findGroup),
-                            icon: const Icon(Icons.search),
-                          ),
-                          if (user != null) const SizedBox(width: 5),
-                          if (user != null)
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-
-                                context.go(
-                                  context.namedLocation(
-                                    GroupNewScreen.routeName,
-                                    queryParameters: {
-                                      "planetId": planet.id.toString(),
-                                    },
-                                  ),
-                                );
-                              },
-                              label: Text(
-                                  AppLocalizations.of(context)!.createGroup),
-                              icon: const Icon(Icons.add),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ];
-              }
-
-              return Stack(
-                children: planetViewChildren,
+              return _View(
+                initialPlanet: snapshot.data!,
+                scrollController: scrollController,
               );
             },
           ),
         );
       },
+    );
+  }
+}
+
+class _View extends StatefulWidget {
+  final Planet initialPlanet;
+
+  final ScrollController scrollController;
+
+  const _View({
+    required this.initialPlanet,
+    required this.scrollController,
+  });
+
+  @override
+  State<_View> createState() => _ViewState();
+}
+
+class _ViewState extends State<_View> {
+  late EventFlux _planetsStream;
+
+  late Planet planet;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlanets();
+    startStream();
+  }
+
+  @override
+  void dispose() async {
+    try {
+      await _planetsStream.disconnect();
+    } on ClientException catch (e) {
+      log('Error while disconnecting planet stream');
+      log(e.message.toString());
+    } finally {
+      super.dispose();
+    }
+  }
+
+  void initPlanets() {
+    planet = widget.initialPlanet;
+  }
+
+  void startStream() {
+    _planetsStream = PlanetsService.getPlanetsStream(
+      onSuccess: (newPlanets) {
+        final newPlanet = newPlanets.firstWhere(
+          (element) => element.id == planet.id,
+          orElse: () => planet,
+        );
+
+        setState(() {
+          planet = newPlanet;
+        });
+      },
+      onError: (error) {
+        log('Error while getting planet stream');
+        log(error.message.toString());
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.read<AuthState>().user;
+    List<Widget> planetViewChildren = [
+      Padding(
+        padding: EdgeInsets.only(
+          bottom: planet.hasLiberationOrDefence ? 60 : 0,
+        ),
+        child: _PlanetScreenView(
+          planet: planet,
+          scrollController: widget.scrollController,
+        ),
+      ),
+    ];
+
+    if (planet.hasLiberationOrDefence) {
+      planetViewChildren = [
+        ...planetViewChildren,
+        Positioned(
+          width: MediaQuery.of(context).size.width,
+          bottom: 5,
+          right: 0,
+          child: SingleChildScrollView(
+            clipBehavior: Clip.none,
+            reverse: true,
+            padding: const EdgeInsets.only(
+              left: 36,
+            ),
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+
+                    context
+                      ..read<GroupsFiltersState>().setPlanet(planet.id)
+                      ..go(
+                        context.namedLocation(GroupsScreen.routeName),
+                      );
+                  },
+                  label: Text(AppLocalizations.of(context)!.findGroup),
+                  icon: const Icon(Icons.search),
+                ),
+                if (user != null) const SizedBox(width: 5),
+                if (user != null)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                      context.go(
+                        context.namedLocation(
+                          GroupNewScreen.routeName,
+                          queryParameters: {
+                            "planetId": planet.id.toString(),
+                          },
+                        ),
+                      );
+                    },
+                    label: Text(AppLocalizations.of(context)!.createGroup),
+                    icon: const Icon(Icons.add),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return Stack(
+      children: planetViewChildren,
     );
   }
 }
@@ -759,28 +828,41 @@ class _ProgressLiberation extends StatelessWidget {
             children: [
               Expanded(
                 child: HelldiversBoxDecoration(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Tooltip(
-                        message:
-                            AppLocalizations.of(context)!.planetProgressPerHour,
-                        child: _FactionImpactPercentage(
-                          value: planet.liberation!.impactPerHour +
-                              planet.liberation!.regenerationPerHour,
-                          faction: Faction.humans,
-                        ),
+                  child: SingleChildScrollView(
+                    clipBehavior: Clip.hardEdge,
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.of(context).size.width * 0.58,
                       ),
-                      Tooltip(
-                        message:
-                            AppLocalizations.of(context)!.planetProgressPerHour,
-                        child: _FactionImpactPercentage(
-                          value: planet.liberation!.regenerationPerHour,
-                          faction: planet.owner,
-                          precision: 1,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Tooltip(
+                            message: AppLocalizations.of(context)!
+                                .planetProgressPerHour,
+                            child: _FactionImpactPercentage(
+                              value: planet.liberation!.impactPerHour +
+                                  planet.liberation!.regenerationPerHour,
+                              faction: Faction.humans,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Tooltip(
+                            message: AppLocalizations.of(context)!
+                                .planetProgressPerHour,
+                            child: _FactionImpactPercentage(
+                              value: planet.liberation!.regenerationPerHour,
+                              faction: planet.owner,
+                              precision: 1,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -807,8 +889,11 @@ class _FactionImpactPercentage extends StatelessWidget {
 
   final int precision;
 
-  const _FactionImpactPercentage(
-      {required this.value, required this.faction, this.precision = 3});
+  const _FactionImpactPercentage({
+    required this.value,
+    required this.faction,
+    this.precision = 3,
+  });
 
   @override
   Widget build(BuildContext context) {
