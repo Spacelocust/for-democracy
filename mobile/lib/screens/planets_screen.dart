@@ -4,7 +4,8 @@ import 'package:eventflux/eventflux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
-import 'package:mobile/enum/feature.dart';
+import 'package:mobile/enum/feature.dart' as feature_enum;
+import 'package:mobile/models/feature.dart' as feature_model;
 import 'package:mobile/models/planet.dart';
 import 'package:mobile/services/feature_service.dart';
 import 'package:mobile/services/planets_service.dart';
@@ -31,31 +32,29 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   static const double xPadding = 8;
 
-  Future<List<Feature>>? _featuresFuture;
-  Future<List<Planet>>? _planetsFuture;
+  Future<List<dynamic>>? _planetsFuture;
 
   @override
   void initState() {
     super.initState();
-    fetchFeatures();
     fetchPlanets();
-  }
-
-  void fetchFeatures() {
-    setState(() {
-      _featuresFuture = FeatureService.getFeatures();
-    });
   }
 
   void fetchPlanets() {
     setState(() {
-      _planetsFuture = PlanetsService.getPlanets();
+      _planetsFuture = Future.wait([
+        PlanetsService.getPlanets(),
+        FeatureService.getFeatures(),
+      ]);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final features = [Feature.map, Feature.planetList];
+    final features = [
+      feature_enum.Feature.map,
+      feature_enum.Feature.planetList
+    ];
 
     if (features.isEmpty) {
       return const Placeholder();
@@ -81,7 +80,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Planet>>(
+            child: FutureBuilder<List<dynamic>>(
               future: _planetsFuture,
               builder: (context, snapshot) {
                 // Loading state
@@ -103,9 +102,13 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                   );
                 }
 
+                final List<Planet> planets = snapshot.data![0];
+                final List<feature_model.Feature> features = snapshot.data![1];
+
                 // Success state
                 return _View(
-                  initialPlanets: snapshot.data!,
+                  features: features,
+                  initialPlanets: planets,
                 );
               },
             ),
@@ -119,8 +122,11 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 class _View extends StatefulWidget {
   final List<Planet> initialPlanets;
 
+  final List<feature_model.Feature> features;
+
   const _View({
     required this.initialPlanets,
+    required this.features,
   });
 
   @override
@@ -171,7 +177,9 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    final features = [Feature.map, Feature.planetList];
+    final features = widget.features
+        .where((feature) => feature.enabled)
+        .map((feature) => feature.code);
 
     if (features.isEmpty) {
       return const Placeholder();
@@ -179,11 +187,11 @@ class _ViewState extends State<_View> {
 
     var tabLabels = [];
 
-    if (features.contains(Feature.map)) {
+    if (features.contains(feature_enum.Feature.map)) {
       tabLabels.add(AppLocalizations.of(context)!.map);
     }
 
-    if (features.contains(Feature.planetList)) {
+    if (features.contains(feature_enum.Feature.planetList)) {
       tabLabels.add(AppLocalizations.of(context)!.list);
     }
 
@@ -212,13 +220,13 @@ class _ViewState extends State<_View> {
 
     var tabChildren = [];
 
-    if (features.contains(Feature.map)) {
+    if (features.contains(feature_enum.Feature.map)) {
       tabChildren.add(GalaxyMap(
         planets: sortedPlanets,
       ));
     }
 
-    if (features.contains(Feature.planetList)) {
+    if (features.contains(feature_enum.Feature.planetList)) {
       tabChildren.add(Container(
         padding: const EdgeInsets.only(
           left: _PlanetsScreenState.xPadding,

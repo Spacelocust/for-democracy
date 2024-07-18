@@ -2,19 +2,39 @@ package server
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/Spacelocust/for-democracy/internal/server/sse"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+func CORS() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", os.Getenv("API_CORS_ORIGIN"))
+        c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+        c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+        c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+
+        if c.Request.Method == "OPTIONS" {
+            c.AbortWithStatus(204)
+            return
+        }
+
+        c.Next()
+    }
+}
+
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
+	// corsDefault := cors.DefaultConfig()
+	// corsDefault.AllowOrigins = []string{"https://google.com"}
+	// corsDefault.AllowCredentials = true
+
 	// Cors middleware
-	r.Use(cors.Default())
+	r.Use(CORS())
 
 	// Root
 	s.RegisterRootRoutes(r)

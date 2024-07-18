@@ -9,6 +9,10 @@ class LoginScreen extends StatelessWidget {
 
   static const String routeName = 'login';
 
+  final usernameController = TextEditingController();
+
+  final passwordController = TextEditingController();
+
   LoginScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
@@ -21,19 +25,24 @@ class LoginScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextFormField(
+            controller: usernameController,
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context)!.username,
             ),
           ),
           TextFormField(
+            controller: passwordController,
             decoration: InputDecoration(
               labelText: AppLocalizations.of(context)!.password,
             ),
+            obscureText: true,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              AuthService.login('admin', 'admin').then((admin) {
+              AuthService.login(
+                      usernameController.text, passwordController.text)
+                  .then((admin) {
                 if (admin != null) {
                   context.goNamed(HomeScreen.routeName);
                 }

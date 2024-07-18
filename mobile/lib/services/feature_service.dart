@@ -1,4 +1,4 @@
-import 'package:mobile/enum/feature.dart';
+import 'package:mobile/models/feature.dart';
 import 'package:mobile/services/api_service.dart';
 
 abstract class FeatureService {
@@ -17,6 +17,6 @@ abstract class FeatureService {
     var features = await dio.get(featuresUrl);
     var featuresData = features.data as List<dynamic>;
 
-    return [...featuresData.map((feature) => feature.fromJson(feature))];
+    return [...featuresData.map((feature) => Feature.fromJson(feature))];
   }
 }
