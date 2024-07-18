@@ -36,11 +36,6 @@ abstract class LocalNotificationService {
         rootNavigatorKey.currentContext,
         notificationResponse,
       ),
-      onDidReceiveBackgroundNotificationResponse: (notificationResponse) =>
-          onDidReceiveNotificationResponse(
-        rootNavigatorKey.currentContext,
-        notificationResponse,
-      ),
     );
 
     final platform =
