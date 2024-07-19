@@ -2,6 +2,16 @@
 
 This is the mobile app for the project.
 
+## Content
+
+- [Mobile](#mobile)
+  - [Content](#content)
+  - [Getting Started](#getting-started)
+  - [Using docker (Android only)](#using-docker-android-only)
+    - [Prerequisites](#prerequisites)
+    - [Add service](#add-service)
+    - [Run app](#run-app)
+
 ## Getting Started
 
 Copy the `.env.example` file to `.env` and fill in the necessary values.

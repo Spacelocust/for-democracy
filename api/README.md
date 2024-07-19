@@ -2,7 +2,22 @@
 
 This is the API for the project.
 
-### Prerequisites
+## Content
+
+- [API](#api)
+  - [Content](#content)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+    - [Using Docker](#using-docker)
+    - [Without Docker](#without-docker)
+    - [Migrations](#migrations)
+    - [Collector](#collector)
+    - [Running unit tests](#running-unit-tests)
+  - [Building the API](#building-the-api)
+    - [Development Environment](#development-environment)
+    - [Production Environment](#production-environment)
+
+## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) or [Go](https://golang.org/doc/install)
 - [Firebase](https://firebase.google.com/docs/web/setup)

@@ -1,4 +1,4 @@
-# For-democracy
+# For Democracy
 
 A mobile app designed to help players organize and participate in events for the game [Helldivers 2](https://store.steampowered.com/app/553850/HELLDIVERS_2).
 
@@ -6,7 +6,7 @@ This is our last project for our 5th year at ESGI (second semester).
 
 ## Content
 
-- [For-democracy](#for-democracy)
+- [For Democracy](#for-democracy)
   - [Content](#content)
   - [Features](#features)
     - [Mobile](#mobile)
@@ -48,6 +48,7 @@ The main visual part of the project. It is used by players to organize and parti
 - Create private groups and use a code to invite friends
 - Plan missions with objectives in your group
 - Join your friends' missions and choose your stratagems
+- Notifications in real-time with Firebase
 - And more !
 
 #### Screenshots
@@ -72,10 +73,21 @@ The main visual part of the project. It is used by players to organize and parti
 ### API
 
 A RESTful API to process the official Helldivers data and expose it through endpoints.
+See the [Swagger documentation](https://democracy.yam-yam.dev/swagger/index.html).
 
 #### API features
 
 - Made with [Go](https://go.dev) and [Gin](https://github.com/gin-gonic/gin)
+- Steam OAuth
+- Gathering of Helldivers 2 game data from various sources
+- Processing of gathered data (stats, events, etc.)
+- Real-time events update with SSE
+- Swagger documentation
+- Migration system with Atlas
+- Docker configuration for development and production
+- Firebase client for notifications
+- Stateless API with JWT authentication
+- Cron jobs to process data
 
 > [!NOTE]
 > Also see the [API README](api/README.md) for more information.
