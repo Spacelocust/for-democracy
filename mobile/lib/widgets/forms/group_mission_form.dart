@@ -89,7 +89,7 @@ class GroupMissionFormState extends State<GroupMissionForm> {
   }
 
   List<Widget> _buildObjectives() {
-    final objectives = ObjectiveType.getavailableForFactionAndDifficulty(
+    final objectives = ObjectiveType.getAvailableForFactionAndDifficulty(
       widget.group.planet.owner,
       widget.group.difficulty,
     );
