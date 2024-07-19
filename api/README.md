@@ -36,12 +36,12 @@ We recommend using Docker and Docker Compose and following the instructions in t
 
 1. **Environment Variables:**
 
-   Specify the required environment variables in the [`.env`](../.env) file. You can override the default values using a `.env.local` file.
+   Specify the required environment variables in the [`.env.example`](.env.example) file into a `.env` file. You can override the default values using a `.env.local` file.
 
    > **Note:**  
    > The API does not utilize any configuration manager like [Viper](https://github.com/spf13/viper), relying instead on environment variables injected by Docker.
 
-   To run the API without Docker, manually specify the environment variables from the [`.env`](../.env) file. For example:
+   To run the API without Docker, manually specify the environment variables from the `.env` file. For example:
 
    ```bash
    API_ENV=development go run main.go
@@ -58,6 +58,7 @@ To create the database schema, run the following command:
 ```bash
 docker run --rm -v $(PWD)/api/migrations:/migrations --network <database-network> arigaio/atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 ```
+
 You need to replace ${DB_URL} by your actual database url.
 
 If your database is running in a Docker container, you can use the same network as the database container. Replace `<database-network>` with the network name of the database container.
@@ -94,7 +95,7 @@ go test ./...
    docker run -d -p 5000:5000 --env-file .env helldivers-prod-api
    ```
 
-   Specify the environment variables in the [`.env`](../.env) file for the production environment:
+   Specify the environment variables in the `.env` file for the production environment:
 
    ```plaintext
    API_ENV=production

@@ -9,8 +9,8 @@ services:
     stdin_open: true
     tty: true
     env_file:
-      - path: ./.env
-      - path: ./.env.local
+      - path: ./api/.env
+      - path: ./api/.env.local
         required: false
     ports:
       - 5000:5000
