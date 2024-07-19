@@ -52,7 +52,7 @@ The main visual part of the project. It is used by players to organize and parti
 
 #### Screenshots
 
-<div style="display: flex; flex-direction: row; gap: 10px;">
+<div style="display: flex; flex-direction: row; gap: 25px;">
   <img src="documentation/images/app-map-view.jpg" alt="View of the galaxy map" width="300" />
   <img src="documentation/images/app-planet-view.jpg" alt="View of a planet" width="300" />
   <img src="documentation/images/app-planets-view.jpg" alt="View of the planet list" width="300" />
@@ -67,19 +67,6 @@ The main visual part of the project. It is used by players to organize and parti
   <img src="documentation/images/app-create-mission-view.jpg" alt="View of a new mission" width="300" />
   <img src="documentation/images/app-join-mission-view.jpg" alt="View of the join mission dialog" width="300" />
 </div>
-
-![View of a planet](documentation/images/app-planet-view.jpg)
-![View of the planet list](documentation/images/app-planets-view.jpg)
-![View of the event list](documentation/images/app-events-view.jpg)
-![View of the group list](documentation/images/app-groups-view.jpg)
-![View of a group](documentation/images/app-group-view.jpg)
-![View of a mission](documentation/images/app-mission-view.jpg)
-![View of the Steam OAuth button](documentation/images/app-steam-oauth-view.jpg)
-![View of the group dial](documentation/images/app-groups-dial-view.jpg)
-![View of a group creation](documentation/images/app-create-group-view.jpg)
-![View of a stratagem's details](documentation/images/app-stratagem-view.jpg)
-![View of a new mission](documentation/images/app-create-mission-view.jpg)
-![View of the join mission dialog](documentation/images/app-join-mission-view.jpg)
 
 > [!NOTE]
 > Also see the [Mobile README](mobile/README.md) for more information.
