@@ -14,7 +14,6 @@ This is the API for the project.
     - [Collector](#collector)
     - [Running unit tests](#running-unit-tests)
   - [Building the API](#building-the-api)
-    - [Development Environment](#development-environment)
     - [Production Environment](#production-environment)
 
 ## Prerequisites
