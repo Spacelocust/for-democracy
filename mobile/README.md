@@ -2,13 +2,28 @@
 
 This is the mobile app for the project.
 
+## Content
+
+- [Mobile](#mobile)
+  - [Content](#content)
+  - [Getting Started](#getting-started)
+  - [Using docker (Android only)](#using-docker-android-only)
+    - [Prerequisites](#prerequisites)
+    - [Add service](#add-service)
+    - [Run app](#run-app)
+
 ## Getting Started
 
 Copy the `.env.example` file to `.env` and fill in the necessary values.
 
-You can now run the app.
+You can now install the dependencies and run the app.
 
-## Using docker (android only)
+> [!IMPORTANT]  
+> You may need to reverse proxy the port `5000` using `adb reverse tcp:5000 tcp:5000` and change the `API_URL` in the `.env` file to `http://localhost:5000` if you are using your phone instead of an emulator.
+
+## Using docker (Android only)
+
+If you prefer to use docker to run the app (for example Flutter has issues running on your machine), you can use the following steps.
 
 ### Prerequisites
 
@@ -37,5 +52,5 @@ mobile:
 ### Run app
 
 - Open the `mobile` project folder
-- Open the command palette (`ctrl` + `shift` + `p`) and select `Dev Containers: Reopen in Container`
+- Open the command palette (`Ctrl` + `Shift` + `P`) and select `Dev Containers: Reopen in Container`
 - Wait for everything to finish running, and then, in the `Run and Debug` panel, run the app

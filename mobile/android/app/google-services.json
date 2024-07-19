@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:865696017265:android:199df830bf7dbcf8eee4d0",
         "android_client_info": {
-          "package_name": "com.example.mobile"
+          "package_name": "dev.yamyam.app"
         }
       },
       "oauth_client": [],

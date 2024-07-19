@@ -425,7 +425,7 @@ enum ObjectiveType {
   }
 
   /// Returns the objective that can appear for the given faction and difficulty.
-  static List<ObjectiveType> getavailableForFactionAndDifficulty(
+  static List<ObjectiveType> getAvailableForFactionAndDifficulty(
     Faction faction,
     Difficulty difficulty,
   ) {

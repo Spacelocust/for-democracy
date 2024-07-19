@@ -53,8 +53,9 @@ abstract class GroupsService {
     return Group.fromJson(group.data);
   }
 
-  static deleteGroup(int groupId) async {
+  static Future<void> deleteGroup(int groupId) async {
     var dio = APIService.getDio();
+
     await dio.delete("$groupsUrl/$groupId");
   }
 
