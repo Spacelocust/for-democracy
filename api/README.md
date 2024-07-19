@@ -31,7 +31,7 @@ You will also need a Firebase project. Refer to the [Firebase documentation](htt
 
 ### Using Docker
 
-If you have Docker and Docker Compose installed, refer to the [installation guide](../README.md#installation) to launch the API easily. Otherwise, follow the instructions below.
+We recommend using Docker and Docker Compose and following the instructions in the [installation guide](../README.md#installation) to launch the API.
 
 ### Without Docker
 
@@ -59,6 +59,7 @@ To create the database schema, run the following command:
 ```bash
 docker run --rm -v $(PWD)/api/migrations:/migrations --network <database-network> arigaio/atlas migrate apply --dir "file://migrations" --url ${DB_URL} --allow-dirty
 ```
+You need to replace ${DB_URL} by your actual database url.
 
 If your database is running in a Docker container, you can use the same network as the database container. Replace `<database-network>` with the network name of the database container.
 
@@ -79,20 +80,6 @@ go test ./...
 ```
 
 ## Building the API
-
-### Development Environment
-
-1. **Build the API Image:**
-
-   ```bash
-   docker build -t helldivers-dev-api -f docker/dev/golang/Dockerfile .
-   ```
-
-2. **Run the API Container:**
-
-   ```bash
-   docker run -d -p 5000:5000 -v ${PWD}/api:/usr/src/app --env-file .env helldivers-dev-api
-   ```
 
 ### Production Environment
 
