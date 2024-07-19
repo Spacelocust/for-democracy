@@ -53,19 +53,21 @@ The main visual part of the project. It is used by players to organize and parti
 
 #### Screenshots
 
-<img src="documentation/images/app-map-view.jpg" alt="View of the galaxy map" width="300" />
-<img src="documentation/images/app-planet-view.jpg" alt="View of a planet" width="300" />
-<img src="documentation/images/app-planets-view.jpg" alt="View of the planet list" width="300" />
-<img src="documentation/images/app-events-view.jpg" alt="View of the event list" width="300" />
-<img src="documentation/images/app-groups-view.jpg" alt="View of the group list" width="300" />
-<img src="documentation/images/app-group-view.jpg" alt="View of a group" width="300" />
-<img src="documentation/images/app-mission-view.jpg" alt="View of a mission" width="300" />
-<img src="documentation/images/app-steam-oauth-view.jpg" alt="View of the Steam OAuth button" width="300" />
-<img src="documentation/images/app-groups-dial-view.jpg" alt="View of the group dial" width="300" />
-<img src="documentation/images/app-create-group-view.jpg" alt="View of a group creation" width="300" />
-<img src="documentation/images/app-stratagem-view.jpg" alt="View of a stratagem's details" width="300" />
-<img src="documentation/images/app-create-mission-view.jpg" alt="View of a new mission" width="300" />
-<img src="documentation/images/app-join-mission-view.jpg" alt="View of the join mission dialog" width="300" />
+<div stlye="display: flex; flex-direction: row; gap: 30px;">
+  <img src="documentation/images/app-map-view.jpg" alt="View of the galaxy map" width="300" />
+  <img src="documentation/images/app-planet-view.jpg" alt="View of a planet" width="300" />
+  <img src="documentation/images/app-planets-view.jpg" alt="View of the planet list" width="300" />
+  <img src="documentation/images/app-events-view.jpg" alt="View of the event list" width="300" />
+  <img src="documentation/images/app-groups-view.jpg" alt="View of the group list" width="300" />
+  <img src="documentation/images/app-group-view.jpg" alt="View of a group" width="300" />
+  <img src="documentation/images/app-mission-view.jpg" alt="View of a mission" width="300" />
+  <img src="documentation/images/app-steam-oauth-view.jpg" alt="View of the Steam OAuth button" width="300" />
+  <img src="documentation/images/app-groups-dial-view.jpg" alt="View of the group dial" width="300" />
+  <img src="documentation/images/app-create-group-view.jpg" alt="View of a group creation" width="300" />
+  <img src="documentation/images/app-stratagem-view.jpg" alt="View of a stratagem's details" width="300" />
+  <img src="documentation/images/app-create-mission-view.jpg" alt="View of a new mission" width="300" />
+  <img src="documentation/images/app-join-mission-view.jpg" alt="View of the join mission dialog" width="300" />
+</div>
 
 > [!NOTE]
 > Also see the [Mobile README](mobile/README.md) for more information.
