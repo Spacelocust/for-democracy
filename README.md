@@ -123,11 +123,10 @@ A web administration panel to manage the available features in the mobile app.
 1. Clone the repository
 2. (Optional) Add `compose.override.yml` to override the default compose configuration
 3. Create a `.env.local` file and fill in the necessary values depending on the `.env` file
-4. Create a `api/.env` file and fill in the necessary values by taking example on the `api/.env.example` file
-5. Run `make start`
-6. Run `make db-migrate` to load the database migrations
-7. Run `make collector` to load the data from helldivers API
-8. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
+4. Run `make start`
+5. Run `make db-migrate` to load the database migrations
+6. Run `make collector` to load the data from helldivers API
+7. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
 
 After the first run, you can use `make stop` & `make up` to quickly stop and start the containers.
 All the available commands are listed in the `Makefile`, you can use `make` or `make help` to list them all. Read the [commands section](#commands) for more information.
