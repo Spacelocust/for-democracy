@@ -108,16 +108,18 @@ A web administration panel to manage the available features in the mobile app.
 
 1. Clone the repository
 2. (Optional) Add `compose.override.yml` to override the default compose configuration
-3. Run `make start`
-4. Run `make db-migrate` to load the database migrations
-5. Run `make collector` to load the data from helldivers API
-6. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
+3. Specify the required environment variables in the root [`.env`](.env) file
+4. Run `make start`
+5. Run `make db-migrate` to load the database migrations
+6. Run `make collector` to load the data from helldivers API
+7. Go to [http://localhost:5000](http://localhost:5000) to access Golang API
 
 After the first run, you can use `make stop` & `make up` to quickly stop and start the containers.
 All the available commands are listed in the `Makefile`, you can use `make` or `make help` to list them all. Read the [commands section](#commands) for more information.
 
-if you want to reset the database, you can use `make db-reset` it will remove the database and create a new one and load migrations, and run `make collector` to load the data from helldivers API.
-You can also run a CronJob to load the events from the helldivers API every minute by running `make cron`, be sure to have run `make collector` before running the cron job.
+if you want to reset the database, you can use `make db-reset` it will remove the database and create a new one and load migrations, and re-run `make collector` to load the data from helldivers API.
+
+You can also run a CronJob to load the events from the helldivers API every minute by running `make cron`, be sure to have run `make collector` before running the CronJob.
 
 ## Services
 
@@ -136,9 +138,9 @@ All the services used by the project.
 
 We use simple username/password for development purposes.
 
-| Service               | Username | Password |
-| --------------------- | -------- | -------- |
-| `adminer`, `postgres` | `root`   | `root`   |
+| Service   | Host       | database | Username | Password |
+| --------- | ---------- | -------- | -------- | -------- |
+| `adminer` | `postgres` | `app`    | `root`   | `root`   |
 
 ## Commands
 
