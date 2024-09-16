@@ -5,6 +5,7 @@ vendor/
 .env.*
 
 compose.*.yml
+!compose.prod.yml
 
 .idea/
 

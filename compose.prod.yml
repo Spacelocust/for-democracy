@@ -1,0 +1,51 @@
+services:
+  api:
+    image: spacelocust/fd-api:latest
+    restart: unless-stopped
+    container_name: fd-api
+    stdin_open: true
+    tty: true
+    volumes:
+      - "./firebase:/firebase"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: curl --silent --fail http://localhost:5000/healthz || exit 1
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+    networks:
+      webserver:
+        aliases:
+          - fd-api
+      database:
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: fd-postgres
+    environment:
+      POSTGRES_USER: "${DB_USER:?err}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?err}"
+      POSTGRES_DB: "${DB_NAME:?err}"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+    networks:
+      - database
+
+volumes:
+  public:
+
+networks:
+  webserver:
+    external: true
+  rabbitmq:
+  database:
