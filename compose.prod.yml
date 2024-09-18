@@ -4,22 +4,22 @@ services:
     restart: unless-stopped
     container_name: fd-api
     environment:
-      DB_USER: "{DB_USER:?err}"
-      DB_PASSWORD: "{DB_PASSWORD:?err}"
-      DB_NAME: "{DB_NAME:?err}"
-      DB_HOST: "{DB_HOST:?err}"
-      DB_URL: "{DB_URL:?err}"
-      JWT_SECRET: "{JWT_SECRET:?err}"
-      API_SECRET: "{API_SECRET:?err}"
-      API_ENV: "{API_ENV:?err}"
-      API_PORT: "{API_PORT:?err}"
-      API_DOMAIN: "{API_DOMAIN:?err}"
-      API_BASE_URL: "{API_BASE_URL:?err}"
-      API_CORS_ORIGIN: "{API_CORS_ORIGIN:?err}"
-      GOOGLE_APPLICATION_CREDENTIALS: "{GOOGLE_APPLICATION_CREDENTIALS:?err}"
-      STEAM_KEY: "{STEAM_KEY:?err}"
-      HELLHUB_API_URL: "{HELLHUB_API_URL:?err}"
-      HELLDIVERS_API_URL: "{HELLDIVERS_API_URL:?err}"
+      DB_USER: "${DB_USER:?err}"
+      DB_PASSWORD: "${DB_PASSWORD:?err}"
+      DB_NAME: "${DB_NAME:?err}"
+      DB_HOST: "${DB_HOST:?err}"
+      DB_URL: "${DB_URL:?err}"
+      JWT_SECRET: "${JWT_SECRET:?err}"
+      API_SECRET: "${API_SECRET:?err}"
+      API_ENV: "${API_ENV:?err}"
+      API_PORT: "${API_PORT:?err}"
+      API_DOMAIN: "${API_DOMAIN:?err}"
+      API_BASE_URL: "${API_BASE_URL:?err}"
+      API_CORS_ORIGIN: "${API_CORS_ORIGIN:?err}"
+      GOOGLE_APPLICATION_CREDENTIALS: "${GOOGLE_APPLICATION_CREDENTIALS:?err}"
+      STEAM_KEY: "${STEAM_KEY:?err}"
+      HELLHUB_API_URL: "${HELLHUB_API_URL:?err}"
+      HELLDIVERS_API_URL: "${HELLDIVERS_API_URL:?err}"
     stdin_open: true
     tty: true
     volumes:
